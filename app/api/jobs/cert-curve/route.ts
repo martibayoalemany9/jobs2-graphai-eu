@@ -25,12 +25,16 @@ export async function GET(req: Request) {
       : "AND EXISTS (SELECT 1 FROM UNNEST(j.specialties) s WHERE s IN UNNEST(@sp))"
   const capSql = cap == null ? "" : "AND j.public_rank <= @cap"
 
+  const baseParams: Record<string, unknown> = { cc: country }
+  if (cap != null) baseParams.cap = cap
+  if (specialties.length) baseParams.sp = specialties
+
   try {
     const points: { k: number; cert_id: string | null; n: number }[] = []
     const base = await bqQuery<{ n: unknown }>(
       `SELECT COUNT(*) AS n FROM ${table("job_offers_country")} j
        WHERE j.country_iso2 = @cc ${capSql} ${specSql}`,
-      { cc: country, cap, sp: specialties },
+      baseParams,
     )
     points.push({ k: 0, cert_id: null, n: num(base[0]?.n) })
     for (let k = 1; k <= certs.length; k++) {
@@ -47,7 +51,7 @@ export async function GET(req: Request) {
            GROUP BY c.job_key
            HAVING COUNT(DISTINCT c.cert_id) = ARRAY_LENGTH(@certs)
          )`,
-        { cc: country, cap, sp: specialties, certs: prefix },
+        { ...baseParams, certs: prefix },
       )
       points.push({ k, cert_id: prefix[k - 1], n: num(row[0]?.n) })
     }

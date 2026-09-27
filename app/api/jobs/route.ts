@@ -48,6 +48,12 @@ export async function GET(req: Request) {
   const capSql = cap == null ? "" : "AND j.public_rank <= @cap"
   const cursorSql = cursor ? "AND j.job_key > @cursor" : ""
 
+  const params: Record<string, unknown> = { cc: country, limit }
+  if (cap != null) params.cap = cap
+  if (specialties.length) params.sp = specialties
+  if (certs.length) params.certs = certs
+  if (cursor) params.cursor = cursor
+
   try {
     const rows = await bqQuery<{
       job_key: string
@@ -72,7 +78,7 @@ export async function GET(req: Request) {
          ${cursorSql}
        ORDER BY j.job_key
        LIMIT @limit`,
-      { cc: country, cap, sp: specialties, certs, cursor, limit },
+      params,
     )
     return NextResponse.json({
       jobs: rows.map((r) => ({ ...r, public_rank: num(r.public_rank) })),
