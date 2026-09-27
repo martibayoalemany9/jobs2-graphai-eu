@@ -22,16 +22,20 @@ export function StudioHeader() {
         </Link>
       </nav>
       <div className="ml-auto flex items-center gap-3 text-sm font-semibold">
-        <Show when="signed-out">
-          <SignInButton mode="modal">
-            <button type="button" className="rounded-md border border-border px-3 py-1.5 hover:bg-mint">
-              Sign in
-            </button>
-          </SignInButton>
-        </Show>
-        <Show when="signed-in">
-          <UserButton />
-        </Show>
+        {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? (
+          <>
+            <Show when="signed-out">
+              <SignInButton mode="modal">
+                <button type="button" className="rounded-md border border-border px-3 py-1.5 hover:bg-mint">
+                  Sign in
+                </button>
+              </SignInButton>
+            </Show>
+            <Show when="signed-in">
+              <UserButton />
+            </Show>
+          </>
+        ) : null}
       </div>
     </header>
   )
