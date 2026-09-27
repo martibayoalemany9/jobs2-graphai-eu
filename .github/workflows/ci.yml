@@ -21,7 +21,7 @@ jobs:
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
-  e2e-local:
+  e2e-prod:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -33,7 +33,4 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
         env:
-          BQ_PROJECT: poetic-sentinel-402405
-          BQ_DATASET: apply_jobs_jobs2_dev
-          BQ_SA_JSON: ${{ secrets.BQ_SA_JSON }}
-          # Public e2e boots without Clerk so localhost is not blocked by clerk.graphai.eu origins.
+          PLAYWRIGHT_BASE_URL: https://jobs2-graphai-eu.vercel.app
