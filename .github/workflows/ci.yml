@@ -33,9 +33,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
         env:
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           BQ_PROJECT: poetic-sentinel-402405
           BQ_DATASET: apply_jobs_jobs2_dev
           BQ_SA_JSON: ${{ secrets.BQ_SA_JSON }}
-          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          # Public e2e boots without Clerk so localhost is not blocked by clerk.graphai.eu origins.
