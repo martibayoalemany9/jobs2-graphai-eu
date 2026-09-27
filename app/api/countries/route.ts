@@ -20,11 +20,14 @@ export async function GET() {
          c.n_total,
          c.n_available,
          c.n_unavailable,
-         (SELECT COUNT(1) FROM ${table("job_availability_checks")} k
-           WHERE k.job_key IN (
-             SELECT job_key FROM ${table("job_offers_country")} j WHERE j.country_iso2 = c.country_iso2 LIMIT 1
-           )) AS probed
+         IFNULL(p.probed, 0) AS probed
        FROM ${table("country_daily_latest")} c
+       LEFT JOIN (
+         SELECT j.country_iso2, 1 AS probed
+         FROM ${table("job_availability_checks")} k
+         JOIN ${table("job_offers_country")} j ON j.job_key = k.job_key
+         GROUP BY j.country_iso2
+       ) p ON p.country_iso2 = c.country_iso2
        ORDER BY n_total DESC`,
     )
     const countries = rows.map((r) => {
