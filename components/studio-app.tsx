@@ -22,7 +22,10 @@ type Job = {
 }
 
 function useQueryView() {
-  const [view, setView] = useState("map")
+  const [view, setView] = useState(() => {
+    if (typeof window === "undefined") return "map"
+    return new URLSearchParams(window.location.search).get("view") || "map"
+  })
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
     setView(q.get("view") || "map")

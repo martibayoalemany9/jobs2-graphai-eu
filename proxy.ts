@@ -24,10 +24,11 @@ function hasSpecialties(raw: unknown): boolean {
   return false
 }
 
-const clerkProxy = clerkMiddleware(async (auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   const url = new URL(req.url)
   if (url.pathname.startsWith("/monitoring")) return NextResponse.next()
   if (url.pathname.startsWith("/api")) return NextResponse.next()
+  if (!process.env.CLERK_SECRET_KEY) return NextResponse.next()
 
   const { userId, sessionClaims } = await auth()
   const view = url.searchParams.get("view") || "map"
@@ -39,11 +40,6 @@ const clerkProxy = clerkMiddleware(async (auth, req) => {
   }
   return NextResponse.next()
 })
-
-export default function proxy(...args: Parameters<typeof clerkProxy>) {
-  if (!process.env.CLERK_SECRET_KEY) return NextResponse.next()
-  return clerkProxy(...args)
-}
 
 export const config = {
   matcher: [

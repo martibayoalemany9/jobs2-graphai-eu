@@ -4,6 +4,7 @@ import { withSentryConfig } from "@sentry/nextjs/config"
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   serverExternalPackages: ["@google-cloud/bigquery"],
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
 }
 
 export default withSentryConfig(nextConfig, {

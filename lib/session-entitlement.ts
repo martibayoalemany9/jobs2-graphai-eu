@@ -28,6 +28,15 @@ function parseSpecialties(raw: unknown): string[] {
 }
 
 export async function sessionCap(): Promise<SessionCap> {
+  if (!process.env.CLERK_SECRET_KEY) {
+    const c = capFor({})
+    return {
+      specialties: [],
+      freeMode: false,
+      entitlement: toEntitlement(c, false, false),
+      cap: c.cap,
+    }
+  }
   const a = await auth()
   const userId = a.userId
   const claimSpecs = parseSpecialties((a.sessionClaims as Record<string, unknown> | null)?.specialties)
