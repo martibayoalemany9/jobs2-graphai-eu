@@ -1,0 +1,5 @@
+countries.geojson is Natural Earth 110m admin-0 countries (public domain).
+https://www.naturalearthdata.com/
+
+countries-110m.json is world-atlas (BSD-3), derived from Natural Earth.
+https://github.com/topojson/world-atlas

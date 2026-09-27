@@ -1,0 +1,100 @@
+import { NextResponse } from "next/server"
+import { bqQuery, num, table } from "@/lib/bq"
+import { sessionCap } from "@/lib/session-entitlement"
+
+export const dynamic = "force-dynamic"
+
+export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const { id } = await ctx.params
+  const jobKey = String(id || "")
+  if (!jobKey || jobKey.length < 8) return NextResponse.json({ error: "not found" }, { status: 404 })
+  const sess = await sessionCap()
+  const cap = sess.cap
+  const capSql = cap == null ? "" : "AND public_rank <= @cap"
+  try {
+    const jobs = await bqQuery<{
+      job_key: string
+      url: string
+      title: string
+      company: string
+      country_iso2: string
+      job_location: string
+      is_remote: string
+      appeared_at: string
+      availability: string
+      description_excerpt: string
+      description_len: unknown
+      specialties: string[]
+      public_rank: unknown
+    }>(
+      `SELECT job_key, url, title, company, country_iso2, job_location, is_remote,
+              appeared_at, availability, description_excerpt, description_len, specialties, public_rank
+       FROM ${table("job_offers_country")}
+       WHERE job_key = @id ${capSql}
+       LIMIT 1`,
+      { id: jobKey, cap },
+    )
+    const job = jobs[0]
+    if (!job) return NextResponse.json({ error: "not found" }, { status: 404 })
+
+    const paidFull = sess.cap == null && !sess.freeMode
+    let description = job.description_excerpt
+    if (paidFull) {
+      const d = await bqQuery<{ description: string }>(
+        `SELECT description FROM ${table("job_descriptions")} WHERE job_key = @id LIMIT 1`,
+        { id: jobKey },
+      )
+      if (d[0]?.description) description = d[0].description
+    }
+
+    const certs = await bqQuery<Record<string, string>>(
+      `SELECT certification_name, provider, certification_url, match_kind, cert_id
+       FROM ${table("job_offer_certs")} WHERE job_key = @id LIMIT 24`,
+      { id: jobKey },
+    )
+    const conferences = await bqQuery<Record<string, unknown>>(
+      `SELECT conference_name, organizer, conference_url, location, start_date, end_date, relation
+       FROM ${table("job_offer_conferences")} WHERE job_key = @id LIMIT 12`,
+      { id: jobKey },
+    )
+    const talks = await bqQuery<Record<string, unknown>>(
+      `SELECT conference_name, talk_title, talk_url, speakers, talk_type, score
+       FROM ${table("job_offer_talks")} WHERE job_key = @id
+       ORDER BY score DESC LIMIT 3`,
+      { id: jobKey },
+    )
+    let learn: { name: string; uri: string; provider: string; level: string }[] = []
+    try {
+      const sp = (job.specialties || []).slice(0, 4)
+      if (sp.length) {
+        learn = await bqQuery(
+          `SELECT name, uri, provider, level
+           FROM ${table("skill_certs_imported")}
+           WHERE skill_id IN UNNEST(@sp)
+           LIMIT 12`,
+          { sp },
+        )
+      }
+    } catch {
+      learn = []
+    }
+
+    return NextResponse.json({
+      job: {
+        ...job,
+        description,
+        description_len: num(job.description_len),
+        public_rank: num(job.public_rank),
+        full_description: paidFull,
+      },
+      certs,
+      conferences,
+      talks,
+      learn,
+      entitlement: sess.entitlement,
+    })
+  } catch (err) {
+    console.error(err)
+    return NextResponse.json({ error: "not found" }, { status: 404 })
+  }
+}

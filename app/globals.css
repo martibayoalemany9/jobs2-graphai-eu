@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-bg: #f7fbf8;
+  --color-surface: #fff;
+  --color-foreground: #084539;
+  --color-muted: #3d6b61;
+  --color-primary: #084539;
+  --color-primary-foreground: #f4faf7;
+  --color-primary-hover: #06382e;
+  --color-studio: #1b8f4a;
+  --color-border: #d7e4df;
+  --color-mint: #e8f3ee;
+  --color-pill: #f3f6f5;
+  --color-ring: #084539;
+  --color-map-ocean: #e4efe9;
+  --color-ok: #1b8f4a;
+  --color-ok-bg: #e8f3ee;
+  --color-warn: #7a5c20;
+  --color-warn-bg: #f4ecdc;
+  --color-danger: #8f2d2d;
+  --color-danger-bg: #f6e8e8;
+}
+
+:root {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --bg: #f7fbf8;
+  --surface: #fff;
+  --foreground: #084539;
+  --muted: #3d6b61;
+  --primary: #084539;
+  --primary-foreground: #f4faf7;
+  --primary-hover: #06382e;
+  --studio: #1b8f4a;
+  --border: #d7e4df;
+  --mint: #e8f3ee;
+  --pill: #f3f6f5;
+  --map-ocean: #e4efe9;
+  --map-empty: #d5e4dd;
+  --map-1: #c5ddd4;
+  --map-2: #9cc4b6;
+  --map-3: #6a9e8e;
+  --map-4: #3d6b61;
+  --map-5: #1b8f4a;
+  --map-6: #084539;
+  --map-stroke: #f7fbf8;
+  --ok: #1b8f4a;
+  --warn: #7a5c20;
+  --danger: #8f2d2d;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  min-height: 100%;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font: inherit; }
+
+.view-tab {
+  min-height: 2.75rem;
+}
+.leaflet-container {
+  background: var(--map-ocean);
+  font-family: inherit;
+}
+.map-country { fill: var(--map-empty); stroke: var(--map-stroke); stroke-width: 0.4; cursor: pointer; }
+.map-country.is-hover { filter: brightness(0.92); }
+.map-country.is-selected { stroke: var(--primary); stroke-width: 1.2; }
+
+.vslider {
+  width: 40px;
+  height: 240px;
+  appearance: none;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  background: var(--mint);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.vslider::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--studio);
+  border: 2px solid #fff;
+  cursor: grab;
+}

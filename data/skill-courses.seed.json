@@ -1,0 +1,29 @@
+[
+  {
+    "skill_id": "python",
+    "skill_name": "Python",
+    "level": "beginner",
+    "provider": "edX",
+    "name": "CS50's Introduction to Programming with Python",
+    "uri": "https://www.edx.org/learn/python",
+    "source_url": "https://www.edx.org/learn/python"
+  },
+  {
+    "skill_id": "cloud",
+    "skill_name": "Cloud",
+    "level": "beginner",
+    "provider": "Coursera",
+    "name": "Google Cloud Fundamentals",
+    "uri": "https://www.coursera.org/learn/gcp-fundamentals",
+    "source_url": "https://www.coursera.org/learn/gcp-fundamentals"
+  },
+  {
+    "skill_id": "ml",
+    "skill_name": "Machine learning",
+    "level": "advanced",
+    "provider": "Coursera",
+    "name": "Machine Learning Specialization",
+    "uri": "https://www.coursera.org/specializations/machine-learning-introduction",
+    "source_url": "https://www.coursera.org/specializations/machine-learning-introduction"
+  }
+]
