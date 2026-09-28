@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Show, SignInButton, UserButton } from "@clerk/nextjs"
+import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
 
 export function StudioHeader() {
   return (
@@ -22,20 +22,21 @@ export function StudioHeader() {
         </Link>
       </nav>
       <div className="ml-auto flex items-center gap-3 text-sm font-semibold">
-        {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? (
-          <>
-            <Show when="signed-out">
-              <SignInButton mode="modal">
-                <button type="button" className="rounded-md border border-border px-3 py-1.5 hover:bg-mint">
-                  Sign in
-                </button>
-              </SignInButton>
-            </Show>
-            <Show when="signed-in">
-              <UserButton />
-            </Show>
-          </>
-        ) : null}
+        <Show when="signed-out">
+          <SignInButton mode="modal">
+            <button type="button" className="rounded-md border border-border px-3 py-1.5 hover:bg-mint">
+              Sign in
+            </button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <button type="button" className="rounded-md bg-primary px-3 py-1.5 text-primary-foreground hover:bg-primary-hover">
+              Sign up
+            </button>
+          </SignUpButton>
+        </Show>
+        <Show when="signed-in">
+          <UserButton />
+        </Show>
       </div>
     </header>
   )

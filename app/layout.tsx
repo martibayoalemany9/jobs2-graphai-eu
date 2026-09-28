@@ -20,11 +20,10 @@ export const viewport = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const keyed = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY)
   return (
     <html lang="en" className={jakarta.variable}>
       <body className="min-h-svh flex flex-col bg-bg text-foreground antialiased">
-        {keyed ? <ClerkProvider>{children}</ClerkProvider> : children}
+        <ClerkProvider>{children}</ClerkProvider>
       </body>
     </html>
   )

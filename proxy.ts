@@ -1,6 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
 
 const isGatedView = createRouteMatcher(["/onboarding"])
 const isJobsPath = createRouteMatcher(["/jobs(.*)"])
@@ -25,31 +24,25 @@ function hasSpecialties(raw: unknown): boolean {
   return false
 }
 
-function passthrough(_req: NextRequest) {
+export default clerkMiddleware(async (auth, req) => {
+  const url = new URL(req.url)
+  if (url.pathname.startsWith("/monitoring")) return NextResponse.next()
+
+  const { userId, sessionClaims } = await auth()
+  const view = url.searchParams.get("view") || "map"
+  const needsOnboarding = Boolean(userId) && !hasSpecialties(specialtiesFromClaims(sessionClaims as Record<string, unknown>))
+  const gated = view === "jobs" || view === "list" || view === "settings" || isJobsPath(req) || isGatedView(req)
+
+  if (needsOnboarding && gated && url.pathname !== "/onboarding") {
+    return NextResponse.redirect(new URL("/onboarding", req.url))
+  }
   return NextResponse.next()
-}
-
-export default process.env.CLERK_SECRET_KEY
-  ? clerkMiddleware(async (auth, req) => {
-      const url = new URL(req.url)
-      if (url.pathname.startsWith("/monitoring")) return NextResponse.next()
-      if (url.pathname.startsWith("/api")) return NextResponse.next()
-
-      const { userId, sessionClaims } = await auth()
-      const view = url.searchParams.get("view") || "map"
-      const needsOnboarding = Boolean(userId) && !hasSpecialties(specialtiesFromClaims(sessionClaims as Record<string, unknown>))
-      const gated = view === "jobs" || view === "list" || view === "settings" || isJobsPath(req) || isGatedView(req)
-
-      if (needsOnboarding && gated && url.pathname !== "/onboarding") {
-        return NextResponse.redirect(new URL("/onboarding", req.url))
-      }
-      return NextResponse.next()
-    })
-  : passthrough
+})
 
 export const config = {
   matcher: [
-    "/((?!monitoring|_next/static|_next/image|favicon.ico|geo/|.*\\..*).*)",
-    "/",
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+    "/__clerk/(.*)",
   ],
 }
