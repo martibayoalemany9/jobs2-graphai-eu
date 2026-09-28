@@ -26,6 +26,56 @@ export const SKILL_CATALOG: SkillCluster[] = [
   { id: "leadership", kind: "soft", names: ["leadership", "people management", "mentoring"], label: "Leadership" },
   { id: "stakeholder", kind: "soft", names: ["stakeholder management"], label: "Stakeholders" },
   { id: "problem", kind: "soft", names: ["problem solving", "analytical"], label: "Problem solving" },
+  {
+    id: "nursing",
+    kind: "soft",
+    names: [
+      "krankenschwester",
+      "krankenpfleger",
+      "krankenpflege",
+      "pflegefachkraft",
+      "pflegefach",
+      "registered nurse",
+      " nurse",
+      "nursing",
+      "gesundheits- und kranken",
+      "hebamme",
+      "midwife",
+    ],
+    label: "Nursing / care",
+  },
+  {
+    id: "teaching",
+    kind: "soft",
+    names: [
+      "lehrerin",
+      "lehrer",
+      "teacher",
+      "teaching",
+      "unterricht",
+      "pädagog",
+      "padagog",
+      "erzieherin",
+      "erzieher",
+      "schulsozial",
+    ],
+    label: "Teaching",
+  },
+  {
+    id: "social",
+    kind: "soft",
+    names: [
+      "sozialarbeiter",
+      "sozialpädagog",
+      "sozialpadagog",
+      "social worker",
+      "social work",
+      "caseworker",
+      "case worker",
+    ],
+    label: "Social work",
+  },
+  { id: "uncategorized", kind: "soft", names: [], label: "Other occupations" },
 ]
 
 export function extractSpecialties(text: string): string[] {
@@ -34,6 +84,7 @@ export function extractSpecialties(text: string): string[] {
   const seen = new Set<string>()
   for (const sk of SKILL_CATALOG) {
     if (seen.has(sk.id)) continue
+    if (sk.id === "uncategorized" || sk.names.length === 0) continue
     if (!sk.names.some((n) => hay.includes(n.toLowerCase()))) continue
     seen.add(sk.id)
     out.push(sk.id)
@@ -41,7 +92,13 @@ export function extractSpecialties(text: string): string[] {
   return out
 }
 
+export const UNCATEGORIZED_ID = "uncategorized"
+
 export function clusterById(id: string | null | undefined): SkillCluster | undefined {
   if (!id) return undefined
   return SKILL_CATALOG.find((s) => s.id === id)
+}
+
+export function specialtyLabel(id: string): string {
+  return clusterById(id)?.label || id
 }

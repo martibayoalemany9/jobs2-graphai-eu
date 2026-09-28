@@ -64,19 +64,21 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
       { id: jobKey },
     )
     let learn: { name: string; uri: string; provider: string; level: string }[] = []
-    try {
-      const sp = (job.specialties || []).slice(0, 4)
-      if (sp.length) {
-        learn = await bqQuery(
-          `SELECT name, uri, provider, level
-           FROM ${table("skill_certs_imported")}
-           WHERE skill_id IN UNNEST(@sp)
-           LIMIT 12`,
-          { sp },
-        )
+    if (certs.length) {
+      try {
+        const sp = (job.specialties || []).filter((s) => s && s !== "uncategorized").slice(0, 4)
+        if (sp.length) {
+          learn = await bqQuery(
+            `SELECT name, uri, provider, level
+             FROM ${table("skill_certs_imported")}
+             WHERE skill_id IN UNNEST(@sp)
+             LIMIT 12`,
+            { sp },
+          )
+        }
+      } catch {
+        learn = []
       }
-    } catch {
-      learn = []
     }
 
     return NextResponse.json({

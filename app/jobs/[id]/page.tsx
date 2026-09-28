@@ -61,70 +61,80 @@ export default function JobDetailPage() {
             {!job.full_description ? (
               <p className="mt-2 text-sm text-muted">Excerpt only. Subscribe for the full description.</p>
             ) : null}
-            <section className="mt-8">
-              <h2 className="font-extrabold">Certificates</h2>
-              <ul className="mt-2 list-disc pl-5 text-sm" data-testid="job-certs">
-                {(data?.certs || []).map((c) => (
-                  <li key={c.certification_name}>
-                    {c.certification_url ? (
-                      <a href={c.certification_url} className="hover:underline" rel="noopener noreferrer" target="_blank">
-                        {c.certification_name}
-                      </a>
-                    ) : (
-                      c.certification_name
-                    )}
-                    <span className="text-muted"> · {c.provider}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <section className="mt-6">
-              <h2 className="font-extrabold">Conferences</h2>
-              <ul className="mt-2 list-disc pl-5 text-sm" data-testid="job-conferences">
-                {(data?.conferences || []).map((c) => (
-                  <li key={c.conference_name}>
-                    {c.conference_url ? (
-                      <a href={c.conference_url} className="hover:underline" rel="noopener noreferrer" target="_blank">
-                        {c.conference_name}
-                      </a>
-                    ) : (
-                      c.conference_name
-                    )}
-                    {c.location ? <span className="text-muted"> · {c.location}</span> : null}
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <section className="mt-6">
-              <h2 className="font-extrabold">Talks</h2>
-              <ul className="mt-2 list-disc pl-5 text-sm">
-                {(data?.talks || []).map((t) => (
-                  <li key={t.talk_title}>
-                    {t.talk_url ? (
-                      <a href={t.talk_url} className="hover:underline" rel="noopener noreferrer" target="_blank">
-                        {t.talk_title}
-                      </a>
-                    ) : (
-                      t.talk_title
-                    )}
-                    <span className="text-muted"> · {t.conference_name}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <section className="mt-6">
-              <h2 className="font-extrabold">Learn</h2>
-              <ul className="mt-2 list-disc pl-5 text-sm" data-testid="job-learn">
-                {(data?.learn || []).map((c) => (
-                  <li key={c.uri}>
-                    <a href={c.uri} className="hover:underline" rel="noopener noreferrer" target="_blank">
-                      {c.name}
-                    </a>
-                    <span className="text-muted"> · {c.provider}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            {(data?.certs || []).length > 0 ? (
+              <>
+                <section className="mt-8">
+                  <h2 className="font-extrabold">Certificates</h2>
+                  <ul className="mt-2 list-disc pl-5 text-sm" data-testid="job-certs">
+                    {(data?.certs || []).map((c) => (
+                      <li key={c.certification_name}>
+                        {c.certification_url ? (
+                          <a href={c.certification_url} className="hover:underline" rel="noopener noreferrer" target="_blank">
+                            {c.certification_name}
+                          </a>
+                        ) : (
+                          c.certification_name
+                        )}
+                        <span className="text-muted"> · {c.provider}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+                {(data?.learn || []).length > 0 ? (
+                  <section className="mt-6">
+                    <h2 className="font-extrabold">Learn</h2>
+                    <ul className="mt-2 list-disc pl-5 text-sm" data-testid="job-learn">
+                      {(data?.learn || []).map((c) => (
+                        <li key={c.uri}>
+                          <a href={c.uri} className="hover:underline" rel="noopener noreferrer" target="_blank">
+                            {c.name}
+                          </a>
+                          <span className="text-muted"> · {c.provider}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+              </>
+            ) : null}
+            {(data?.conferences || []).length > 0 ? (
+              <section className="mt-6">
+                <h2 className="font-extrabold">Conferences</h2>
+                <ul className="mt-2 list-disc pl-5 text-sm" data-testid="job-conferences">
+                  {(data?.conferences || []).map((c) => (
+                    <li key={c.conference_name}>
+                      {c.conference_url ? (
+                        <a href={c.conference_url} className="hover:underline" rel="noopener noreferrer" target="_blank">
+                          {c.conference_name}
+                        </a>
+                      ) : (
+                        c.conference_name
+                      )}
+                      {c.location ? <span className="text-muted"> · {c.location}</span> : null}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+            {(data?.talks || []).length > 0 ? (
+              <section className="mt-6">
+                <h2 className="font-extrabold">Talks</h2>
+                <ul className="mt-2 list-disc pl-5 text-sm">
+                  {(data?.talks || []).map((t) => (
+                    <li key={t.talk_title}>
+                      {t.talk_url ? (
+                        <a href={t.talk_url} className="hover:underline" rel="noopener noreferrer" target="_blank">
+                          {t.talk_title}
+                        </a>
+                      ) : (
+                        t.talk_title
+                      )}
+                      <span className="text-muted"> · {t.conference_name}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
           </>
         )}
       </main>

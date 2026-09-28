@@ -5,6 +5,7 @@ test("country select and bar", async ({ page }) => {
   await expect(page.getByTestId("country-select")).toBeVisible()
   await expect(page.getByTestId("country-map")).toBeVisible()
   await expect(page.getByTestId("country-bar")).toBeVisible()
+  await expect(page.getByTestId("country-bar")).not.toContainText("All jobs")
   await expect(page.getByTestId("time-series")).toBeVisible()
   await expect(page.getByTestId("kpi-legend")).toBeVisible()
 })

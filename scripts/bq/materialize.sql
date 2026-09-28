@@ -31,7 +31,14 @@ SELECT * FROM UNNEST([
   ('dataeng','data engineering'), ('dataeng','spark'), ('dataeng','airflow'), ('dataeng','kafka'),
   ('product','product management'), ('ux','user experience'), ('ux','figma'),
   ('project','project management'), ('project','agile'), ('comms','communication'),
-  ('leadership','leadership'), ('stakeholder','stakeholder'), ('problem','problem solving')
+  ('leadership','leadership'), ('stakeholder','stakeholder'), ('problem','problem solving'),
+  ('nursing','krankenschwester'), ('nursing','krankenpfleger'), ('nursing','krankenpflege'),
+  ('nursing','pflegefachkraft'), ('nursing','pflegefach'), ('nursing','registered nurse'),
+  ('nursing','nursing'), ('nursing','nurse'), ('nursing','hebamme'), ('nursing','midwife'),
+  ('teaching','lehrerin'), ('teaching','lehrer'), ('teaching','teacher'), ('teaching','teaching'),
+  ('teaching','unterricht'), ('teaching','erzieherin'), ('teaching','erzieher'),
+  ('social','sozialarbeiter'), ('social','sozialpädagog'), ('social','sozialpadagog'),
+  ('social','social worker'), ('social','social work'), ('social','caseworker')
 ]);
 
 CREATE OR REPLACE TABLE `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_offers_country`
