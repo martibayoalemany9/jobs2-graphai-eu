@@ -22,7 +22,31 @@ SELECT * FROM UNNEST([
   ('teaching','lehrerin'), ('teaching','lehrer'), ('teaching','teacher'), ('teaching','teaching'),
   ('teaching','unterricht'), ('teaching','erzieherin'), ('teaching','erzieher'),
   ('social','sozialarbeiter'), ('social','sozialpädagog'), ('social','sozialpadagog'),
-  ('social','social worker'), ('social','social work'), ('social','caseworker')
+  ('social','social worker'), ('social','social work'), ('social','caseworker'),
+  ('medicine','physician'), ('medicine','medical doctor'), ('medicine','facharzt'),
+  ('medicine','assistenzarzt'), ('medicine','approbation'), ('medicine','allgemeinmedizi'),
+  ('neurology','neurolog'), ('neurology','neurology'),
+  ('chemistry','chemist'), ('chemistry','chemiker'), ('chemistry','chartered chemist'),
+  ('science','research scientist'), ('science','laboratory scientist'), ('science','chartered scientist'),
+  ('research','clinical research'), ('research','wissenschaftlicher mitarbeiter'), ('research','postdoc'),
+  ('management','geschäftsführer'), ('management','general manager'), ('management','betriebsleiter'),
+  ('public','civil servant'), ('public','öffentlicher dienst'), ('public','oeffentlicher dienst'),
+  ('public','public sector'),
+  ('finance','financial analyst'), ('finance','investment analyst'), ('finance','portfolio manager'),
+  ('actuary','actuary'), ('actuary','aktuar'), ('actuary','actuarial'),
+  ('aeronautics','avionics'), ('aeronautics','aircraft mechanic'), ('aeronautics','airline pilot'),
+  ('aeronautics','luftfahrt'),
+  ('automotive','automotive'), ('automotive','kfz-mechatroniker'), ('automotive','autosar'),
+  ('electricity','electrician'), ('electricity','elektriker'), ('electricity','elektrofachkraft'),
+  ('telecom','telecommunications'), ('telecom','telekommunikation'), ('telecom','network engineer'),
+  ('hardware','hardware engineer'), ('hardware','fpga engineer'), ('hardware','asic engineer'),
+  ('nanotech','nanotechnology'), ('nanotech','nanoscience'), ('nanotech','nanomaterial'),
+  ('quantum','quantum computing'), ('quantum','qiskit'), ('quantum','quantum physicist'),
+  ('bizdev','business development'), ('bizdev','account executive'),
+  ('bi','business intelligence'), ('bi','power bi'), ('bi','tableau'),
+  ('bizanalysis','business analyst'), ('bizanalysis','requirements engineer'),
+  ('product','product manager'), ('product','product owner'),
+  ('project','project manager'), ('project','projektleiter')
 ]);
 
 CREATE OR REPLACE TABLE `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_offers_country_tmp`
