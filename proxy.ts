@@ -1,42 +1,29 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
+import { clerkMiddleware } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import { canonicalHtmlHost, clerkProviderPropsForHost, clerkSatelliteForHost } from "@/lib/clerk-runtime"
 
-const isGatedView = createRouteMatcher(["/onboarding"])
-const isJobsPath = createRouteMatcher(["/jobs(.*)"])
-
-function specialtiesFromClaims(claims: Record<string, unknown> | null | undefined): unknown {
-  if (!claims) return null
-  return claims.specialties
-}
-
-function hasSpecialties(raw: unknown): boolean {
-  if (Array.isArray(raw) && raw.length > 0) return true
-  if (typeof raw === "string") {
-    const t = raw.trim()
-    if (!t || t === "[]") return false
-    try {
-      const parsed = JSON.parse(t)
-      return Array.isArray(parsed) && parsed.length > 0
-    } catch {
-      return t.split(",").filter(Boolean).length > 0
-    }
-  }
-  return false
-}
-
-export default clerkMiddleware(async (auth, req) => {
+export default clerkMiddleware(async (_auth, req) => {
   const url = new URL(req.url)
   if (url.pathname.startsWith("/monitoring")) return NextResponse.next()
-
-  const { userId, sessionClaims } = await auth()
-  const view = url.searchParams.get("view") || "map"
-  const needsOnboarding = Boolean(userId) && !hasSpecialties(specialtiesFromClaims(sessionClaims as Record<string, unknown>))
-  const gated = view === "jobs" || view === "list" || view === "settings" || isJobsPath(req) || isGatedView(req)
-
-  if (needsOnboarding && gated && url.pathname !== "/onboarding") {
-    return NextResponse.redirect(new URL("/onboarding", req.url))
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || ""
+  const canon = canonicalHtmlHost(host)
+  const accept = req.headers.get("accept") || ""
+  if (canon && req.method === "GET" && accept.includes("text/html") && !url.pathname.startsWith("/api") && !url.pathname.startsWith("/__clerk")) {
+    const next = new URL(req.url)
+    next.hostname = canon
+    next.protocol = "https:"
+    next.port = ""
+    return NextResponse.redirect(next, 308)
   }
   return NextResponse.next()
+}, (req) => {
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || ""
+  const proto = req.headers.get("x-forwarded-proto") || "https"
+  const clerk = clerkProviderPropsForHost(host, proto)
+  return {
+    ...clerk,
+    frontendApiProxy: { enabled: clerkSatelliteForHost(host) },
+  }
 })
 
 export const config = {

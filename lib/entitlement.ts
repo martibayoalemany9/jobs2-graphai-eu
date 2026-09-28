@@ -2,6 +2,7 @@ import { isOperatorEmail } from "./operators"
 
 export const CAP_ANON = 1_000
 export const CAP_FREE = 10_000
+export const CAP_POST_TRIAL = 1_000
 export const SUB_PRICE_CENTS = 500
 export const TRIAL_DAYS = 7
 
@@ -40,10 +41,10 @@ export function capFor(input: {
     return { tier: "paid", cap: null, trialEndsAt: trialEnd }
   }
   if (input.entitlementStatus === "lapsed") {
-    return { tier: "free", cap: CAP_FREE, trialEndsAt: trialEnd }
+    return { tier: "free", cap: CAP_POST_TRIAL, trialEndsAt: trialEnd }
   }
   if (trialActive) return { tier: "trial", cap: CAP_FREE, trialEndsAt: trialEnd }
-  return { tier: "free", cap: CAP_FREE, trialEndsAt: trialEnd }
+  return { tier: "free", cap: CAP_POST_TRIAL, trialEndsAt: trialEnd }
 }
 
 export function toEntitlement(

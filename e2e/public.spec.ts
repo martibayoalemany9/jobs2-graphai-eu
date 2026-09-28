@@ -13,6 +13,12 @@ test("home chrome", async ({ page }) => {
   await expect(page.getByRole("tab", { name: "Map" })).toBeVisible()
   await expect(page.getByRole("tab", { name: "Jobs" })).toBeVisible()
   await expect(page.getByRole("link", { name: "Imprint" })).toBeVisible()
+  await expect(page.getByTestId("sign-in")).toBeVisible()
+})
+
+test("sign-in page renders Clerk", async ({ page }) => {
+  await page.goto("/sign-in")
+  await expect(page.locator("input, iframe, [data-clerk-component]").first()).toBeVisible({ timeout: 20_000 })
 })
 
 test("security.txt", async ({ request }) => {

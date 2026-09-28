@@ -64,7 +64,8 @@ export default function JobDetailPage() {
             {(data?.certs || []).length > 0 ? (
               <>
                 <section className="mt-8">
-                  <h2 className="font-extrabold">Certificates</h2>
+                  <details className="group" data-testid="job-certs-fold">
+                    <summary className="cursor-pointer font-extrabold">Certificates</summary>
                   <ul className="mt-2 list-disc pl-5 text-sm" data-testid="job-certs">
                     {(data?.certs || []).map((c) => (
                       <li key={c.certification_name}>
@@ -79,6 +80,7 @@ export default function JobDetailPage() {
                       </li>
                     ))}
                   </ul>
+                  </details>
                 </section>
                 {(data?.learn || []).length > 0 ? (
                   <section className="mt-6">

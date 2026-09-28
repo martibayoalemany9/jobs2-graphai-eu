@@ -16,7 +16,7 @@ test("operator unlimited unless free-mode", () => {
   assert.equal(free.cap, CAP_FREE)
 })
 
-test("trial 10k then free 10k", () => {
+test("trial 10k then 1000 per country if not subscribed", () => {
   const start = new Date("2026-09-20T00:00:00Z")
   const during = capFor({
     email: "user@example.com",
@@ -33,7 +33,7 @@ test("trial 10k then free 10k", () => {
     now: new Date("2026-09-28T00:00:00Z"),
   })
   assert.equal(after.tier, "free")
-  assert.equal(after.cap, CAP_FREE)
+  assert.equal(after.cap, CAP_ANON)
 })
 
 test("paid unlimited; free-mode forces 10k", () => {
@@ -43,8 +43,8 @@ test("paid unlimited; free-mode forces 10k", () => {
   assert.equal(capped.cap, CAP_FREE)
 })
 
-test("lapsed is free cap", () => {
+test("lapsed is 1000 per country", () => {
   const r = capFor({ email: "user@example.com", entitlementStatus: "lapsed" })
   assert.equal(r.tier, "free")
-  assert.equal(r.cap, CAP_FREE)
+  assert.equal(r.cap, CAP_ANON)
 })

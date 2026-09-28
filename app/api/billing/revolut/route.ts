@@ -1,14 +1,24 @@
 import { NextResponse } from "next/server"
 import { bqQuery, table } from "@/lib/bq"
-import { eventIsLapsed, eventIsPaid, revolutSignatureOk } from "@/lib/revolut"
+import {
+  eventIsLapsed,
+  eventIsPaid,
+  orderEmail,
+  orderPaid,
+  revolutGetOrder,
+  revolutSignatureOk,
+} from "@/lib/revolut"
 import { canonicalEmail } from "@/lib/operators"
+import { SUB_PRICE_CENTS } from "@/lib/entitlement"
+import { markPaid, markLapsed } from "@/lib/billing"
 
 export const dynamic = "force-dynamic"
 
 export async function POST(req: Request) {
   const raw = await req.text()
   const header = req.headers.get("revolut-signature") || req.headers.get("Revolut-Signature")
-  if (!revolutSignatureOk(raw, header)) {
+  const ts = req.headers.get("revolut-request-timestamp")
+  if (!revolutSignatureOk(raw, header, ts)) {
     return NextResponse.json({ error: "invalid signature" }, { status: 401 })
   }
   const body = JSON.parse(raw || "{}") as {
@@ -19,32 +29,28 @@ export async function POST(req: Request) {
     customer?: { email?: string }
   }
   const event = String(body.event || "")
-  const email = canonicalEmail(body.metadata?.email || body.customer?.email || "")
-  const userId = body.metadata?.clerk_user_id || ""
-  const orderId = body.order_id || body.merchant_order_ext_ref || ""
+  const orderId = String(body.order_id || body.merchant_order_ext_ref || "")
+  let email = canonicalEmail(body.metadata?.email || body.customer?.email || "")
+  let userId = body.metadata?.clerk_user_id || ""
+  let cents = SUB_PRICE_CENTS
+  if (orderId) {
+    const order = await revolutGetOrder(orderId)
+    if (order) {
+      email = canonicalEmail(orderEmail(order) || email)
+      const meta = (order.metadata || {}) as { clerk_user_id?: string }
+      userId = String(meta.clerk_user_id || userId)
+      cents = Number(order.amount) || SUB_PRICE_CENTS
+      if (eventIsPaid(event) && !orderPaid(order)) {
+        return NextResponse.json({ ok: true, paid: false, state: order.state || "pending" })
+      }
+    }
+  }
   if (eventIsPaid(event) && email) {
-    await bqQuery(
-      `INSERT INTO ${table("payments")} (paid_at, email_canonical, provider, session_id, status, amount_cents, note)
-       VALUES (CURRENT_TIMESTAMP(), @email, 'revolut', @sid, 'paid', 500, @event)`,
-      { email, sid: orderId, event },
-    ).catch(() => {})
-    await bqQuery(
-      `MERGE ${table("entitlements")} T
-       USING (SELECT @email AS email_canonical) S
-       ON T.email_canonical = S.email_canonical
-       WHEN MATCHED THEN UPDATE SET status = 'paid', provider = 'revolut', revolut_order_id = @sid, updated_at = CURRENT_TIMESTAMP()
-       WHEN NOT MATCHED THEN INSERT (email_canonical, clerk_user_id, provider, status, revolut_order_id, amount_cents, updated_at)
-         VALUES (@email, @uid, 'revolut', 'paid', @sid, 500, CURRENT_TIMESTAMP())`,
-      { email, sid: orderId, uid: userId },
-    ).catch(() => {})
+    await markPaid({ email, userId, sessionId: orderId, event, amountCents: cents })
     return NextResponse.json({ ok: true, status: "paid" })
   }
   if (eventIsLapsed(event) && email) {
-    await bqQuery(
-      `UPDATE ${table("entitlements")} SET status = 'lapsed', updated_at = CURRENT_TIMESTAMP()
-       WHERE email_canonical = @email`,
-      { email },
-    ).catch(() => {})
+    await markLapsed(email)
     return NextResponse.json({ ok: true, status: "lapsed" })
   }
   return NextResponse.json({ ignored: true })

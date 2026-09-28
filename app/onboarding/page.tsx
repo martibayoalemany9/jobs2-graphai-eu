@@ -30,7 +30,7 @@ export default function OnboardingPage() {
       <StudioHeader />
       <main className="mx-auto w-full max-w-xl px-4 py-10">
         <h1 className="text-2xl font-extrabold tracking-tight">Choose your specialties</h1>
-        <p className="mt-2 text-sm text-muted">Required on first sign-in so listings match your profile.</p>
+        <p className="mt-2 text-sm text-muted">Optional. You can also set specialties later in Settings. Job listings stay open without this step.</p>
         <form className="mt-6 space-y-4" onSubmit={save} data-testid="onboarding">
           <div className="grid gap-2">
             {SKILL_CATALOG.map((s) => (
@@ -48,7 +48,14 @@ export default function OnboardingPage() {
           </div>
           {err ? <p className="text-sm text-danger">{err}</p> : null}
           <button type="submit" className="rounded-md bg-primary px-3 py-2 text-sm font-bold text-primary-foreground">
-            Continue
+            Save specialties
+          </button>
+          <button
+            type="button"
+            className="ml-2 rounded-md border border-border px-3 py-2 text-sm font-semibold"
+            onClick={() => router.push("/?view=jobs")}
+          >
+            Skip
           </button>
         </form>
       </main>

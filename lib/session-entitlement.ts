@@ -74,6 +74,7 @@ export async function sessionCap(): Promise<SessionCap> {
        LEFT JOIN ${table("entitlements")} e
          ON e.clerk_user_id = p.clerk_user_id
        WHERE p.clerk_user_id = @uid
+       ORDER BY p.updated_at DESC
        LIMIT 1`,
       { uid: userId },
     )
@@ -84,9 +85,36 @@ export async function sessionCap(): Promise<SessionCap> {
       entitlementStatus = row.status || entitlementStatus
       const ts = typeof row.trial_started_at === "string" ? row.trial_started_at : row.trial_started_at?.value
       if (ts) trialStartedAt = new Date(ts)
+    } else {
+      trialStartedAt = new Date()
+      entitlementStatus = isOperatorRow ? "operator" : "trial"
+      await bqQuery(
+        `MERGE ${table("profiles")} T
+         USING (SELECT @uid AS clerk_user_id) S
+         ON T.clerk_user_id = S.clerk_user_id
+         WHEN NOT MATCHED THEN INSERT
+           (clerk_user_id, email, email_canonical, specialties, free_mode, is_operator, trial_started_at, created_at, updated_at)
+           VALUES (@uid, @email, @email, @sp, FALSE, @op, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())`,
+        { uid: userId, email, sp: [] as string[], op: isOperatorRow },
+      ).catch(() => {})
+      await bqQuery(
+        `MERGE ${table("entitlements")} T
+         USING (SELECT @uid AS clerk_user_id) S
+         ON T.clerk_user_id = S.clerk_user_id
+         WHEN NOT MATCHED THEN INSERT
+           (email_canonical, clerk_user_id, provider, status, amount_cents, trial_end, updated_at)
+           VALUES (@email, @uid, @provider, @status, 500, TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 7 DAY), CURRENT_TIMESTAMP())`,
+        {
+          uid: userId,
+          email,
+          provider: isOperatorRow ? "operator" : "trial",
+          status: isOperatorRow ? "operator" : "trial",
+        },
+      ).catch(() => {})
     }
   } catch {
     // BQ may be empty on first boot; fall back to trial/operator.
+    if (!trialStartedAt) trialStartedAt = new Date()
   }
 
   const c = capFor({

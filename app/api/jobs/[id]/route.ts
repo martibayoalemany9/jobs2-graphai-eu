@@ -32,7 +32,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
        FROM ${table("job_offers_country")}
        WHERE job_key = @id ${capSql}
        LIMIT 1`,
-      { id: jobKey, cap },
+      cap == null ? { id: jobKey } : { id: jobKey, cap },
     )
     const job = jobs[0]
     if (!job) return NextResponse.json({ error: "not found" }, { status: 404 })

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server"
-import { bqQuery, getBigQuery, projectId, datasetId, table } from "@/lib/bq"
+import { bqQuery, table } from "@/lib/bq"
 import { canonicalEmail, isOperatorEmail } from "@/lib/operators"
 import { SKILL_CATALOG } from "@/lib/skills-catalog"
 import { sessionCap } from "@/lib/session-entitlement"
@@ -25,9 +25,6 @@ export async function PUT(req: Request) {
   if (!a.userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 })
   const body = (await req.json().catch(() => ({}))) as { specialties?: string[]; free_mode?: boolean }
   const specialties = (body.specialties || []).filter((s) => ALLOWED.has(s))
-  if (!specialties.length) {
-    return NextResponse.json({ error: "select at least one specialty" }, { status: 400 })
-  }
   const user = await currentUser()
   const email = canonicalEmail(user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || "")
   const operator = isOperatorEmail(email)
@@ -38,37 +35,18 @@ export async function PUT(req: Request) {
     publicMetadata: { specialties },
   })
 
-  const bq = getBigQuery()
-  const now = new Date().toISOString()
-  await bq.dataset(datasetId(), { projectId: projectId() }).table("profiles").insert(
-    [
-      {
-        clerk_user_id: a.userId,
-        email,
-        email_canonical: email,
-        specialties,
-        free_mode: freeMode,
-        is_operator: operator,
-        trial_started_at: now,
-        created_at: now,
-        updated_at: now,
-      },
-    ],
-    { ignoreUnknownValues: true, skipInvalidRows: true },
-  ).catch(async () => {
-    await bqQuery(
-      `MERGE ${table("profiles")} T
-       USING (SELECT @uid AS clerk_user_id) S
-       ON T.clerk_user_id = S.clerk_user_id
-       WHEN MATCHED THEN UPDATE SET
-         specialties = @sp, free_mode = @fm, email = @email, email_canonical = @email,
-         is_operator = @op, updated_at = CURRENT_TIMESTAMP()
-       WHEN NOT MATCHED THEN INSERT
-         (clerk_user_id, email, email_canonical, specialties, free_mode, is_operator, trial_started_at, created_at, updated_at)
-         VALUES (@uid, @email, @email, @sp, @fm, @op, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())`,
-      { uid: a.userId, email, sp: specialties, fm: freeMode, op: operator },
-    )
-  })
+  await bqQuery(
+    `MERGE ${table("profiles")} T
+     USING (SELECT @uid AS clerk_user_id) S
+     ON T.clerk_user_id = S.clerk_user_id
+     WHEN MATCHED THEN UPDATE SET
+       specialties = @sp, free_mode = @fm, email = @email, email_canonical = @email,
+       is_operator = @op, updated_at = CURRENT_TIMESTAMP()
+     WHEN NOT MATCHED THEN INSERT
+       (clerk_user_id, email, email_canonical, specialties, free_mode, is_operator, trial_started_at, created_at, updated_at)
+       VALUES (@uid, @email, @email, @sp, @fm, @op, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())`,
+    { uid: a.userId, email, sp: specialties, fm: freeMode, op: operator },
+  )
 
   await bqQuery(
     `MERGE ${table("entitlements")} T

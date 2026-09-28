@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { canonicalEmail, isOperatorEmail } from "@/lib/operators"
-import { createRevolutOrder } from "@/lib/revolut"
+import { createRevolutCheckout } from "@/lib/revolut"
 
 export const dynamic = "force-dynamic"
 
@@ -13,9 +13,11 @@ export async function POST(req: Request) {
   if (isOperatorEmail(email)) {
     return NextResponse.json({ url: null, operator: true })
   }
-  const origin = new URL(req.url).origin
+  const proto = req.headers.get("x-forwarded-proto") || "https"
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || new URL(req.url).host
+  const origin = `${proto}://${host}`
   try {
-    const order = await createRevolutOrder({ email, userId: a.userId, origin })
+    const order = await createRevolutCheckout({ email, userId: a.userId, origin })
     return NextResponse.json(order)
   } catch (err) {
     const status = (err as Error & { status?: number }).status || 502

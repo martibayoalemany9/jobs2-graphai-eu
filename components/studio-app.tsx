@@ -8,6 +8,7 @@ import { CountryMap } from "./country-map"
 import { CountryBar, type Kind } from "./country-bar"
 import { TimeSeries, type KpiPoint, type SeriesPoint } from "./time-series"
 import { SpecialtyCertsPanel, type Cert } from "./specialty-certs-panel"
+import type { CurvePoint } from "./vertical-job-slider"
 import { countryLabel } from "@/lib/country"
 import { SKILL_CATALOG } from "@/lib/skills-catalog"
 import type { Entitlement } from "@/lib/entitlement"
@@ -53,6 +54,7 @@ export function StudioApp() {
   const [selected, setSelected] = useState<string[]>([])
   const [k, setK] = useState(0)
   const [nJobs, setNJobs] = useState(0)
+  const [curvePoints, setCurvePoints] = useState<CurvePoint[]>([])
   const [emptyCopy, setEmptyCopy] = useState<string | null>(null)
   const [jobs, setJobs] = useState<Job[]>([])
   const [ent, setEnt] = useState<Entitlement | null>(null)
@@ -71,6 +73,26 @@ export function StudioApp() {
         if (d.countries?.[0]?.iso2) setIso2(d.countries[0].iso2)
       })
       .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    if (q.get("pay") !== "revolut") return
+    const orderId = q.get("order_id") || ""
+    const u = new URLSearchParams()
+    if (orderId) u.set("order_id", orderId)
+    fetch(`/api/billing/confirm?${u}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.entitlement) setEnt(d.entitlement)
+        setMsg(d.paid ? "Subscription is active." : d.error || "Payment is still pending.")
+        const next = new URL(window.location.href)
+        next.searchParams.delete("pay")
+        next.searchParams.delete("order_id")
+        next.searchParams.set("view", "settings")
+        window.history.replaceState(null, "", next.toString())
+      })
+      .catch(() => setMsg("Could not confirm payment."))
   }, [])
 
   useEffect(() => {
@@ -112,8 +134,9 @@ export function StudioApp() {
     fetch(`/api/jobs/cert-curve?${u}`)
       .then((r) => r.json())
       .then((d) => {
-        const pts = d.points || []
-        const atK = pts.find((p: { k: number }) => p.k === k) || pts[pts.length - 1]
+        const pts = (d.points || []) as CurvePoint[]
+        setCurvePoints(pts)
+        const atK = pts.find((p) => p.k === k) || pts[pts.length - 1]
         setNJobs(atK?.n || 0)
         setEmptyCopy(d.empty_copy || null)
         setEnt(d.entitlement)
@@ -261,7 +284,7 @@ export function StudioApp() {
               onToggle={toggleCert}
               k={k}
               n={nJobs}
-              onPreviewK={setK}
+              points={curvePoints}
               onCommitK={commitK}
               emptyCopy={emptyCopy}
             />
@@ -285,7 +308,10 @@ export function StudioApp() {
             <h2 className="text-lg font-extrabold">Settings</h2>
             <p className="mt-2 text-sm text-muted" data-testid="entitlement">
               Plan: {ent?.tier || "anonymous"} · cap {ent?.cap_per_country ?? "unlimited"} / country
-              {ent?.trial_ends_at ? ` · trial ends ${ent.trial_ends_at.slice(0, 10)}` : ""}
+              {ent?.trial_ends_at ? ` · 7-day trial ends ${ent.trial_ends_at.slice(0, 10)}` : ""}
+            </p>
+            <p className="mt-1 text-sm text-muted">
+              New accounts see 10,000 listings per country for seven days. After that, subscribe for €5 / month or the cap falls to 1,000 per country. Specialties are an optional filter.
             </p>
             <form className="mt-4 space-y-3" onSubmit={saveProfile}>
               <fieldset>
