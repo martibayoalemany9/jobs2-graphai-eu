@@ -14,8 +14,10 @@ export function CountryBar({
   nTotal: number
   kinds: Kind[]
 }) {
-  const rows = kinds.filter((k) => k.specialty !== "*").slice(0, 14)
-  const max = Math.max(1, ...rows.map((k) => k.n))
+  const rows = kinds.filter((k) => k.specialty !== "*")
+  const named = rows.filter((k) => k.specialty !== "uncategorized").slice(0, 14)
+  const other = rows.find((k) => k.specialty === "uncategorized")
+  const max = Math.max(1, ...named.map((k) => k.n))
   return (
     <section aria-label="Country job counts" className="rounded-xl border border-border bg-surface p-4">
       <h2 className="text-lg font-extrabold tracking-tight">
@@ -23,21 +25,37 @@ export function CountryBar({
       </h2>
       <p className="mt-1 text-sm text-muted">Counts by occupation cluster. Listings stay capped by your plan.</p>
       <div className="mt-4 space-y-2" data-testid="country-bar">
-        {rows.map((k) => (
+        {named.map((k) => (
           <Bar key={k.specialty} label={specialtyLabel(k.specialty)} n={k.n} max={max} />
         ))}
+        {other ? (
+          <Bar key="uncategorized" label={specialtyLabel("uncategorized")} n={other.n} max={other.n} muted />
+        ) : null}
       </div>
     </section>
   )
 }
 
-function Bar({ label, n, max }: { label: string; n: number; max: number }) {
+function Bar({
+  label,
+  n,
+  max,
+  muted,
+}: {
+  label: string
+  n: number
+  max: number
+  muted?: boolean
+}) {
   const w = Math.max(2, Math.round((n / max) * 100))
   return (
     <div className="grid grid-cols-[9rem_1fr_4.5rem] items-center gap-2 text-sm">
       <span className="truncate font-semibold">{label}</span>
       <div className="h-3 rounded-full bg-pill">
-        <div className="h-3 rounded-full bg-primary" style={{ width: `${w}%` }} />
+        <div
+          className={`h-3 rounded-full ${muted ? "bg-muted" : "bg-primary"}`}
+          style={{ width: `${Math.min(100, w)}%` }}
+        />
       </div>
       <span className="text-right tabular-nums text-muted">{n.toLocaleString()}</span>
     </div>
