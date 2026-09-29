@@ -22,6 +22,9 @@ type Job = {
   title: string
   company: string
   job_location: string
+  headquarters_location?: string
+  display_location?: string
+  used_headquarters?: boolean
   availability: string
 }
 
@@ -303,8 +306,15 @@ export function StudioApp() {
                   <Link href={`/jobs/${j.job_key}`} className="font-bold hover:underline">
                     {j.title}
                   </Link>
-                  <div className="text-sm text-muted">
-                    {j.company} · {j.job_location} · {j.availability}
+                  <div className="text-sm text-muted" data-testid="job-location-line">
+                    {j.company} · {j.display_location || j.job_location}
+                    {j.headquarters_location &&
+                    !j.used_headquarters &&
+                    j.headquarters_location !== (j.display_location || j.job_location) &&
+                    !(j.display_location || "").includes("HQ ") ? (
+                      <span data-testid="job-hq"> · HQ {j.headquarters_location}</span>
+                    ) : null}{" "}
+                    · {j.availability}
                   </div>
                 </li>
               ))}

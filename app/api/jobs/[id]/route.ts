@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { bqQuery, num, table } from "@/lib/bq"
 import { sessionCap } from "@/lib/session-entitlement"
+import { formatLocationLine, isRemoteFlag, resolveJobLocation } from "@/lib/location"
 
 export const dynamic = "force-dynamic"
 
@@ -19,6 +20,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
       company: string
       country_iso2: string
       job_location: string
+      headquarters_location: string
       is_remote: string
       appeared_at: string
       availability: string
@@ -27,7 +29,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
       specialties: string[]
       public_rank: unknown
     }>(
-      `SELECT job_key, url, title, company, country_iso2, job_location, is_remote,
+      `SELECT job_key, url, title, company, country_iso2, job_location, headquarters_location, is_remote,
               appeared_at, availability, description_excerpt, description_len, specialties, public_rank
        FROM ${table("job_offers_country")}
        WHERE job_key = @id ${capSql}
@@ -81,6 +83,14 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
       }
     }
 
+    const loc = resolveJobLocation({
+      jobLocation: job.job_location,
+      title: job.title,
+      company: job.company,
+      isRemote: job.is_remote,
+      headquarters: job.headquarters_location,
+      countryIso2: job.country_iso2,
+    })
     return NextResponse.json({
       job: {
         ...job,
@@ -88,6 +98,10 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
         description_len: num(job.description_len),
         public_rank: num(job.public_rank),
         full_description: paidFull,
+        job_location: loc.location,
+        display_location: formatLocationLine({ ...loc, remote: isRemoteFlag(job.is_remote, job.title) }),
+        used_headquarters: loc.usedHeadquarters,
+        headquarters_location: loc.headquarters,
       },
       certs,
       conferences,

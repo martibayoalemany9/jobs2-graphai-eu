@@ -9,4 +9,5 @@ test("opening a job shows the description, not onboarding", async ({ page }) => 
   await expect(page.getByTestId("onboarding")).toHaveCount(0)
   await expect(page.locator("h1")).toBeVisible({ timeout: 20_000 })
   await expect(page.locator("article")).toBeVisible()
+  await expect(page.getByTestId("job-location")).toBeVisible()
 })

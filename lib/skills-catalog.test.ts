@@ -9,14 +9,15 @@ test("retail and warehouse titles map to occupation fields", () => {
   assert.ok(extractSpecialties("Fachkraft für Lagerlogistik (m/w/d)").includes("lager"))
 })
 
-test("software engineer is IT and engineering", () => {
+test("software engineer is software, IT and engineering", () => {
   const ids = extractSpecialties("Software Engineer / Technology Lead")
+  assert.ok(ids.includes("software"))
   assert.ok(ids.includes("it"))
   assert.ok(ids.includes("ingenieurwesen"))
 })
 
-test("unmatched titles land in Weitere, never uncategorized", () => {
-  assert.deepEqual(extractSpecialties("Aushilfe (m/w/d)"), ["weitere"])
+test("unmatched titles land in general labor, never uncategorized", () => {
+  assert.deepEqual(extractSpecialties("Aushilfe (m/w/d)"), ["general"])
   assert.equal(extractSpecialties("completely unknown role xyz").includes("uncategorized"), false)
   assert.equal(specialtyLabel("uncategorized"), "Other")
   assert.equal(specialtyLabel("uncategorized", "de"), "Weitere")

@@ -26,4 +26,8 @@ test("occupation labels switch EN DE NL FR", async ({ page }) => {
   await expect(manufacturing).toContainText("Fabrication")
   await page.getByTestId("catalog-locale-en").click()
   await expect(manufacturing).toContainText("Manufacturing")
+  await expect(bar.locator('[data-specialty="software"]')).toContainText("Software engineering")
+  await expect(bar.locator('[data-specialty="hardware"]')).toContainText("Hardware engineering")
+  await expect(bar.locator('[data-specialty="ai"]')).toContainText("Artificial intelligence")
+  await expect(bar.locator('[data-specialty="weitere"]')).toHaveCount(0)
 })

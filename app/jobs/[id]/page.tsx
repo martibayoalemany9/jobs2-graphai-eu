@@ -11,6 +11,9 @@ type Detail = {
     company: string
     country_iso2: string
     job_location: string
+    headquarters_location?: string
+    display_location?: string
+    used_headquarters?: boolean
     is_remote: string
     appeared_at: string
     url: string
@@ -51,7 +54,16 @@ export default function JobDetailPage() {
           <>
             <h1 className="mt-4 text-2xl font-extrabold tracking-tight">{job.title}</h1>
             <p className="mt-1 text-muted">
-              {job.company} · {job.country_iso2} · {job.job_location} · {job.is_remote || "on-site"}
+              <span data-testid="job-location">
+                {job.company} · {job.country_iso2} · {job.display_location || job.job_location}
+                {job.headquarters_location &&
+                !job.used_headquarters &&
+                job.headquarters_location !== (job.display_location || job.job_location) &&
+                !(job.display_location || "").includes("HQ ") ? (
+                  <span data-testid="job-hq"> · HQ {job.headquarters_location}</span>
+                ) : null}{" "}
+                · {job.is_remote || "on-site"}
+              </span>
             </p>
             <p className="mt-1 text-sm text-muted">{job.availability} · {job.appeared_at}</p>
             <a className="mt-2 inline-block font-semibold text-studio hover:underline" href={job.url} rel="noopener noreferrer" target="_blank">

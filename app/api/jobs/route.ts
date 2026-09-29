@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { bqQuery, num, table } from "@/lib/bq"
 import { isIso2 } from "@/lib/country"
 import { sessionCap } from "@/lib/session-entitlement"
+import { formatLocationLine, isRemoteFlag, resolveJobLocation } from "@/lib/location"
 
 export const dynamic = "force-dynamic"
 
@@ -61,13 +62,14 @@ export async function GET(req: Request) {
       company: string
       country_iso2: string
       job_location: string
+      headquarters_location: string
       is_remote: string
       public_rank: unknown
       availability: string
       description_excerpt: string
       specialties: string[]
     }>(
-      `SELECT j.job_key, j.title, j.company, j.country_iso2, j.job_location, j.is_remote,
+      `SELECT j.job_key, j.title, j.company, j.country_iso2, j.job_location, j.headquarters_location, j.is_remote,
               j.public_rank, j.availability, j.description_excerpt, j.specialties
        FROM ${table("job_offers_country")} j
        WHERE j.country_iso2 = @cc
@@ -81,7 +83,24 @@ export async function GET(req: Request) {
       params,
     )
     return NextResponse.json({
-      jobs: rows.map((r) => ({ ...r, public_rank: num(r.public_rank) })),
+      jobs: rows.map((r) => {
+        const loc = resolveJobLocation({
+          jobLocation: r.job_location,
+          title: r.title,
+          company: r.company,
+          isRemote: r.is_remote,
+          headquarters: r.headquarters_location,
+          countryIso2: r.country_iso2,
+        })
+        return {
+          ...r,
+          public_rank: num(r.public_rank),
+          job_location: loc.location,
+          headquarters_location: loc.headquarters,
+          display_location: formatLocationLine({ ...loc, remote: isRemoteFlag(r.is_remote, r.title) }),
+          used_headquarters: loc.usedHeadquarters,
+        }
+      }),
       entitlement: { ...sess.entitlement, truncated: cap != null },
       next_cursor: rows.length === limit ? rows[rows.length - 1].job_key : null,
     })

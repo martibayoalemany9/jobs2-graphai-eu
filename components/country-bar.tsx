@@ -17,7 +17,7 @@ export function CountryBar({
 }) {
   const labelOf = useSpecialtyLabel()
   const rows = kinds.filter((k) => k.specialty !== "*")
-  const named = rows.filter((k) => k.specialty !== "uncategorized" && k.specialty !== "weitere").slice(0, 24)
+  const named = rows.filter((k) => k.specialty !== "uncategorized" && k.specialty !== "weitere")
   const other = rows.find((k) => k.specialty === "weitere" || k.specialty === "uncategorized")
   const max = Math.max(1, ...named.map((k) => k.n))
   return (
