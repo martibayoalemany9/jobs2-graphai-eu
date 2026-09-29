@@ -59,7 +59,7 @@ export function CatalogLocaleSwitch() {
       role="group"
       aria-label="Occupation category language"
       data-testid="catalog-locale"
-      className="inline-flex overflow-hidden rounded-md border border-border text-xs font-bold"
+      className="inline-flex shrink-0 overflow-hidden rounded-md border border-border text-xs font-bold"
     >
       {LOCALE_BUTTONS.map((opt) => {
         const on = locale === opt.id

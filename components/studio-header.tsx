@@ -36,7 +36,7 @@ export function StudioHeader({
           jobs studio
         </Link>
       </nav>
-      <div className="ml-auto flex items-center gap-3 text-sm font-semibold">
+      <div className="ml-auto flex flex-wrap items-center justify-end gap-3 text-sm font-semibold">
         <CatalogLocaleSwitch />
         <SubscribeButton entitlement={entitlement} onMessage={onMessage} />
         <Show when="signed-out">
