@@ -1,5 +1,7 @@
 "use client"
 
+import { logBarWidth } from "@/lib/bar-scale"
+
 export type CurvePoint = { k: number; n: number; cert_id?: string | null }
 
 export function CertJobBars({
@@ -14,7 +16,7 @@ export function CertJobBars({
   const rows = points.length ? points : [{ k: 0, n: 0 }]
   const active = rows.find((p) => p.k === k) || rows[rows.length - 1]
   const max = Math.max(1, ...rows.map((p) => p.n), active?.n || 0)
-  const width = Math.max(2, ((active?.n || 0) / max) * 100)
+  const width = logBarWidth(active?.n || 0, max)
   return (
     <div className="space-y-3" data-testid="cert-slider">
       <p className="text-sm text-muted">Jobs matching the selected certifications</p>
@@ -29,7 +31,7 @@ export function CertJobBars({
       <div className="space-y-1.5" data-testid="cert-bars">
         {rows.map((p) => {
           const isActive = p.k === k
-          const w = Math.max(2, (p.n / max) * 100)
+          const w = logBarWidth(p.n, max)
           return (
             <button
               key={p.k}

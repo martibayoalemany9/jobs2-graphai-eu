@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test lib/job-key.test.ts lib/operators.test.ts lib/entitlement.test.ts lib/revolut.test.ts lib/clerk-runtime.test.ts lib/skills-catalog.test.ts lib/stripe.test.ts",
+    "test": "tsx --test lib/job-key.test.ts lib/operators.test.ts lib/entitlement.test.ts lib/revolut.test.ts lib/clerk-runtime.test.ts lib/skills-catalog.test.ts lib/stripe.test.ts lib/bar-scale.test.ts",
     "test:e2e": "playwright test",
     "test:pentest": "node scripts/pentest/run.mjs",
     "bq:ddl": "bash scripts/bq/apply_ddl.sh",

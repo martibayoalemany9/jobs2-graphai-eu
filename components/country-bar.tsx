@@ -2,6 +2,7 @@
 
 import { countryLabel } from "@/lib/country"
 import { specialtyLabel } from "@/lib/skills-catalog"
+import { logBarWidth } from "@/lib/bar-scale"
 
 export type Kind = { specialty: string; n: number }
 
@@ -23,7 +24,9 @@ export function CountryBar({
       <h2 className="text-lg font-extrabold tracking-tight">
         {countryLabel(iso2)} · {nTotal.toLocaleString()} jobs
       </h2>
-      <p className="mt-1 text-sm text-muted">Counts by occupation cluster. Listings stay capped by your plan.</p>
+      <p className="mt-1 text-sm text-muted">
+        Counts by occupation. Bar length is log-scaled so smaller fields stay visible.
+      </p>
       <div className="mt-4 space-y-2" data-testid="country-bar">
         {named.map((k) => (
           <Bar key={k.specialty} label={specialtyLabel(k.specialty)} n={k.n} max={max} />
@@ -47,7 +50,7 @@ function Bar({
   max: number
   muted?: boolean
 }) {
-  const w = Math.max(2, Math.round((n / max) * 100))
+  const w = logBarWidth(n, max)
   return (
     <div className="flex items-center gap-3 text-sm">
       <span className="w-52 shrink-0 font-semibold leading-snug">{label}</span>
