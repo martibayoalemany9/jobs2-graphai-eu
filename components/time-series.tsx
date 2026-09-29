@@ -1,17 +1,29 @@
 "use client"
 
+import { seriesCount, type Availability } from "@/lib/availability"
+import { useAvailabilityLabel } from "./catalog-locale"
+
 export type SeriesPoint = { d: string; n_total: number; n_available: number; n_unavailable: number }
 export type KpiPoint = { year_month: string; unemployment_rate: number; source: string }
 
-export function TimeSeries({ series, kpi }: { series: SeriesPoint[]; kpi: KpiPoint[] }) {
+export function TimeSeries({
+  series,
+  kpi,
+  availability = "all",
+}: {
+  series: SeriesPoint[]
+  kpi: KpiPoint[]
+  availability?: Availability
+}) {
+  const availOf = useAvailabilityLabel()
   const w = 640
   const h = 180
   const pad = 28
   const rows = series.length === 1 ? [series[0], series[0]] : series
-  const max = Math.max(1, ...rows.map((s) => s.n_total))
+  const max = Math.max(1, ...rows.map((s) => seriesCount(s, availability)))
   const pts = rows.map((s, i) => {
     const x = pad + (i / Math.max(1, rows.length - 1)) * (w - pad * 2)
-    const y = h - pad - (s.n_total / max) * (h - pad * 2)
+    const y = h - pad - (seriesCount(s, availability) / max) * (h - pad * 2)
     return `${x},${y}`
   })
   const kpiMax = Math.max(1, ...kpi.map((k) => k.unemployment_rate))
@@ -24,12 +36,14 @@ export function TimeSeries({ series, kpi }: { series: SeriesPoint[]; kpi: KpiPoi
       return `${x},${y}`
     })
   const latest = series[series.length - 1]
+  const latestN = latest ? seriesCount(latest, availability) : 0
+  const jobsLegend = availability === "all" ? "Jobs found" : availOf(availability)
   return (
     <section className="rounded-xl border border-border bg-surface p-4">
       <h2 className="text-lg font-extrabold tracking-tight">Jobs over time</h2>
       <p className="text-sm text-muted">
-        Solid line is job count
-        {latest ? ` · ${latest.n_total.toLocaleString()} current` : ""}. Dashed overlay is unemployment (Eurostat / World Bank).
+        Solid line is {availability === "all" ? "job count" : `${availOf(availability).toLowerCase()} job count`}
+        {latest ? ` · ${latestN.toLocaleString()} current` : ""}. Dashed overlay is unemployment (Eurostat / World Bank).
       </p>
       <svg viewBox={`0 0 ${w} ${h}`} className="mt-3 w-full" role="img" aria-label="Job count time series" data-testid="time-series">
         {pts.length ? <polyline fill="none" stroke="#1b8f4a" strokeWidth="2.4" points={pts.join(" ")} /> : null}
@@ -38,7 +52,7 @@ export function TimeSeries({ series, kpi }: { series: SeriesPoint[]; kpi: KpiPoi
         )}
       </svg>
       <div className="mt-2 flex gap-4 text-xs font-semibold text-muted" data-testid="kpi-legend">
-        <span>Jobs found</span>
+        <span data-testid="series-jobs-legend">{jobsLegend}</span>
         <span>Unemployment</span>
       </div>
     </section>

@@ -10,7 +10,7 @@ function body(
   nTotal: number,
   nAvailable: number,
   nUnavailable: number,
-  kinds: { specialty: string; n: number }[],
+  kinds: { specialty: string; n: number; n_total: number; n_available: number; n_unavailable: number }[],
   cap: number | null,
   entitlement: unknown,
 ) {
@@ -38,8 +38,8 @@ export async function GET(_req: Request, ctx: { params: Promise<{ iso2: string }
           `SELECT SUM(n_total) AS n_total, SUM(n_available) AS n_available, SUM(n_unavailable) AS n_unavailable
            FROM ${table("country_daily_latest")}`,
         ),
-        bqQuery<{ specialty: string; n_total: unknown }>(
-          `SELECT specialty, SUM(n_total) AS n_total
+        bqQuery<{ specialty: string; n_total: unknown; n_available: unknown; n_unavailable: unknown }>(
+          `SELECT specialty, SUM(n_total) AS n_total, SUM(n_available) AS n_available, SUM(n_unavailable) AS n_unavailable
            FROM ${table("country_specialty_counts")}
            WHERE specialty != '*'
              AND as_of = (SELECT MAX(as_of) FROM ${table("country_specialty_counts")})
@@ -67,7 +67,13 @@ export async function GET(_req: Request, ctx: { params: Promise<{ iso2: string }
           nTotal,
           nAvailable,
           nUnavailable,
-          kinds.map((k) => ({ specialty: k.specialty, n: num(k.n_total) })),
+          kinds.map((k) => ({
+            specialty: k.specialty,
+            n: num(k.n_total),
+            n_total: num(k.n_total),
+            n_available: num(k.n_available),
+            n_unavailable: num(k.n_unavailable),
+          })),
           sess.cap,
           sess.entitlement,
         ),
@@ -80,8 +86,8 @@ export async function GET(_req: Request, ctx: { params: Promise<{ iso2: string }
        WHERE country_iso2 = @cc LIMIT 1`,
       { cc: iso2 },
     )
-    const kinds = await bqQuery<{ specialty: string; n_total: unknown }>(
-      `SELECT specialty, n_total
+    const kinds = await bqQuery<{ specialty: string; n_total: unknown; n_available: unknown; n_unavailable: unknown }>(
+      `SELECT specialty, n_total, n_available, n_unavailable
        FROM ${table("country_specialty_counts")}
        WHERE country_iso2 = @cc
          AND as_of = (SELECT MAX(as_of) FROM ${table("country_specialty_counts")} WHERE country_iso2 = @cc)
@@ -106,7 +112,13 @@ export async function GET(_req: Request, ctx: { params: Promise<{ iso2: string }
           nTotal,
           num(fallback[0]?.n_available),
           num(fallback[0]?.n_unavailable),
-          kinds.map((k) => ({ specialty: k.specialty, n: num(k.n_total) })),
+          kinds.map((k) => ({
+            specialty: k.specialty,
+            n: num(k.n_total),
+            n_total: num(k.n_total),
+            n_available: num(k.n_available),
+            n_unavailable: num(k.n_unavailable),
+          })),
           sess.cap,
           sess.entitlement,
         ),
@@ -118,7 +130,13 @@ export async function GET(_req: Request, ctx: { params: Promise<{ iso2: string }
         nTotal,
         num(t?.n_available),
         num(t?.n_unavailable),
-        kinds.map((k) => ({ specialty: k.specialty, n: num(k.n_total) })),
+        kinds.map((k) => ({
+          specialty: k.specialty,
+          n: num(k.n_total),
+          n_total: num(k.n_total),
+          n_available: num(k.n_available),
+          n_unavailable: num(k.n_unavailable),
+        })),
         sess.cap,
         sess.entitlement,
       ),

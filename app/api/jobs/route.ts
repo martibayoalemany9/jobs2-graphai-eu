@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { bqQuery, num, table } from "@/lib/bq"
+import { availabilitySql, parseAvailability } from "@/lib/availability"
 import { parseCountryScope } from "@/lib/country"
 import { sessionCap } from "@/lib/session-entitlement"
 import { formatLocationLine, isRemoteFlag, resolveJobLocation } from "@/lib/location"
@@ -18,18 +19,13 @@ export async function GET(req: Request) {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean)
-  const availability = url.searchParams.get("availability") || "all"
+  const availability = parseAvailability(url.searchParams.get("availability"))
   const cursor = url.searchParams.get("cursor") || ""
   const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") || 20)))
   const sess = await sessionCap()
   const cap = sess.cap
 
-  const availSql =
-    availability === "available"
-      ? "AND j.availability = 'available'"
-      : availability === "probably_unavailable"
-        ? "AND j.availability = 'probably_unavailable'"
-        : ""
+  const availSql = availabilitySql("j", availability)
 
   const specSql =
     specialties.length === 0

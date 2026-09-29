@@ -2,9 +2,11 @@
 
 import dynamic from "next/dynamic"
 import { useMemo, useState } from "react"
+import { availabilityCount, type Availability } from "@/lib/availability"
 import { ALL_COUNTRIES } from "@/lib/country"
-import { MAP_METRICS, type CountryStats, type MapMetric } from "./leaflet-map"
+import { MAP_METRICS, metricValue, type CountryStats, type MapMetric } from "./leaflet-map"
 import { MapProgress } from "./map-progress"
+import { AvailabilityFilter } from "./availability-filter"
 import { useCountryLabel } from "./catalog-locale"
 
 const LeafletMap = dynamic(() => import("./leaflet-map").then((m) => m.LeafletMap), {
@@ -16,41 +18,51 @@ const LeafletMap = dynamic(() => import("./leaflet-map").then((m) => m.LeafletMa
   ),
 })
 
-function metricValue(c: CountryStats | undefined, metric: MapMetric): number {
-  if (!c) return 0
-  if (metric === "jobs") return c.n_total
-  if (metric === "companies") return c.n_companies
-  if (metric === "newMonth") return c.n_this_month
-  if (metric === "remotePct") return Math.round(c.remote_share * 1000) / 10
-  return Math.round(c.senior_share * 1000) / 10
-}
-
 export function MapStudio({
   countries,
   selected,
   onSelect,
+  availability,
+  onAvailability,
 }: {
   countries: CountryStats[]
   selected: string
   onSelect: (iso2: string) => void
+  availability: Availability
+  onAvailability: (next: Availability) => void
 }) {
   const [metric, setMetric] = useState<MapMetric>("jobs")
   const countryOf = useCountryLabel()
   const stats = useMemo(() => Object.fromEntries(countries.map((c) => [c.iso2, c])), [countries])
   const totals = useMemo(() => {
-    const nJobs = countries.reduce((s, c) => s + c.n_total, 0)
+    const nJobs = countries.reduce((s, c) => s + (c.n_total || 0), 0)
+    const nAvailable = countries.reduce((s, c) => s + (c.n_available || 0), 0)
+    const nUnavailable = countries.reduce((s, c) => s + (c.n_unavailable || 0), 0)
     const nCos = countries.reduce((s, c) => s + c.n_companies, 0)
     const listed = countries.reduce((s, c) => s + c.n_visible, 0)
     const nThisMonth = countries.reduce((s, c) => s + c.n_this_month, 0)
     const remoteJobs = countries.reduce((s, c) => s + c.remote_share * c.n_total, 0)
     const seniorJobs = countries.reduce((s, c) => s + c.senior_share * c.n_total, 0)
-    return { nJobs, nCos, listed, nCountries: countries.length, nThisMonth, remoteJobs, seniorJobs }
+    return {
+      nJobs,
+      nAvailable,
+      nUnavailable,
+      nCos,
+      listed,
+      nCountries: countries.length,
+      nThisMonth,
+      remoteJobs,
+      seniorJobs,
+    }
   }, [countries])
+  const shownJobs = availabilityCount(totals.nJobs, totals.nAvailable, totals.nUnavailable, availability)
   const worldwide = useMemo<CountryStats>(
     () => ({
       iso2: ALL_COUNTRIES,
       n_total: totals.nJobs,
       n_visible: totals.listed,
+      n_available: totals.nAvailable,
+      n_unavailable: totals.nUnavailable,
       n_companies: totals.nCos,
       n_this_month: totals.nThisMonth,
       remote_share: totals.nJobs ? totals.remoteJobs / totals.nJobs : 0,
@@ -84,7 +96,13 @@ export function MapStudio({
             ))}
           </div>
         </div>
-        <LeafletMap stats={stats} metric={metric} selected={selected} onSelect={onSelect} />
+        <LeafletMap
+          stats={stats}
+          metric={metric}
+          selected={selected}
+          onSelect={onSelect}
+          availability={availability}
+        />
         <div className="bg-surface px-4 py-3 text-xs text-muted">
           <span className="font-semibold text-foreground">{MAP_METRICS.find((m) => m.id === metric)?.label}</span>
           <ul className="mt-1 flex flex-wrap gap-3">
@@ -103,14 +121,15 @@ export function MapStudio({
           data-testid="country-select"
         >
           <option value={ALL_COUNTRIES} data-testid="all-countries-option">
-            {countryOf(ALL_COUNTRIES)} · {totals.nJobs.toLocaleString()}
+            {countryOf(ALL_COUNTRIES)} · {shownJobs.toLocaleString()}
           </option>
           {countries.map((c) => (
             <option key={c.iso2} value={c.iso2}>
-              {countryOf(c.iso2)} · {c.n_total.toLocaleString()}
+              {countryOf(c.iso2)} · {availabilityCount(c.n_total, c.n_available, c.n_unavailable, availability).toLocaleString()}
             </option>
           ))}
         </select>
+        <AvailabilityFilter value={availability} onChange={onAvailability} layout="block" />
         <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
           <div>
             <dt className="text-muted">Countries</dt>
@@ -118,7 +137,9 @@ export function MapStudio({
           </div>
           <div>
             <dt className="text-muted">Jobs found</dt>
-            <dd className="text-xl font-extrabold">{totals.nJobs.toLocaleString()}</dd>
+            <dd className="text-xl font-extrabold" data-testid="map-jobs-found">
+              {shownJobs.toLocaleString()}
+            </dd>
           </div>
           <div>
             <dt className="text-muted">Companies</dt>
@@ -135,7 +156,7 @@ export function MapStudio({
               {countryOf(selected)}
             </p>
             <p className="mt-1 text-muted">
-              {MAP_METRICS.find((m) => m.id === metric)?.label}: {metricValue(current, metric).toLocaleString()}
+              {MAP_METRICS.find((m) => m.id === metric)?.label}: {metricValue(current, metric, availability).toLocaleString()}
               {unit ? ` ${unit}` : ""}
             </p>
           </div>

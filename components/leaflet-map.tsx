@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import "leaflet/dist/leaflet.css"
+import { availabilityCount, type Availability } from "@/lib/availability"
 import { countryLabel } from "@/lib/country"
 import { MapProgress } from "./map-progress"
 
@@ -11,15 +12,21 @@ export type CountryStats = {
   iso2: string
   n_total: number
   n_visible: number
+  n_available: number
+  n_unavailable: number
   n_companies: number
   n_this_month: number
   remote_share: number
   senior_share: number
 }
 
-function metricValue(c: CountryStats | undefined, metric: MapMetric): number {
+export function metricValue(
+  c: CountryStats | undefined,
+  metric: MapMetric,
+  availability: Availability = "all",
+): number {
   if (!c) return 0
-  if (metric === "jobs") return c.n_total
+  if (metric === "jobs") return availabilityCount(c.n_total, c.n_available, c.n_unavailable, availability)
   if (metric === "companies") return c.n_companies
   if (metric === "newMonth") return c.n_this_month
   if (metric === "remotePct") return Math.round(c.remote_share * 1000) / 10
@@ -72,11 +79,13 @@ export function LeafletMap({
   metric,
   selected,
   onSelect,
+  availability = "all",
 }: {
   stats: Record<string, CountryStats>
   metric: MapMetric
   selected: string
   onSelect: (iso2: string) => void
+  availability?: Availability
 }) {
   const el = useRef<HTMLDivElement>(null)
   const mapRef = useRef<import("leaflet").Map | null>(null)
@@ -85,12 +94,17 @@ export function LeafletMap({
   const metricRef = useRef(metric)
   const selectedRef = useRef(selected)
   const onSelectRef = useRef(onSelect)
-  const max = useMemo(() => Math.max(1, ...Object.values(stats).map((s) => metricValue(s, metric))), [stats, metric])
+  const availabilityRef = useRef(availability)
+  const max = useMemo(
+    () => Math.max(1, ...Object.values(stats).map((s) => metricValue(s, metric, availability))),
+    [stats, metric, availability],
+  )
   const maxRef = useRef(max)
   statsRef.current = stats
   metricRef.current = metric
   selectedRef.current = selected
   onSelectRef.current = onSelect
+  availabilityRef.current = availability
   maxRef.current = max
 
   const [progress, setProgress] = useState(8)
@@ -100,7 +114,7 @@ export function LeafletMap({
 
   function styleFeature(feat?: { properties?: Record<string, unknown> }) {
     const iso = isoOf((feat?.properties || {}) as Record<string, unknown>)
-    const n = metricValue(statsRef.current[iso], metricRef.current)
+    const n = metricValue(statsRef.current[iso], metricRef.current, availabilityRef.current)
     return {
       fillColor: bucketColor(n, maxRef.current),
       fillOpacity: 0.92,
@@ -118,7 +132,7 @@ export function LeafletMap({
       const feat = (lyr as import("leaflet").Layer & { feature?: { properties?: Record<string, unknown> } }).feature
       const iso = isoOf((feat?.properties || {}) as Record<string, unknown>)
       if (!iso) return
-      const n = metricValue(statsRef.current[iso], metricRef.current)
+      const n = metricValue(statsRef.current[iso], metricRef.current, availabilityRef.current)
       const path = lyr as import("leaflet").Path
       if (path.getTooltip()) {
         path.setTooltipContent(`${countryLabel(iso)} · ${n.toLocaleString()}${unit}`)
@@ -151,7 +165,7 @@ export function LeafletMap({
           onEachFeature: (feat, lyr) => {
             const iso = isoOf((feat.properties || {}) as Record<string, unknown>)
             if (!iso) return
-            const n = metricValue(statsRef.current[iso], metricRef.current)
+            const n = metricValue(statsRef.current[iso], metricRef.current, availabilityRef.current)
             const unit = metricRef.current.endsWith("Pct") ? "%" : ""
             lyr.bindTooltip(`${countryLabel(iso)} · ${n.toLocaleString()}${unit}`, { sticky: true, className: "job-tip" })
             lyr.on("click", () => onSelectRef.current(iso))
@@ -180,7 +194,7 @@ export function LeafletMap({
 
   useEffect(() => {
     paintLayer()
-  }, [stats, metric, selected, max])
+  }, [stats, metric, selected, max, availability])
 
   return (
     <div className="relative h-[420px] w-full" data-testid="country-map" aria-busy={!ready}>

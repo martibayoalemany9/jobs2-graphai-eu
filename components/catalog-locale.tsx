@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { availabilityLabel, type Availability } from "@/lib/availability"
 import { countryLabel } from "@/lib/country"
 import {
   CATALOG_LOCALE_STORAGE_KEY,
@@ -56,6 +57,11 @@ export function useSpecialtyLabel() {
 export function useCountryLabel() {
   const { locale } = useCatalogLocale()
   return useCallback((iso2: string) => countryLabel(iso2, locale), [locale])
+}
+
+export function useAvailabilityLabel() {
+  const { locale } = useCatalogLocale()
+  return useCallback((id: Availability) => availabilityLabel(id, locale), [locale])
 }
 
 export function CatalogLocaleSwitch() {

@@ -43,6 +43,21 @@ test("all countries employment on the map", async ({ page }) => {
   await expect(page.getByTestId("country-bar-heading")).toContainText("All countries")
 })
 
+test("available and not available employment", async ({ page }) => {
+  await page.goto("/?view=map")
+  const filter = page.getByTestId("availability-filter")
+  await expect(filter).toBeVisible()
+  await filter.selectOption("available")
+  await expect(page.getByTestId("country-bar-heading")).toContainText("available jobs", { timeout: 20_000 })
+  await expect(page.getByTestId("series-jobs-legend")).toHaveText("Available")
+  await filter.selectOption("probably_unavailable")
+  await expect(page.getByTestId("country-bar-heading")).toContainText("not available jobs")
+  await expect(page.getByTestId("series-jobs-legend")).toHaveText("Not available")
+  await filter.selectOption("all")
+  await expect(page.getByTestId("country-bar-heading")).toContainText(/ jobs$/)
+  await expect(page.getByTestId("series-jobs-legend")).toHaveText("Jobs found")
+})
+
 test("occupation labels switch EN DE NL FR", async ({ page }) => {
   await page.goto("/?view=map")
   const bar = page.getByTestId("country-bar")

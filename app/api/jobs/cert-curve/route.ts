@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { bqQuery, num, table } from "@/lib/bq"
 import { parseCountryScope } from "@/lib/country"
+import { availabilitySql, parseAvailability } from "@/lib/availability"
 import { sessionCap } from "@/lib/session-entitlement"
 
 export const dynamic = "force-dynamic"
@@ -24,6 +25,7 @@ export async function GET(req: Request) {
       ? ""
       : "AND EXISTS (SELECT 1 FROM UNNEST(j.specialties) s WHERE s IN UNNEST(@sp))"
   const capSql = cap == null ? "" : "AND j.public_rank <= @cap"
+  const availSql = availabilitySql("j", parseAvailability(url.searchParams.get("availability")))
   const countrySql = scope.all ? "TRUE" : "j.country_iso2 = @cc"
   const certCountrySql = scope.all ? "TRUE" : "c.country_iso2 = @cc AND j.country_iso2 = @cc"
 
@@ -36,7 +38,7 @@ export async function GET(req: Request) {
     const points: { k: number; cert_id: string | null; n: number }[] = []
     const base = await bqQuery<{ n: unknown }>(
       `SELECT COUNT(*) AS n FROM ${table("job_offers_country")} j
-       WHERE ${countrySql} ${capSql} ${specSql}`,
+       WHERE ${countrySql} ${capSql} ${availSql} ${specSql}`,
       baseParams,
     )
     points.push({ k: 0, cert_id: null, n: num(base[0]?.n) })
@@ -49,6 +51,7 @@ export async function GET(req: Request) {
            JOIN ${table("job_offers_country")} j ON j.job_key = c.job_key
            WHERE ${certCountrySql}
              ${capSql}
+             ${availSql}
              ${specSql}
              AND c.cert_id IN UNNEST(@certs)
            GROUP BY c.job_key

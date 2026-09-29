@@ -12,9 +12,11 @@ import { TimeSeries, type KpiPoint, type SeriesPoint } from "./time-series"
 import { SpecialtyCertsPanel, type Cert } from "./specialty-certs-panel"
 import type { CurvePoint } from "./vertical-job-slider"
 import { SpecialtyModal } from "./specialty-modal"
+import { availabilityCount, parseAvailability, type Availability } from "@/lib/availability"
 import { ALL_COUNTRIES, isIso2 } from "@/lib/country"
 import { SKILL_CATALOG } from "@/lib/skills-catalog"
 import type { Entitlement } from "@/lib/entitlement"
+import { AvailabilityFilter } from "./availability-filter"
 import { useCountryLabel, useSpecialtyLabel } from "./catalog-locale"
 
 type Job = {
@@ -55,9 +57,11 @@ export function StudioApp() {
   const [scopeReady, setScopeReady] = useState(false)
   const [kinds, setKinds] = useState<Kind[]>([])
   const [nTotal, setNTotal] = useState(0)
+  const [nAvailable, setNAvailable] = useState(0)
+  const [nUnavailable, setNUnavailable] = useState(0)
   const [series, setSeries] = useState<SeriesPoint[]>([])
   const [kpi, setKpi] = useState<KpiPoint[]>([])
-  const [availability, setAvailability] = useState("all")
+  const [availability, setAvailability] = useState<Availability>("all")
   const [cluster, setCluster] = useState("")
   const [certs, setCerts] = useState<Cert[]>([])
   const [selected, setSelected] = useState<string[]>([])
@@ -81,9 +85,19 @@ export function StudioApp() {
     window.history.replaceState(null, "", u.toString())
   }, [])
 
+  const persistAvailability = useCallback((next: Availability) => {
+    setAvailability(next)
+    const u = new URL(window.location.href)
+    if (next === "all") u.searchParams.delete("availability")
+    else u.searchParams.set("availability", next)
+    window.history.replaceState(null, "", u.toString())
+  }, [])
+
   useEffect(() => {
-    const fromUrl = String(new URLSearchParams(window.location.search).get("country") || "").toUpperCase()
+    const q = new URLSearchParams(window.location.search)
+    const fromUrl = String(q.get("country") || "").toUpperCase()
     if (fromUrl === ALL_COUNTRIES || isIso2(fromUrl)) setIso2(fromUrl)
+    setAvailability(parseAvailability(q.get("availability")))
     setScopeReady(true)
   }, [])
 
@@ -151,6 +165,8 @@ export function StudioApp() {
       .then((r) => r.json())
       .then((d) => {
         setNTotal(d.n_total || 0)
+        setNAvailable(d.n_available || 0)
+        setNUnavailable(d.n_unavailable || 0)
         setKinds(d.kinds || [])
       })
       .catch(() => {})
@@ -181,6 +197,7 @@ export function StudioApp() {
     const u = new URLSearchParams({ country: iso2 })
     if (sp) u.set("specialties", sp)
     if (certsQ) u.set("certs", certsQ)
+    if (availability !== "all") u.set("availability", availability)
     fetch(`/api/jobs/cert-curve?${u}`)
       .then((r) => r.json())
       .then((d) => {
@@ -246,14 +263,30 @@ export function StudioApp() {
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 md:px-10">
         {view === "map" && (
           <>
-            <MapStudio countries={countries} selected={iso2} onSelect={persistCountry} />
-            <CountryBar iso2={iso2} nTotal={nTotal} kinds={kinds} />
-            <TimeSeries series={series} kpi={kpi} />
+            <MapStudio
+              countries={countries}
+              selected={iso2}
+              onSelect={persistCountry}
+              availability={availability}
+              onAvailability={persistAvailability}
+            />
+            <CountryBar
+              iso2={iso2}
+              nTotal={nTotal}
+              nAvailable={nAvailable}
+              nUnavailable={nUnavailable}
+              kinds={kinds}
+              availability={availability}
+            />
+            <TimeSeries series={series} kpi={kpi} availability={availability} />
           </>
         )}
         {view === "list" && (
           <section className="rounded-xl border border-border bg-surface p-4">
             <h2 className="text-lg font-extrabold">Countries</h2>
+            <div className="mt-3">
+              <AvailabilityFilter value={availability} onChange={persistAvailability} />
+            </div>
             <table className="mt-3 w-full text-sm" data-testid="country-table">
               <thead>
                 <tr className="text-left text-muted">
@@ -277,7 +310,14 @@ export function StudioApp() {
                       {countryOf(ALL_COUNTRIES)}
                     </button>
                   </td>
-                  <td>{countries.reduce((s, c) => s + c.n_total, 0).toLocaleString()}</td>
+                  <td>
+                    {availabilityCount(
+                      countries.reduce((s, c) => s + c.n_total, 0),
+                      countries.reduce((s, c) => s + c.n_available, 0),
+                      countries.reduce((s, c) => s + c.n_unavailable, 0),
+                      availability,
+                    ).toLocaleString()}
+                  </td>
                   <td>{countries.reduce((s, c) => s + c.n_visible, 0).toLocaleString()}</td>
                 </tr>
                 {countries.map((c) => (
@@ -287,14 +327,21 @@ export function StudioApp() {
                         {countryOf(c.iso2)}
                       </button>
                     </td>
-                    <td>{c.n_total.toLocaleString()}</td>
+                    <td>{availabilityCount(c.n_total, c.n_available, c.n_unavailable, availability).toLocaleString()}</td>
                     <td>{c.n_visible.toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
             <div className="mt-6">
-              <CountryBar iso2={iso2} nTotal={nTotal} kinds={kinds} />
+              <CountryBar
+                iso2={iso2}
+                nTotal={nTotal}
+                nAvailable={nAvailable}
+                nUnavailable={nUnavailable}
+                kinds={kinds}
+                availability={availability}
+              />
             </div>
           </section>
         )}
@@ -317,19 +364,7 @@ export function StudioApp() {
                   ))}
                 </select>
               </label>
-              <label className="text-sm font-bold">
-                Availability
-                <select
-                  className="ml-2 rounded-md border border-border bg-surface px-2 py-1"
-                  value={availability}
-                  onChange={(e) => setAvailability(e.target.value)}
-                  data-testid="availability-filter"
-                >
-                  <option value="all">All</option>
-                  <option value="available">Available</option>
-                  <option value="probably_unavailable">Unavailable</option>
-                </select>
-              </label>
+              <AvailabilityFilter value={availability} onChange={persistAvailability} />
             </div>
             <SpecialtyCertsPanel
               cluster={cluster}
@@ -362,7 +397,7 @@ export function StudioApp() {
                     !(j.display_location || "").includes("HQ ") ? (
                       <span data-testid="job-hq"> · HQ {j.headquarters_location}</span>
                     ) : null}{" "}
-                    · {j.availability}
+                    · {j.availability === "probably_unavailable" ? "not available" : j.availability}
                   </div>
                 </li>
               ))}
