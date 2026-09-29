@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import { extractSpecialties, specialtyLabel } from "./skills-catalog"
+import { CATALOG_LOCALES, extractSpecialties, SKILL_CATALOG, specialtyLabel } from "./skills-catalog"
 
 test("retail and warehouse titles map to occupation fields", () => {
   assert.ok(extractSpecialties("Verkäufer (m/w/d) Teilzeit").includes("einzelhandel"))
@@ -18,7 +18,8 @@ test("software engineer is IT and engineering", () => {
 test("unmatched titles land in Weitere, never uncategorized", () => {
   assert.deepEqual(extractSpecialties("Aushilfe (m/w/d)"), ["weitere"])
   assert.equal(extractSpecialties("completely unknown role xyz").includes("uncategorized"), false)
-  assert.equal(specialtyLabel("uncategorized"), "Weitere")
+  assert.equal(specialtyLabel("uncategorized"), "Other")
+  assert.equal(specialtyLabel("uncategorized", "de"), "Weitere")
 })
 
 test("new occupation fields pull leftover titles out of Weitere", () => {
@@ -30,18 +31,34 @@ test("new occupation fields pull leftover titles out of Weitere", () => {
   assert.ok(extractSpecialties("Transportation Security Officer").includes("sicherheit"))
 })
 
-test("the four large buckets split into specific fields", () => {
-  assert.equal(specialtyLabel("produktion"), "Produktion")
-  assert.equal(specialtyLabel("fertigung"), "Fertigung")
-  assert.equal(specialtyLabel("instandhaltung"), "Instandhaltung")
-  assert.equal(specialtyLabel("lager"), "Lager")
+test("occupation labels default to English and switch locale", () => {
+  assert.equal(specialtyLabel("produktion"), "Production")
+  assert.equal(specialtyLabel("fertigung"), "Manufacturing")
+  assert.equal(specialtyLabel("instandhaltung"), "Maintenance")
+  assert.equal(specialtyLabel("lager"), "Warehouse")
   assert.equal(specialtyLabel("transport"), "Transport")
-  assert.equal(specialtyLabel("einzelhandel"), "Einzelhandel")
-  assert.equal(specialtyLabel("vertrieb"), "Vertrieb")
+  assert.equal(specialtyLabel("einzelhandel"), "Retail")
+  assert.equal(specialtyLabel("vertrieb"), "Sales")
   assert.equal(specialtyLabel("marketing"), "Marketing")
-  assert.equal(specialtyLabel("produkt"), "Produktmanagement")
-  assert.equal(specialtyLabel("ingenieurwesen"), "Ingenieurwesen")
-  assert.equal(specialtyLabel("forschung"), "Forschung")
+  assert.equal(specialtyLabel("produkt"), "Product management")
+  assert.equal(specialtyLabel("ingenieurwesen"), "Engineering")
+  assert.equal(specialtyLabel("forschung"), "Research")
+  assert.equal(specialtyLabel("fertigung", "de"), "Fertigung")
+  assert.equal(specialtyLabel("fertigung", "nl"), "Fabricage")
+  assert.equal(specialtyLabel("fertigung", "fr"), "Fabrication")
+  assert.equal(specialtyLabel("weitere", "en"), "Other")
+  assert.equal(specialtyLabel("weitere", "de"), "Weitere")
+  assert.equal(specialtyLabel("weitere", "nl"), "Overig")
+  assert.equal(specialtyLabel("weitere", "fr"), "Autre")
+  for (const sk of SKILL_CATALOG) {
+    for (const loc of CATALOG_LOCALES) {
+      assert.ok(specialtyLabel(sk.id, loc), `${sk.id} missing ${loc}`)
+    }
+    assert.equal(specialtyLabel(sk.id, "en"), sk.label)
+  }
+})
+
+test("the four large buckets split into specific fields", () => {
   assert.ok(extractSpecialties("Industriemechaniker (m/w/d)").includes("fertigung"))
   assert.ok(extractSpecialties("Elektroniker (m/w/d)").includes("instandhaltung"))
   assert.ok(extractSpecialties("LKW-Fahrer (m/w/d)").includes("transport"))

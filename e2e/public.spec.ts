@@ -15,6 +15,7 @@ test("home chrome", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Imprint" })).toBeVisible()
   await expect(page.getByTestId("sign-in")).toBeVisible()
   await expect(page.getByTestId("subscribe")).toBeVisible()
+  await expect(page.getByTestId("catalog-locale")).toBeVisible()
 })
 
 test("sign-in page renders Clerk", async ({ page }) => {

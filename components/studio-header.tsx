@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
 import { clerkSatelliteForHost } from "@/lib/clerk-runtime"
 import { GraphaiMark } from "./graphai-mark"
+import { CatalogLocaleSwitch } from "./catalog-locale"
 import { SubscribeButton } from "./subscribe-button"
 import type { Entitlement } from "@/lib/entitlement"
 
@@ -36,6 +37,7 @@ export function StudioHeader({
         </Link>
       </nav>
       <div className="ml-auto flex items-center gap-3 text-sm font-semibold">
+        <CatalogLocaleSwitch />
         <SubscribeButton entitlement={entitlement} onMessage={onMessage} />
         <Show when="signed-out">
           <SignInButton mode={mode}>

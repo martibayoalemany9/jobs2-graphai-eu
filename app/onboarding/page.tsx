@@ -4,12 +4,14 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { StudioHeader } from "@/components/studio-header"
 import { SKILL_CATALOG } from "@/lib/skills-catalog"
+import { useSpecialtyLabel } from "@/components/catalog-locale"
 
 export default function OnboardingPage() {
   const [selected, setSelected] = useState<string[]>([])
   const [err, setErr] = useState("")
   const [busy, setBusy] = useState(false)
   const router = useRouter()
+  const labelOf = useSpecialtyLabel()
 
   async function save(next: string[]) {
     setBusy(true)
@@ -51,7 +53,7 @@ export default function OnboardingPage() {
                     setSelected((p) => (p.includes(s.id) ? p.filter((x) => x !== s.id) : [...p, s.id]))
                   }
                 />
-                {s.label}
+                {labelOf(s.id)}
               </label>
             ))}
           </div>

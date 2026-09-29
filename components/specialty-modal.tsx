@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { SKILL_CATALOG } from "@/lib/skills-catalog"
+import { useSpecialtyLabel } from "./catalog-locale"
 
 export function SpecialtyModal({
   initial,
@@ -15,6 +16,7 @@ export function SpecialtyModal({
   const [selected, setSelected] = useState<string[]>(initial)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState("")
+  const labelOf = useSpecialtyLabel()
 
   async function save(next: string[]) {
     setBusy(true)
@@ -51,7 +53,7 @@ export function SpecialtyModal({
                   setSelected((p) => (p.includes(s.id) ? p.filter((x) => x !== s.id) : [...p, s.id]))
                 }
               />
-              {s.label}
+              {labelOf(s.id)}
             </label>
           ))}
         </div>

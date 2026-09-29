@@ -12,7 +12,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "produktion",
     kind: "hard",
-    label: "Produktion",
+    label: "Production",
     names: [
       "produktionsmitarbeiter",
       "produktionshelfer",
@@ -32,7 +32,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "fertigung",
     kind: "hard",
-    label: "Fertigung",
+    label: "Manufacturing",
     names: [
       "fertigung",
       "fertigungs",
@@ -66,7 +66,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "instandhaltung",
     kind: "hard",
-    label: "Instandhaltung",
+    label: "Maintenance",
     names: [
       "instandhaltung",
       "instandhalter",
@@ -86,7 +86,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "ingenieurwesen",
     kind: "hard",
-    label: "Ingenieurwesen",
+    label: "Engineering",
     names: [
       "ingenieur",
       "engineer",
@@ -102,7 +102,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "forschung",
     kind: "hard",
-    label: "Forschung",
+    label: "Research",
     names: [
       "forschung",
       "forscher",
@@ -119,7 +119,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "personal",
     kind: "soft",
-    label: "Personal",
+    label: "Human resources",
     names: [
       "personalreferent",
       "personalsachbearbeiter",
@@ -185,7 +185,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "logistik",
     kind: "hard",
-    label: "Logistik",
+    label: "Logistics",
     names: [
       "logistik",
       "logistiek",
@@ -200,7 +200,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "lager",
     kind: "hard",
-    label: "Lager",
+    label: "Warehouse",
     names: [
       "lagerist",
       "lagermitarbeiter",
@@ -251,7 +251,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "qualitaet",
     kind: "hard",
-    label: "Qualität",
+    label: "Quality",
     names: [
       "qualitätsmanagement",
       "qualitaetsmanagement",
@@ -272,7 +272,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "vertrieb",
     kind: "soft",
-    label: "Vertrieb",
+    label: "Sales",
     names: [
       "vertrieb",
       "account manager",
@@ -287,7 +287,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "einzelhandel",
     kind: "soft",
-    label: "Einzelhandel",
+    label: "Retail",
     names: [
       "verkäufer",
       "verkaeufer",
@@ -326,7 +326,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "produkt",
     kind: "soft",
-    label: "Produktmanagement",
+    label: "Product management",
     names: [
       "product manager",
       "produktmanager",
@@ -338,7 +338,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "projekt",
     kind: "soft",
-    label: "Projektmanagement",
+    label: "Project management",
     names: [
       "projektleiter",
       "projektmanager",
@@ -356,7 +356,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "finanzen",
     kind: "hard",
-    label: "Finanzen",
+    label: "Finance",
     names: [
       "financial analyst",
       "investment analyst",
@@ -371,7 +371,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "rechnungswesen",
     kind: "hard",
-    label: "Rechnungswesen",
+    label: "Accounting",
     names: [
       "buchhalter",
       "buchhaltung",
@@ -394,7 +394,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "verwaltung",
     kind: "soft",
-    label: "Verwaltung",
+    label: "Administration",
     names: [
       "verwaltung",
       "sachbearbeiter",
@@ -416,7 +416,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "kundenservice",
     kind: "soft",
-    label: "Kundenservice",
+    label: "Customer service",
     names: [
       "kundenservice",
       "kundenbetreuer",
@@ -434,7 +434,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "recht",
     kind: "hard",
-    label: "Recht",
+    label: "Legal",
     names: [
       "jurist",
       "rechtsanwalt",
@@ -480,7 +480,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "data",
     kind: "hard",
-    label: "Data Analytics",
+    label: "Data analytics",
     names: [
       "data analyst",
       "datenanalyst",
@@ -493,7 +493,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "bi",
     kind: "hard",
-    label: "Business Intelligence",
+    label: "Business intelligence",
     names: ["business intelligence", "power bi", "tableau", "looker", "bi-entwickler"],
   },
   {
@@ -515,7 +515,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "kommunikation",
     kind: "soft",
-    label: "Kommunikation",
+    label: "Communications",
     names: [
       "unternehmenskommunikation",
       "kommunikation",
@@ -532,7 +532,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "immobilien",
     kind: "soft",
-    label: "Immobilien",
+    label: "Real estate",
     names: [
       "immobilien",
       "real estate",
@@ -548,7 +548,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "pflege",
     kind: "hard",
-    label: "Pflege",
+    label: "Nursing",
     names: [
       "pflegefach",
       "pflegehelfer",
@@ -574,7 +574,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "medizin",
     kind: "hard",
-    label: "Medizin",
+    label: "Medicine",
     names: [
       "oberarzt",
       "assistenzarzt",
@@ -596,7 +596,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "gastronomie",
     kind: "soft",
-    label: "Gastronomie",
+    label: "Food service",
     names: [
       "koch",
       "küche",
@@ -627,13 +627,13 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "hotel",
     kind: "soft",
-    label: "Hotellerie",
+    label: "Hotels",
     names: ["hotellerie", "hotelfach", "hotelkauf", "hotelfachmann", "hotelfachfrau", "rezeption", "concierge"],
   },
   {
     id: "bau",
     kind: "hard",
-    label: "Bau",
+    label: "Construction",
     names: [
       "bauhelfer",
       "baufach",
@@ -657,7 +657,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "handwerk",
     kind: "hard",
-    label: "Handwerk",
+    label: "Skilled trades",
     names: [
       "handwerk",
       "zimmermann",
@@ -679,7 +679,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "reinigung",
     kind: "soft",
-    label: "Reinigung",
+    label: "Cleaning",
     names: [
       "reinigungskraft",
       "reinigung",
@@ -699,7 +699,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "erziehung",
     kind: "soft",
-    label: "Erziehung",
+    label: "Education",
     names: [
       "erzieher",
       "pädagog",
@@ -714,7 +714,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "soziales",
     kind: "soft",
-    label: "Soziales",
+    label: "Social work",
     names: [
       "sozialarbeiter",
       "sozialpädagog",
@@ -729,7 +729,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "sicherheit",
     kind: "soft",
-    label: "Sicherheit",
+    label: "Security",
     names: [
       "security officer",
       "security guard",
@@ -747,7 +747,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "weitere",
     kind: "soft",
-    label: "Weitere",
+    label: "Other",
     names: [],
   },
 ]
@@ -776,12 +776,67 @@ export function clusterById(id: string | null | undefined): SkillCluster | undef
   return SKILL_CATALOG.find((s) => s.id === id)
 }
 
-const LABEL_ALIASES: Record<string, string> = {
-  uncategorized: "Weitere",
+export const CATALOG_LOCALES = ["en", "de", "nl", "fr"] as const
+export type CatalogLocale = (typeof CATALOG_LOCALES)[number]
+export const DEFAULT_CATALOG_LOCALE: CatalogLocale = "en"
+export const CATALOG_LOCALE_STORAGE_KEY = "jobs2.catalog-locale"
+
+export function isCatalogLocale(value: string | null | undefined): value is CatalogLocale {
+  return value === "en" || value === "de" || value === "nl" || value === "fr"
 }
 
-export function specialtyLabel(id: string): string {
-  return LABEL_ALIASES[id] || clusterById(id)?.label || id
+type LocaleLabels = Record<CatalogLocale, string>
+
+const SPECIALTY_LABELS: Record<string, LocaleLabels> = {
+  produktion: { en: "Production", de: "Produktion", nl: "Productie", fr: "Production" },
+  fertigung: { en: "Manufacturing", de: "Fertigung", nl: "Fabricage", fr: "Fabrication" },
+  instandhaltung: { en: "Maintenance", de: "Instandhaltung", nl: "Onderhoud", fr: "Maintenance" },
+  ingenieurwesen: { en: "Engineering", de: "Ingenieurwesen", nl: "Techniek", fr: "Ingénierie" },
+  forschung: { en: "Research", de: "Forschung", nl: "Onderzoek", fr: "Recherche" },
+  personal: { en: "Human resources", de: "Personal", nl: "Personeel", fr: "Ressources humaines" },
+  it: { en: "IT", de: "IT", nl: "IT", fr: "IT" },
+  logistik: { en: "Logistics", de: "Logistik", nl: "Logistiek", fr: "Logistique" },
+  lager: { en: "Warehouse", de: "Lager", nl: "Magazijn", fr: "Entrepôt" },
+  transport: { en: "Transport", de: "Transport", nl: "Transport", fr: "Transport" },
+  qualitaet: { en: "Quality", de: "Qualität", nl: "Kwaliteit", fr: "Qualité" },
+  vertrieb: { en: "Sales", de: "Vertrieb", nl: "Verkoop", fr: "Ventes" },
+  einzelhandel: { en: "Retail", de: "Einzelhandel", nl: "Detailhandel", fr: "Commerce de détail" },
+  marketing: { en: "Marketing", de: "Marketing", nl: "Marketing", fr: "Marketing" },
+  produkt: { en: "Product management", de: "Produktmanagement", nl: "Productmanagement", fr: "Gestion de produit" },
+  projekt: { en: "Project management", de: "Projektmanagement", nl: "Projectmanagement", fr: "Gestion de projet" },
+  finanzen: { en: "Finance", de: "Finanzen", nl: "Financiën", fr: "Finance" },
+  rechnungswesen: { en: "Accounting", de: "Rechnungswesen", nl: "Boekhouding", fr: "Comptabilité" },
+  controlling: { en: "Controlling", de: "Controlling", nl: "Controlling", fr: "Contrôle de gestion" },
+  verwaltung: { en: "Administration", de: "Verwaltung", nl: "Administratie", fr: "Administration" },
+  kundenservice: { en: "Customer service", de: "Kundenservice", nl: "Klantenservice", fr: "Service client" },
+  recht: { en: "Legal", de: "Recht", nl: "Juridisch", fr: "Droit" },
+  compliance: { en: "Compliance", de: "Compliance", nl: "Compliance", fr: "Conformité" },
+  audit: { en: "Audit", de: "Audit", nl: "Audit", fr: "Audit" },
+  management: { en: "Management", de: "Management", nl: "Management", fr: "Management" },
+  data: { en: "Data analytics", de: "Data Analytics", nl: "Data-analyse", fr: "Analyse de données" },
+  bi: { en: "Business intelligence", de: "Business Intelligence", nl: "Business intelligence", fr: "Business intelligence" },
+  design: { en: "Design", de: "Design", nl: "Design", fr: "Design" },
+  kommunikation: { en: "Communications", de: "Kommunikation", nl: "Communicatie", fr: "Communication" },
+  pr: { en: "PR", de: "PR", nl: "PR", fr: "RP" },
+  immobilien: { en: "Real estate", de: "Immobilien", nl: "Vastgoed", fr: "Immobilier" },
+  pflege: { en: "Nursing", de: "Pflege", nl: "Verpleging", fr: "Soins infirmiers" },
+  medizin: { en: "Medicine", de: "Medizin", nl: "Geneeskunde", fr: "Médecine" },
+  gastronomie: { en: "Food service", de: "Gastronomie", nl: "Horeca", fr: "Restauration" },
+  hotel: { en: "Hotels", de: "Hotellerie", nl: "Hotellerie", fr: "Hôtellerie" },
+  bau: { en: "Construction", de: "Bau", nl: "Bouw", fr: "BTP" },
+  handwerk: { en: "Skilled trades", de: "Handwerk", nl: "Ambacht", fr: "Artisanat" },
+  reinigung: { en: "Cleaning", de: "Reinigung", nl: "Schoonmaak", fr: "Nettoyage" },
+  erziehung: { en: "Education", de: "Erziehung", nl: "Onderwijs", fr: "Éducation" },
+  soziales: { en: "Social work", de: "Soziales", nl: "Sociaal werk", fr: "Travail social" },
+  sicherheit: { en: "Security", de: "Sicherheit", nl: "Beveiliging", fr: "Sécurité" },
+  weitere: { en: "Other", de: "Weitere", nl: "Overig", fr: "Autre" },
+  uncategorized: { en: "Other", de: "Weitere", nl: "Overig", fr: "Autre" },
+}
+
+export function specialtyLabel(id: string, locale: CatalogLocale = DEFAULT_CATALOG_LOCALE): string {
+  const row = SPECIALTY_LABELS[id]
+  if (row) return row[locale] || row.en
+  return clusterById(id)?.label || id
 }
 
 export function specialtyNeedles(): { id: string; needle: string }[] {

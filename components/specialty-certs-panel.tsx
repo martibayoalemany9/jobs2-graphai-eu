@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { SKILL_CATALOG } from "@/lib/skills-catalog"
+import { useSpecialtyLabel } from "./catalog-locale"
 import { CertJobBars, type CurvePoint } from "./vertical-job-slider"
 
 export type Cert = {
@@ -36,6 +37,7 @@ export function SpecialtyCertsPanel({
   emptyCopy?: string | null
 }) {
   const [open, setOpen] = useState(false)
+  const labelOf = useSpecialtyLabel()
   const curve = points.length ? points : [{ k, n }]
   return (
     <section className="rounded-xl border border-border bg-surface p-4" data-testid="specialty-certs">
@@ -50,7 +52,7 @@ export function SpecialtyCertsPanel({
           <option value="">All specialties</option>
           {SKILL_CATALOG.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.label}
+              {labelOf(s.id)}
             </option>
           ))}
         </select>

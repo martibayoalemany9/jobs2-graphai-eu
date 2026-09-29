@@ -1,8 +1,8 @@
 "use client"
 
 import { countryLabel } from "@/lib/country"
-import { specialtyLabel } from "@/lib/skills-catalog"
 import { logBarWidth } from "@/lib/bar-scale"
+import { useSpecialtyLabel } from "./catalog-locale"
 
 export type Kind = { specialty: string; n: number }
 
@@ -15,6 +15,7 @@ export function CountryBar({
   nTotal: number
   kinds: Kind[]
 }) {
+  const labelOf = useSpecialtyLabel()
   const rows = kinds.filter((k) => k.specialty !== "*")
   const named = rows.filter((k) => k.specialty !== "uncategorized" && k.specialty !== "weitere").slice(0, 24)
   const other = rows.find((k) => k.specialty === "weitere" || k.specialty === "uncategorized")
@@ -29,10 +30,17 @@ export function CountryBar({
       </p>
       <div className="mt-4 space-y-2" data-testid="country-bar">
         {named.map((k) => (
-          <Bar key={k.specialty} label={specialtyLabel(k.specialty)} n={k.n} max={max} />
+          <Bar key={k.specialty} specialty={k.specialty} label={labelOf(k.specialty)} n={k.n} max={max} />
         ))}
         {other ? (
-          <Bar key="weitere" label={specialtyLabel(other.specialty)} n={other.n} max={Math.max(max, other.n)} muted />
+          <Bar
+            key="weitere"
+            specialty={other.specialty}
+            label={labelOf(other.specialty)}
+            n={other.n}
+            max={Math.max(max, other.n)}
+            muted
+          />
         ) : null}
       </div>
     </section>
@@ -40,11 +48,13 @@ export function CountryBar({
 }
 
 function Bar({
+  specialty,
   label,
   n,
   max,
   muted,
 }: {
+  specialty: string
   label: string
   n: number
   max: number
@@ -52,7 +62,7 @@ function Bar({
 }) {
   const w = logBarWidth(n, max)
   return (
-    <div className="flex items-center gap-3 text-sm">
+    <div className="flex items-center gap-3 text-sm" data-specialty={specialty}>
       <span className="w-52 shrink-0 font-semibold leading-snug">{label}</span>
       <div className="h-2.5 w-24 shrink-0 overflow-hidden rounded-full bg-pill">
         <div

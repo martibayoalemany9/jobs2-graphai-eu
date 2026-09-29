@@ -15,6 +15,7 @@ import { SpecialtyModal } from "./specialty-modal"
 import { countryLabel } from "@/lib/country"
 import { SKILL_CATALOG } from "@/lib/skills-catalog"
 import type { Entitlement } from "@/lib/entitlement"
+import { useSpecialtyLabel } from "./catalog-locale"
 
 type Job = {
   job_key: string
@@ -65,6 +66,7 @@ export function StudioApp() {
   const [profileSpecs, setProfileSpecs] = useState<string[]>([])
   const [showSpecModal, setShowSpecModal] = useState(false)
   const [msg, setMsg] = useState("")
+  const labelOf = useSpecialtyLabel()
 
   useEffect(() => {
     fetch("/api/countries")
@@ -333,7 +335,7 @@ export function StudioApp() {
                           setProfileSpecs((p) => (p.includes(s.id) ? p.filter((x) => x !== s.id) : [...p, s.id]))
                         }
                       />
-                      {s.label}
+                      {labelOf(s.id)}
                     </label>
                   ))}
                 </div>

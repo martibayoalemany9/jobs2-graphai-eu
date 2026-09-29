@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google"
 import { headers } from "next/headers"
 import { ClerkProvider } from "@clerk/nextjs"
 import { clerkProviderPropsForHost } from "@/lib/clerk-runtime"
+import { CatalogLocaleProvider } from "@/components/catalog-locale"
 import "./globals.css"
 
 const jakarta = Plus_Jakarta_Sans({
@@ -38,7 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" className={jakarta.variable}>
       <body className="min-h-svh flex flex-col bg-bg text-foreground antialiased">
         <ClerkProvider dynamic {...clerk}>
-          {children}
+          <CatalogLocaleProvider>{children}</CatalogLocaleProvider>
         </ClerkProvider>
       </body>
     </html>
