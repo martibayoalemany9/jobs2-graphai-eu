@@ -57,7 +57,9 @@ export default function JobDetailPage() {
             <a className="mt-2 inline-block font-semibold text-studio hover:underline" href={job.url} rel="noopener noreferrer" target="_blank">
               Open employer listing
             </a>
-            <article className="mt-6 whitespace-pre-wrap text-sm leading-6">{job.description}</article>
+            <article className="mt-6 whitespace-pre-wrap text-sm leading-6">
+              {job.description || "No description excerpt on this listing. Open the employer listing for the full text."}
+            </article>
             {!job.full_description ? (
               <p className="mt-2 text-sm text-muted">Excerpt only. Subscribe for the full description.</p>
             ) : null}

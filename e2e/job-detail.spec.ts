@@ -7,5 +7,6 @@ test("opening a job shows the description, not onboarding", async ({ page }) => 
   await first.click()
   await expect(page).toHaveURL(/\/jobs\//)
   await expect(page.getByTestId("onboarding")).toHaveCount(0)
-  await expect(page.locator("article")).toBeVisible({ timeout: 20_000 })
+  await expect(page.locator("h1")).toBeVisible({ timeout: 20_000 })
+  await expect(page.locator("article")).toBeVisible()
 })
