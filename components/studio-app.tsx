@@ -8,7 +8,7 @@ import { StudioTabs } from "./studio-tabs"
 import { MapStudio } from "./map-studio"
 import type { CountryStats } from "./leaflet-map"
 import { CountryBar, type Kind } from "./country-bar"
-import { TimeSeries, type KpiPoint, type SeriesPoint } from "./time-series"
+import { TimeSeries, type KpiPoint, type SeriesPoint, type SpikeOverlay } from "./time-series"
 import { SpecialtyCertsPanel, type Cert } from "./specialty-certs-panel"
 import type { CurvePoint } from "./vertical-job-slider"
 import { SpecialtyModal } from "./specialty-modal"
@@ -60,6 +60,7 @@ export function StudioApp() {
   const [nAvailable, setNAvailable] = useState(0)
   const [nUnavailable, setNUnavailable] = useState(0)
   const [series, setSeries] = useState<SeriesPoint[]>([])
+  const [spike, setSpike] = useState<SpikeOverlay | null>(null)
   const [kpi, setKpi] = useState<KpiPoint[]>([])
   const [availability, setAvailability] = useState<Availability>("all")
   const [cluster, setCluster] = useState("")
@@ -174,6 +175,7 @@ export function StudioApp() {
       .then((r) => r.json())
       .then((d) => {
         setSeries(d.series || [])
+        setSpike(d.spike || null)
         setKpi(d.kpi || [])
       })
       .catch(() => {})
@@ -278,7 +280,7 @@ export function StudioApp() {
               kinds={kinds}
               availability={availability}
             />
-            <TimeSeries series={series} kpi={kpi} availability={availability} />
+            <TimeSeries series={series} kpi={kpi} spike={spike} availability={availability} />
           </>
         )}
         {view === "list" && (
