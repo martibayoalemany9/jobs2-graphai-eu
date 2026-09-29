@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server"
 import { bqQuery, num, table } from "@/lib/bq"
-import { isIso2 } from "@/lib/country"
+import { parseCountryScope } from "@/lib/country"
 import { sessionCap } from "@/lib/session-entitlement"
 
 export const dynamic = "force-dynamic"
 
 export async function GET(req: Request) {
   const url = new URL(req.url)
-  const country = String(url.searchParams.get("country") || "").toUpperCase()
-  if (!isIso2(country)) return NextResponse.json({ error: "country required" }, { status: 400 })
+  const scope = parseCountryScope(String(url.searchParams.get("country") || ""))
+  if (!scope) return NextResponse.json({ error: "country required" }, { status: 400 })
   const specialties = (url.searchParams.get("specialties") || "")
     .split(",")
     .map((s) => s.trim())
@@ -24,8 +24,11 @@ export async function GET(req: Request) {
       ? ""
       : "AND EXISTS (SELECT 1 FROM UNNEST(j.specialties) s WHERE s IN UNNEST(@sp))"
   const capSql = cap == null ? "" : "AND j.public_rank <= @cap"
+  const countrySql = scope.all ? "TRUE" : "j.country_iso2 = @cc"
+  const certCountrySql = scope.all ? "TRUE" : "c.country_iso2 = @cc AND j.country_iso2 = @cc"
 
-  const baseParams: Record<string, unknown> = { cc: country }
+  const baseParams: Record<string, unknown> = {}
+  if (!scope.all) baseParams.cc = scope.iso2
   if (cap != null) baseParams.cap = cap
   if (specialties.length) baseParams.sp = specialties
 
@@ -33,7 +36,7 @@ export async function GET(req: Request) {
     const points: { k: number; cert_id: string | null; n: number }[] = []
     const base = await bqQuery<{ n: unknown }>(
       `SELECT COUNT(*) AS n FROM ${table("job_offers_country")} j
-       WHERE j.country_iso2 = @cc ${capSql} ${specSql}`,
+       WHERE ${countrySql} ${capSql} ${specSql}`,
       baseParams,
     )
     points.push({ k: 0, cert_id: null, n: num(base[0]?.n) })
@@ -44,7 +47,7 @@ export async function GET(req: Request) {
            SELECT c.job_key
            FROM ${table("job_offer_certs")} c
            JOIN ${table("job_offers_country")} j ON j.job_key = c.job_key
-           WHERE c.country_iso2 = @cc AND j.country_iso2 = @cc
+           WHERE ${certCountrySql}
              ${capSql}
              ${specSql}
              AND c.cert_id IN UNNEST(@certs)

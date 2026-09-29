@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { isIso2 } from "@/lib/country"
+import { parseCountryScope } from "@/lib/country"
 import { bqQuery, num, table } from "@/lib/bq"
 import { sessionCap } from "@/lib/session-entitlement"
 
@@ -7,34 +7,52 @@ export const dynamic = "force-dynamic"
 
 export async function GET(req: Request, ctx: { params: Promise<{ iso2: string }> }) {
   const { iso2: raw } = await ctx.params
-  const iso2 = String(raw || "").toUpperCase()
-  if (!isIso2(iso2)) return NextResponse.json({ error: "invalid country" }, { status: 404 })
+  const scope = parseCountryScope(raw)
+  if (!scope) return NextResponse.json({ error: "invalid country" }, { status: 404 })
+  const iso2 = scope.iso2
   const sess = await sessionCap()
   const url = new URL(req.url)
   const from = url.searchParams.get("from")
   const days = sess.userId ? 365 : 90
   try {
-    const series = await bqQuery<{
-      d: { value: string } | string
-      n_available: unknown
-      n_unavailable: unknown
-      n_total: unknown
-    }>(
-      `SELECT d, n_available, n_unavailable, n_total
-       FROM ${table("job_count_daily")}
-       WHERE country_iso2 = @cc AND specialty = '*'
-         AND d >= DATE_SUB(CURRENT_DATE(), INTERVAL @days DAY)
-       ORDER BY d`,
-      { cc: iso2, days },
-    )
-    const kpi = await bqQuery<{ year_month: { value: string } | string; unemployment_rate: number; source: string }>(
-      `SELECT year_month, unemployment_rate, source
-       FROM ${table("kpi_country_monthly")}
-       WHERE country_iso2 = @cc
-       ORDER BY year_month DESC
-       LIMIT 24`,
-      { cc: iso2 },
-    )
+    const series = scope.all
+      ? await bqQuery<{
+          d: { value: string } | string
+          n_available: unknown
+          n_unavailable: unknown
+          n_total: unknown
+        }>(
+          `SELECT d, SUM(n_available) AS n_available, SUM(n_unavailable) AS n_unavailable, SUM(n_total) AS n_total
+           FROM ${table("job_count_daily")}
+           WHERE specialty = '*'
+             AND d >= DATE_SUB(CURRENT_DATE(), INTERVAL @days DAY)
+           GROUP BY d
+           ORDER BY d`,
+          { days },
+        )
+      : await bqQuery<{
+          d: { value: string } | string
+          n_available: unknown
+          n_unavailable: unknown
+          n_total: unknown
+        }>(
+          `SELECT d, n_available, n_unavailable, n_total
+           FROM ${table("job_count_daily")}
+           WHERE country_iso2 = @cc AND specialty = '*'
+             AND d >= DATE_SUB(CURRENT_DATE(), INTERVAL @days DAY)
+           ORDER BY d`,
+          { cc: iso2, days },
+        )
+    const kpi = scope.all
+      ? []
+      : await bqQuery<{ year_month: { value: string } | string; unemployment_rate: number; source: string }>(
+          `SELECT year_month, unemployment_rate, source
+           FROM ${table("kpi_country_monthly")}
+           WHERE country_iso2 = @cc
+           ORDER BY year_month DESC
+           LIMIT 24`,
+          { cc: iso2 },
+        )
     let mapped = series.map((r) => ({
       d: typeof r.d === "string" ? r.d : r.d?.value,
       n_available: num(r.n_available),
@@ -42,13 +60,20 @@ export async function GET(req: Request, ctx: { params: Promise<{ iso2: string }>
       n_total: num(r.n_total),
     }))
     if (!mapped.length) {
-      const snap = await bqQuery<{ n_total: unknown; n_available: unknown; n_unavailable: unknown }>(
-        `SELECT COUNT(*) AS n_total,
-                COUNTIF(availability = 'available') AS n_available,
-                COUNTIF(availability = 'probably_unavailable') AS n_unavailable
-         FROM ${table("job_offers_country")} WHERE country_iso2 = @cc`,
-        { cc: iso2 },
-      )
+      const snap = scope.all
+        ? await bqQuery<{ n_total: unknown; n_available: unknown; n_unavailable: unknown }>(
+            `SELECT COUNT(*) AS n_total,
+                    COUNTIF(availability = 'available') AS n_available,
+                    COUNTIF(availability = 'probably_unavailable') AS n_unavailable
+             FROM ${table("job_offers_country")}`,
+          )
+        : await bqQuery<{ n_total: unknown; n_available: unknown; n_unavailable: unknown }>(
+            `SELECT COUNT(*) AS n_total,
+                    COUNTIF(availability = 'available') AS n_available,
+                    COUNTIF(availability = 'probably_unavailable') AS n_unavailable
+             FROM ${table("job_offers_country")} WHERE country_iso2 = @cc`,
+            { cc: iso2 },
+          )
       const n = num(snap[0]?.n_total)
       const today = new Date().toISOString().slice(0, 10)
       mapped = [

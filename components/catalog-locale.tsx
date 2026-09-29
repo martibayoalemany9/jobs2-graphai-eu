@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { countryLabel } from "@/lib/country"
 import {
   CATALOG_LOCALE_STORAGE_KEY,
   DEFAULT_CATALOG_LOCALE,
@@ -50,6 +51,11 @@ export function useCatalogLocale() {
 export function useSpecialtyLabel() {
   const { locale } = useCatalogLocale()
   return useCallback((id: string) => specialtyLabel(id, locale), [locale])
+}
+
+export function useCountryLabel() {
+  const { locale } = useCatalogLocale()
+  return useCallback((iso2: string) => countryLabel(iso2, locale), [locale])
 }
 
 export function CatalogLocaleSwitch() {

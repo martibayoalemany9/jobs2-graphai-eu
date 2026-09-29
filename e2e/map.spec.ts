@@ -27,6 +27,22 @@ test("map shows a progress bar while the choropleth loads", async ({ page }) => 
   await expect(page.locator(".leaflet-container")).toBeVisible()
 })
 
+test("all countries employment on the map", async ({ page }) => {
+  await page.goto("/?view=map&country=ALL")
+  const select = page.getByTestId("country-select")
+  await expect(select).toBeVisible()
+  await expect(select).toHaveValue("ALL", { timeout: 20_000 })
+  await expect(page.getByTestId("all-countries-option")).toBeAttached()
+  await expect(page.getByTestId("country-bar-heading")).toContainText("All countries", { timeout: 25_000 })
+  await expect(page.getByTestId("map-stats-country")).toContainText("All countries")
+  await expect(page.getByTestId("country-bar").locator('[data-specialty="fertigung"]')).toBeVisible()
+  await expect(page.getByTestId("time-series")).toBeVisible()
+  await page.getByTestId("catalog-locale-de").click()
+  await expect(page.getByTestId("country-bar-heading")).toContainText("Alle Länder")
+  await page.getByTestId("catalog-locale-en").click()
+  await expect(page.getByTestId("country-bar-heading")).toContainText("All countries")
+})
+
 test("occupation labels switch EN DE NL FR", async ({ page }) => {
   await page.goto("/?view=map")
   const bar = page.getByTestId("country-bar")

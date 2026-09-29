@@ -1,8 +1,7 @@
 "use client"
 
-import { countryLabel } from "@/lib/country"
 import { logBarWidth } from "@/lib/bar-scale"
-import { useSpecialtyLabel } from "./catalog-locale"
+import { useCountryLabel, useSpecialtyLabel } from "./catalog-locale"
 
 export type Kind = { specialty: string; n: number }
 
@@ -16,14 +15,15 @@ export function CountryBar({
   kinds: Kind[]
 }) {
   const labelOf = useSpecialtyLabel()
+  const countryOf = useCountryLabel()
   const rows = kinds.filter((k) => k.specialty !== "*")
   const named = rows.filter((k) => k.specialty !== "uncategorized" && k.specialty !== "weitere")
   const other = rows.find((k) => k.specialty === "weitere" || k.specialty === "uncategorized")
   const max = Math.max(1, ...named.map((k) => k.n))
   return (
-    <section aria-label="Country job counts" className="rounded-xl border border-border bg-surface p-4">
-      <h2 className="text-lg font-extrabold tracking-tight">
-        {countryLabel(iso2)} · {nTotal.toLocaleString()} jobs
+    <section aria-label="Job counts by occupation" className="rounded-xl border border-border bg-surface p-4">
+      <h2 className="text-lg font-extrabold tracking-tight" data-testid="country-bar-heading">
+        {countryOf(iso2)} · {nTotal.toLocaleString()} jobs
       </h2>
       <p className="mt-1 text-sm text-muted">
         Counts by occupation. Bar length is log-scaled so smaller fields stay visible.

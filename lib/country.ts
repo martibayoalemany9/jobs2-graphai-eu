@@ -50,11 +50,40 @@ export const COUNTRY_NAME_MAP: Record<string, string> = {
   "south korea": "KR",
 }
 
-export function countryLabel(iso2: string): string {
+/** Sentinel for worldwide employment (bars, series, listings). */
+export const ALL_COUNTRIES = "ALL"
+
+export const ALL_COUNTRIES_LABEL: Record<"en" | "de" | "nl" | "fr", string> = {
+  en: "All countries",
+  de: "Alle Länder",
+  nl: "Alle landen",
+  fr: "Tous les pays",
+}
+
+export function countryLabel(iso2: string, locale = "en"): string {
   const cc = String(iso2 || "").toUpperCase()
+  if (cc === ALL_COUNTRIES) {
+    return ALL_COUNTRIES_LABEL[locale as keyof typeof ALL_COUNTRIES_LABEL] || ALL_COUNTRIES_LABEL.en
+  }
   return COUNTRY_LABEL[cc] || cc || "Unknown"
 }
 
 export function isIso2(s: string): boolean {
   return /^[A-Z]{2}$/.test(s)
+}
+
+export function isAllCountries(s: string): boolean {
+  return String(s || "").toUpperCase() === ALL_COUNTRIES
+}
+
+export function isCountryScope(s: string): boolean {
+  const v = String(s || "").toUpperCase()
+  return isAllCountries(v) || isIso2(v)
+}
+
+export function parseCountryScope(raw: string): { all: boolean; iso2: string } | null {
+  const iso2 = String(raw || "").toUpperCase()
+  if (iso2 === ALL_COUNTRIES) return { all: true, iso2 }
+  if (isIso2(iso2)) return { all: false, iso2 }
+  return null
 }

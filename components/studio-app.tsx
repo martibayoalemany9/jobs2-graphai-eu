@@ -12,15 +12,16 @@ import { TimeSeries, type KpiPoint, type SeriesPoint } from "./time-series"
 import { SpecialtyCertsPanel, type Cert } from "./specialty-certs-panel"
 import type { CurvePoint } from "./vertical-job-slider"
 import { SpecialtyModal } from "./specialty-modal"
-import { countryLabel } from "@/lib/country"
+import { ALL_COUNTRIES, isIso2 } from "@/lib/country"
 import { SKILL_CATALOG } from "@/lib/skills-catalog"
 import type { Entitlement } from "@/lib/entitlement"
-import { useSpecialtyLabel } from "./catalog-locale"
+import { useCountryLabel, useSpecialtyLabel } from "./catalog-locale"
 
 type Job = {
   job_key: string
   title: string
   company: string
+  country_iso2?: string
   job_location: string
   headquarters_location?: string
   display_location?: string
@@ -51,6 +52,7 @@ export function StudioApp() {
   const { isSignedIn } = useUser()
   const [countries, setCountries] = useState<CountryStats[]>([])
   const [iso2, setIso2] = useState("DE")
+  const [scopeReady, setScopeReady] = useState(false)
   const [kinds, setKinds] = useState<Kind[]>([])
   const [nTotal, setNTotal] = useState(0)
   const [series, setSeries] = useState<SeriesPoint[]>([])
@@ -70,14 +72,35 @@ export function StudioApp() {
   const [showSpecModal, setShowSpecModal] = useState(false)
   const [msg, setMsg] = useState("")
   const labelOf = useSpecialtyLabel()
+  const countryOf = useCountryLabel()
+
+  const persistCountry = useCallback((next: string) => {
+    setIso2(next)
+    const u = new URL(window.location.href)
+    u.searchParams.set("country", next)
+    window.history.replaceState(null, "", u.toString())
+  }, [])
+
+  useEffect(() => {
+    const fromUrl = String(new URLSearchParams(window.location.search).get("country") || "").toUpperCase()
+    if (fromUrl === ALL_COUNTRIES || isIso2(fromUrl)) setIso2(fromUrl)
+    setScopeReady(true)
+  }, [])
 
   useEffect(() => {
     fetch("/api/countries")
       .then((r) => r.json())
       .then((d) => {
-        setCountries(d.countries || [])
+        const listed = (d.countries || []) as CountryStats[]
+        setCountries(listed)
         setEnt(d.entitlement)
-        if (d.countries?.[0]?.iso2) setIso2(d.countries[0].iso2)
+        const fromUrl = String(new URLSearchParams(window.location.search).get("country") || "").toUpperCase()
+        setIso2((cur) => {
+          if (fromUrl === ALL_COUNTRIES) return ALL_COUNTRIES
+          if (fromUrl && listed.some((c) => c.iso2 === fromUrl)) return fromUrl
+          if (cur === ALL_COUNTRIES || listed.some((c) => c.iso2 === cur)) return cur
+          return listed[0]?.iso2 || cur
+        })
       })
       .catch(() => {})
   }, [])
@@ -123,7 +146,7 @@ export function StudioApp() {
   }
 
   useEffect(() => {
-    if (!iso2) return
+    if (!scopeReady || !iso2) return
     fetch(`/api/countries/${iso2}`)
       .then((r) => r.json())
       .then((d) => {
@@ -138,7 +161,7 @@ export function StudioApp() {
         setKpi(d.kpi || [])
       })
       .catch(() => {})
-  }, [iso2])
+  }, [iso2, scopeReady])
 
   const loadCerts = useCallback(() => {
     const q = cluster ? `?cluster=${encodeURIComponent(cluster)}` : ""
@@ -179,8 +202,9 @@ export function StudioApp() {
   }, [iso2, cluster, selected, k, availability])
 
   useEffect(() => {
+    if (!scopeReady) return
     if (view === "jobs" || view === "list") loadCurveAndJobs()
-  }, [view, loadCurveAndJobs])
+  }, [view, loadCurveAndJobs, scopeReady])
 
   function toggleCert(id: string) {
     setSelected((prev) => {
@@ -222,7 +246,7 @@ export function StudioApp() {
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 md:px-10">
         {view === "map" && (
           <>
-            <MapStudio countries={countries} selected={iso2} onSelect={setIso2} />
+            <MapStudio countries={countries} selected={iso2} onSelect={persistCountry} />
             <CountryBar iso2={iso2} nTotal={nTotal} kinds={kinds} />
             <TimeSeries series={series} kpi={kpi} />
           </>
@@ -239,11 +263,28 @@ export function StudioApp() {
                 </tr>
               </thead>
               <tbody>
+                <tr className="border-t border-border">
+                  <td className="py-1">
+                    <button
+                      type="button"
+                      className="font-semibold"
+                      data-testid="all-countries-row"
+                      onClick={() => {
+                        persistCountry(ALL_COUNTRIES)
+                        onView("map")
+                      }}
+                    >
+                      {countryOf(ALL_COUNTRIES)}
+                    </button>
+                  </td>
+                  <td>{countries.reduce((s, c) => s + c.n_total, 0).toLocaleString()}</td>
+                  <td>{countries.reduce((s, c) => s + c.n_visible, 0).toLocaleString()}</td>
+                </tr>
                 {countries.map((c) => (
                   <tr key={c.iso2} className="border-t border-border">
                     <td className="py-1">
-                      <button type="button" className="font-semibold" onClick={() => { setIso2(c.iso2); onView("map") }}>
-                        {countryLabel(c.iso2)}
+                      <button type="button" className="font-semibold" onClick={() => { persistCountry(c.iso2); onView("map") }}>
+                        {countryOf(c.iso2)}
                       </button>
                     </td>
                     <td>{c.n_total.toLocaleString()}</td>
@@ -265,11 +306,13 @@ export function StudioApp() {
                 <select
                   className="ml-2 rounded-md border border-border bg-surface px-2 py-1"
                   value={iso2}
-                  onChange={(e) => setIso2(e.target.value)}
+                  onChange={(e) => persistCountry(e.target.value)}
+                  data-testid="jobs-country-select"
                 >
+                  <option value={ALL_COUNTRIES}>{countryOf(ALL_COUNTRIES)}</option>
                   {countries.map((c) => (
                     <option key={c.iso2} value={c.iso2}>
-                      {countryLabel(c.iso2)}
+                      {countryOf(c.iso2)}
                     </option>
                   ))}
                 </select>
@@ -307,7 +350,12 @@ export function StudioApp() {
                     {j.title}
                   </Link>
                   <div className="text-sm text-muted" data-testid="job-location-line">
-                    {j.company} · {j.display_location || j.job_location}
+                    {j.company}
+                    {iso2 === ALL_COUNTRIES && j.country_iso2 && isIso2(j.country_iso2)
+                      ? ` · ${countryOf(j.country_iso2)}`
+                      : ""}
+                    {" · "}
+                    {j.display_location || j.job_location}
                     {j.headquarters_location &&
                     !j.used_headquarters &&
                     j.headquarters_location !== (j.display_location || j.job_location) &&

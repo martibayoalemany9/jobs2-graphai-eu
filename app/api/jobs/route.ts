@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { bqQuery, num, table } from "@/lib/bq"
-import { isIso2 } from "@/lib/country"
+import { parseCountryScope } from "@/lib/country"
 import { sessionCap } from "@/lib/session-entitlement"
 import { formatLocationLine, isRemoteFlag, resolveJobLocation } from "@/lib/location"
 
@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic"
 
 export async function GET(req: Request) {
   const url = new URL(req.url)
-  const country = String(url.searchParams.get("country") || "").toUpperCase()
-  if (!isIso2(country)) return NextResponse.json({ error: "country required" }, { status: 400 })
+  const scope = parseCountryScope(String(url.searchParams.get("country") || ""))
+  if (!scope) return NextResponse.json({ error: "country required" }, { status: 400 })
   const specialties = (url.searchParams.get("specialties") || "")
     .split(",")
     .map((s) => s.trim())
@@ -36,20 +36,23 @@ export async function GET(req: Request) {
       ? ""
       : "AND EXISTS (SELECT 1 FROM UNNEST(j.specialties) s WHERE s IN UNNEST(@sp))"
 
+  const certCountrySql = scope.all ? "" : "AND c.country_iso2 = @cc"
   const certJoin =
     certs.length === 0
       ? ""
       : `AND j.job_key IN (
            SELECT c.job_key FROM ${table("job_offer_certs")} c
-           WHERE c.country_iso2 = @cc AND c.cert_id IN UNNEST(@certs)
+           WHERE c.cert_id IN UNNEST(@certs) ${certCountrySql}
            GROUP BY c.job_key
            HAVING COUNT(DISTINCT c.cert_id) = ARRAY_LENGTH(@certs)
          )`
 
   const capSql = cap == null ? "" : "AND j.public_rank <= @cap"
   const cursorSql = cursor ? "AND j.job_key > @cursor" : ""
+  const countrySql = scope.all ? "TRUE" : "j.country_iso2 = @cc"
 
-  const params: Record<string, unknown> = { cc: country, limit }
+  const params: Record<string, unknown> = { limit }
+  if (!scope.all) params.cc = scope.iso2
   if (cap != null) params.cap = cap
   if (specialties.length) params.sp = specialties
   if (certs.length) params.certs = certs
@@ -72,7 +75,7 @@ export async function GET(req: Request) {
       `SELECT j.job_key, j.title, j.company, j.country_iso2, j.job_location, j.headquarters_location, j.is_remote,
               j.public_rank, j.availability, j.description_excerpt, j.specialties
        FROM ${table("job_offers_country")} j
-       WHERE j.country_iso2 = @cc
+       WHERE ${countrySql}
          ${capSql}
          ${availSql}
          ${specSql}

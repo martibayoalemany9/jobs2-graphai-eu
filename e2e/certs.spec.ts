@@ -11,3 +11,11 @@ test("specialty combobox, certs, slider", async ({ page }) => {
   await page.getByTestId("specialty-combobox").selectOption("it")
   await expect(page.getByTestId("availability-filter")).toBeVisible()
 })
+
+test("jobs view can list all countries", async ({ page }) => {
+  await page.goto("/?view=jobs")
+  const sel = page.getByTestId("jobs-country-select")
+  await expect(sel).toBeVisible()
+  await sel.selectOption("ALL")
+  await expect(page.getByTestId("job-list").locator("a").first()).toBeVisible({ timeout: 25_000 })
+})

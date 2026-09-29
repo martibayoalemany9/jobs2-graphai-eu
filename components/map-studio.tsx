@@ -2,9 +2,10 @@
 
 import dynamic from "next/dynamic"
 import { useMemo, useState } from "react"
-import { countryLabel } from "@/lib/country"
+import { ALL_COUNTRIES } from "@/lib/country"
 import { MAP_METRICS, type CountryStats, type MapMetric } from "./leaflet-map"
 import { MapProgress } from "./map-progress"
+import { useCountryLabel } from "./catalog-locale"
 
 const LeafletMap = dynamic(() => import("./leaflet-map").then((m) => m.LeafletMap), {
   ssr: false,
@@ -34,14 +35,30 @@ export function MapStudio({
   onSelect: (iso2: string) => void
 }) {
   const [metric, setMetric] = useState<MapMetric>("jobs")
+  const countryOf = useCountryLabel()
   const stats = useMemo(() => Object.fromEntries(countries.map((c) => [c.iso2, c])), [countries])
   const totals = useMemo(() => {
     const nJobs = countries.reduce((s, c) => s + c.n_total, 0)
     const nCos = countries.reduce((s, c) => s + c.n_companies, 0)
     const listed = countries.reduce((s, c) => s + c.n_visible, 0)
-    return { nJobs, nCos, listed, nCountries: countries.length }
+    const nThisMonth = countries.reduce((s, c) => s + c.n_this_month, 0)
+    const remoteJobs = countries.reduce((s, c) => s + c.remote_share * c.n_total, 0)
+    const seniorJobs = countries.reduce((s, c) => s + c.senior_share * c.n_total, 0)
+    return { nJobs, nCos, listed, nCountries: countries.length, nThisMonth, remoteJobs, seniorJobs }
   }, [countries])
-  const current = stats[selected]
+  const worldwide = useMemo<CountryStats>(
+    () => ({
+      iso2: ALL_COUNTRIES,
+      n_total: totals.nJobs,
+      n_visible: totals.listed,
+      n_companies: totals.nCos,
+      n_this_month: totals.nThisMonth,
+      remote_share: totals.nJobs ? totals.remoteJobs / totals.nJobs : 0,
+      senior_share: totals.nJobs ? totals.seniorJobs / totals.nJobs : 0,
+    }),
+    [totals],
+  )
+  const current = selected === ALL_COUNTRIES ? worldwide : stats[selected]
   const unit = MAP_METRICS.find((m) => m.id === metric)?.unit || ""
 
   return (
@@ -49,7 +66,7 @@ export function MapStudio({
       <section className="overflow-hidden rounded-xl border border-border bg-map-ocean">
         <div className="bg-surface px-4 py-3">
           <h2 className="text-lg font-extrabold tracking-tight">World map</h2>
-          <p className="text-sm text-muted">Colour by metric, pan and zoom, then click a country for its jobs.</p>
+          <p className="text-sm text-muted">Colour by metric, pan and zoom, then pick all countries or one country for its jobs.</p>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {MAP_METRICS.map((m) => (
               <button
@@ -85,9 +102,12 @@ export function MapStudio({
           onChange={(e) => onSelect(e.target.value)}
           data-testid="country-select"
         >
+          <option value={ALL_COUNTRIES} data-testid="all-countries-option">
+            {countryOf(ALL_COUNTRIES)} · {totals.nJobs.toLocaleString()}
+          </option>
           {countries.map((c) => (
             <option key={c.iso2} value={c.iso2}>
-              {countryLabel(c.iso2)} · {c.n_total.toLocaleString()}
+              {countryOf(c.iso2)} · {c.n_total.toLocaleString()}
             </option>
           ))}
         </select>
@@ -111,14 +131,16 @@ export function MapStudio({
         </dl>
         {current ? (
           <div className="mt-4 border-t border-border pt-3 text-sm">
-            <p className="font-extrabold">{countryLabel(selected)}</p>
+            <p className="font-extrabold" data-testid="map-stats-country">
+              {countryOf(selected)}
+            </p>
             <p className="mt-1 text-muted">
               {MAP_METRICS.find((m) => m.id === metric)?.label}: {metricValue(current, metric).toLocaleString()}
               {unit ? ` ${unit}` : ""}
             </p>
           </div>
         ) : (
-          <p className="mt-4 text-sm text-muted">Click a filled country on the map.</p>
+          <p className="mt-4 text-sm text-muted">Click a filled country on the map, or choose all countries.</p>
         )}
       </aside>
     </div>
