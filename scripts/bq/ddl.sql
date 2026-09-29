@@ -194,6 +194,16 @@ CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.special
   needle STRING
 );
 
+CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.country_map_stats` (
+  country_iso2 STRING NOT NULL,
+  n_jobs INT64,
+  n_companies INT64,
+  n_this_month INT64,
+  n_remote INT64,
+  n_senior INT64
+)
+CLUSTER BY country_iso2;
+
 CREATE OR REPLACE VIEW `poetic-sentinel-402405.apply_jobs_jobs2_prod.country_daily_latest` AS
 SELECT * FROM `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_count_daily`
 WHERE specialty = '*'

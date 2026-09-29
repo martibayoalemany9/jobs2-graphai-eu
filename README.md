@@ -6,9 +6,10 @@ Jobs intelligence studio. Sibling of [jobs.graphai.eu](https://jobs.graphai.eu).
 
 | Who | Listings per country |
 | --- | --- |
-| Anonymous | 1,000 |
-| Signed-in free / 7-day trial / free-mode | 10,000 |
-| Paid Revolut (€5 / month) or operator | unlimited |
+| Anonymous | 50 |
+| Signed-in 7-day trial | 10,000 |
+| After trial without payment | 50 |
+| Paid Stripe or Revolut (€5 / month) or operator | unlimited |
 
 Operator: `martibayoalemany@gmail.com` and `martibayoalemany@googlemail.com` only.
 

@@ -15,8 +15,8 @@ export function CountryBar({
   kinds: Kind[]
 }) {
   const rows = kinds.filter((k) => k.specialty !== "*")
-  const named = rows.filter((k) => k.specialty !== "uncategorized").slice(0, 14)
-  const other = rows.find((k) => k.specialty === "uncategorized")
+  const named = rows.filter((k) => k.specialty !== "uncategorized" && k.specialty !== "weitere").slice(0, 16)
+  const other = rows.find((k) => k.specialty === "weitere" || k.specialty === "uncategorized")
   const max = Math.max(1, ...named.map((k) => k.n))
   return (
     <section aria-label="Country job counts" className="rounded-xl border border-border bg-surface p-4">
@@ -29,7 +29,7 @@ export function CountryBar({
           <Bar key={k.specialty} label={specialtyLabel(k.specialty)} n={k.n} max={max} />
         ))}
         {other ? (
-          <Bar key="uncategorized" label={specialtyLabel("uncategorized")} n={other.n} max={other.n} muted />
+          <Bar key="weitere" label={specialtyLabel(other.specialty)} n={other.n} max={Math.max(max, other.n)} muted />
         ) : null}
       </div>
     </section>

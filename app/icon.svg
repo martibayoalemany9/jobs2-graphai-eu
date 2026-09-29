@@ -1,0 +1,33 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @media (prefers-color-scheme: light) {
+      .background { fill: #0c2226; }
+      .mark { stroke: #f4faf7; fill: #f4faf7; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .background { fill: #f4faf7; }
+      .mark { stroke: #0c2226; fill: #0c2226; }
+    }
+  </style>
+  <rect class="background" width="180" height="180" rx="37" />
+  <path
+    class="mark"
+    d="M90 29.25 141.75 58.5v63L90 150.75 38.25 121.5v-63L90 29.25Z"
+    fill="none"
+    stroke-width="6.3"
+    stroke-linejoin="round"
+    opacity="0.55"
+  />
+  <path
+    class="mark"
+    d="M65.25 112.5 90 72l27 27M90 72V56.25"
+    fill="none"
+    stroke-width="6.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle class="mark" cx="90" cy="54" r="9" stroke="none" />
+  <circle class="mark" cx="65.25" cy="114.75" r="9" stroke="none" />
+  <circle class="mark" cx="117" cy="101.25" r="9" stroke="none" />
+  <circle class="mark" cx="90" cy="72" r="6.75" stroke="none" />
+</svg>

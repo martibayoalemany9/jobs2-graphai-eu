@@ -1,19 +1,21 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
+import { useUser } from "@clerk/nextjs"
 import { StudioHeader } from "./studio-header"
 import { StudioTabs } from "./studio-tabs"
-import { CountryMap } from "./country-map"
+import { MapStudio } from "./map-studio"
+import type { CountryStats } from "./leaflet-map"
 import { CountryBar, type Kind } from "./country-bar"
 import { TimeSeries, type KpiPoint, type SeriesPoint } from "./time-series"
 import { SpecialtyCertsPanel, type Cert } from "./specialty-certs-panel"
 import type { CurvePoint } from "./vertical-job-slider"
+import { SpecialtyModal } from "./specialty-modal"
 import { countryLabel } from "@/lib/country"
 import { SKILL_CATALOG } from "@/lib/skills-catalog"
 import type { Entitlement } from "@/lib/entitlement"
 
-type CountryRow = { iso2: string; n_total: number; n_visible: number; probed: boolean }
 type Job = {
   job_key: string
   title: string
@@ -42,7 +44,8 @@ function useQueryView() {
 
 export function StudioApp() {
   const { view, onView } = useQueryView()
-  const [countries, setCountries] = useState<CountryRow[]>([])
+  const { isSignedIn } = useUser()
+  const [countries, setCountries] = useState<CountryStats[]>([])
   const [iso2, setIso2] = useState("DE")
   const [kinds, setKinds] = useState<Kind[]>([])
   const [nTotal, setNTotal] = useState(0)
@@ -60,9 +63,8 @@ export function StudioApp() {
   const [ent, setEnt] = useState<Entitlement | null>(null)
   const [freeMode, setFreeMode] = useState(false)
   const [profileSpecs, setProfileSpecs] = useState<string[]>([])
+  const [showSpecModal, setShowSpecModal] = useState(false)
   const [msg, setMsg] = useState("")
-
-  const counts = useMemo(() => Object.fromEntries(countries.map((c) => [c.iso2, c.n_total])), [countries])
 
   useEffect(() => {
     fetch("/api/countries")
@@ -76,11 +78,25 @@ export function StudioApp() {
   }, [])
 
   useEffect(() => {
+    if (!isSignedIn) return
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.specialties) setProfileSpecs(d.specialties)
+        if (typeof d.free_mode === "boolean") setFreeMode(d.free_mode)
+        if (d.entitlement) setEnt(d.entitlement)
+        if (d.specialties_prompted === false) setShowSpecModal(true)
+      })
+      .catch(() => {})
+  }, [isSignedIn])
+
+  useEffect(() => {
     const q = new URLSearchParams(window.location.search)
-    if (q.get("pay") !== "revolut") return
-    const orderId = q.get("order_id") || ""
+    const pay = q.get("pay")
+    if (pay !== "revolut" && pay !== "stripe") return
     const u = new URLSearchParams()
-    if (orderId) u.set("order_id", orderId)
+    if (q.get("order_id")) u.set("order_id", q.get("order_id") || "")
+    if (q.get("session_id")) u.set("session_id", q.get("session_id") || "")
     fetch(`/api/billing/confirm?${u}`)
       .then((r) => r.json())
       .then((d) => {
@@ -89,11 +105,17 @@ export function StudioApp() {
         const next = new URL(window.location.href)
         next.searchParams.delete("pay")
         next.searchParams.delete("order_id")
+        next.searchParams.delete("session_id")
         next.searchParams.set("view", "settings")
         window.history.replaceState(null, "", next.toString())
+        setViewSafe("settings")
       })
       .catch(() => setMsg("Could not confirm payment."))
   }, [])
+
+  function setViewSafe(v: string) {
+    onView(v)
+  }
 
   useEffect(() => {
     if (!iso2) return
@@ -181,36 +203,21 @@ export function StudioApp() {
     if (d.entitlement) setEnt(d.entitlement)
   }
 
-  async function startCheckout() {
-    const res = await fetch("/api/billing/checkout", { method: "POST" })
-    const d = await res.json()
-    if (d.url) window.location.href = d.url
-    else setMsg(d.operator ? "Operator access is already unlimited." : d.error || "Checkout unavailable")
-  }
-
   return (
     <div className="flex min-h-svh flex-col bg-bg">
-      <StudioHeader />
+      <StudioHeader entitlement={ent} onMessage={setMsg} />
       <StudioTabs view={view} onView={onView} />
+      {showSpecModal ? (
+        <SpecialtyModal
+          initial={profileSpecs}
+          onClose={() => setShowSpecModal(false)}
+          onSaved={(sp) => setProfileSpecs(sp)}
+        />
+      ) : null}
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 md:px-10">
         {view === "map" && (
           <>
-            <label className="text-sm font-bold">
-              Country
-              <select
-                className="ml-2 rounded-md border border-border bg-surface px-2 py-1"
-                value={iso2}
-                onChange={(e) => setIso2(e.target.value)}
-                data-testid="country-select"
-              >
-                {countries.map((c) => (
-                  <option key={c.iso2} value={c.iso2}>
-                    {countryLabel(c.iso2)} · {c.n_total.toLocaleString()}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <CountryMap counts={counts} selected={iso2} onSelect={setIso2} />
+            <MapStudio countries={countries} selected={iso2} onSelect={setIso2} />
             <CountryBar iso2={iso2} nTotal={nTotal} kinds={kinds} />
             <TimeSeries series={series} kpi={kpi} />
           </>
@@ -307,11 +314,11 @@ export function StudioApp() {
           <section className="rounded-xl border border-border bg-surface p-4">
             <h2 className="text-lg font-extrabold">Settings</h2>
             <p className="mt-2 text-sm text-muted" data-testid="entitlement">
-              Plan: {ent?.tier || "anonymous"} · cap {ent?.cap_per_country ?? "unlimited"} / country
+              Plan: {ent?.tier || "anonymous"} · cap {ent?.cap_per_country ?? "unlimited"} listings
               {ent?.trial_ends_at ? ` · 7-day trial ends ${ent.trial_ends_at.slice(0, 10)}` : ""}
             </p>
             <p className="mt-1 text-sm text-muted">
-              New accounts see 10,000 listings per country for seven days. After that, subscribe for €5 / month or the cap falls to 1,000 per country. Specialties are an optional filter.
+              New accounts see 10,000 listings for seven days. After that, subscribe for €5 / month (Stripe or Revolut) or the cap falls to 50 jobs.
             </p>
             <form className="mt-4 space-y-3" onSubmit={saveProfile}>
               <fieldset>
@@ -333,20 +340,12 @@ export function StudioApp() {
               </fieldset>
               <label className="flex items-center gap-2 text-sm font-semibold">
                 <input type="checkbox" checked={freeMode} onChange={(e) => setFreeMode(e.target.checked)} data-testid="free-mode" />
-                Free mode (10,000 listings per country)
+                Free mode (10,000 listings during trial or while subscribed)
               </label>
               <button type="submit" className="rounded-md bg-primary px-3 py-2 text-sm font-bold text-primary-foreground">
                 Save profile
               </button>
             </form>
-            <button
-              type="button"
-              className="mt-4 rounded-md bg-studio px-3 py-2 text-sm font-bold text-primary-foreground"
-              onClick={startCheckout}
-              data-testid="subscribe"
-            >
-              Subscribe · €5 / month
-            </button>
             {msg ? <p className="mt-2 text-sm">{msg}</p> : null}
           </section>
         )}

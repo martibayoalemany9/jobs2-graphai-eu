@@ -14,6 +14,7 @@ test("home chrome", async ({ page }) => {
   await expect(page.getByRole("tab", { name: "Jobs" })).toBeVisible()
   await expect(page.getByRole("link", { name: "Imprint" })).toBeVisible()
   await expect(page.getByTestId("sign-in")).toBeVisible()
+  await expect(page.getByTestId("subscribe")).toBeVisible()
 })
 
 test("sign-in page renders Clerk", async ({ page }) => {

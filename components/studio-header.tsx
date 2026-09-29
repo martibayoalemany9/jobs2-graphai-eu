@@ -3,14 +3,24 @@
 import Link from "next/link"
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
 import { clerkSatelliteForHost } from "@/lib/clerk-runtime"
+import { GraphaiMark } from "./graphai-mark"
+import { SubscribeButton } from "./subscribe-button"
+import type { Entitlement } from "@/lib/entitlement"
 
-export function StudioHeader() {
+export function StudioHeader({
+  entitlement,
+  onMessage,
+}: {
+  entitlement?: Entitlement | null
+  onMessage?: (msg: string) => void
+}) {
   const host = typeof window === "undefined" ? "" : window.location.host
   const satellite = clerkSatelliteForHost(host)
   const mode = satellite ? "redirect" : "modal"
   return (
     <header className="flex flex-wrap items-center gap-x-7 gap-y-2 bg-surface px-4 py-3 md:px-10">
       <Link href="/" aria-label="graphai jobs" className="flex items-center gap-2.5 no-underline">
+        <GraphaiMark className="size-8 text-primary" />
         <span className="text-[28px] font-extrabold lowercase leading-none tracking-[-0.04em]">
           graphai jobs
         </span>
@@ -26,6 +36,7 @@ export function StudioHeader() {
         </Link>
       </nav>
       <div className="ml-auto flex items-center gap-3 text-sm font-semibold">
+        <SubscribeButton entitlement={entitlement} onMessage={onMessage} />
         <Show when="signed-out">
           <SignInButton mode={mode}>
             <button type="button" className="rounded-md border border-border px-3 py-1.5 hover:bg-mint" data-testid="sign-in">

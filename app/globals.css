@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
@@ -66,6 +67,14 @@ button { font: inherit; }
 .leaflet-container {
   background: var(--map-ocean);
   font-family: inherit;
+  height: 420px;
+  width: 100%;
+}
+.leaflet-tooltip.job-tip {
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 10px;
 }
 .map-country { fill: var(--map-empty); stroke: var(--map-stroke); stroke-width: 0.4; cursor: pointer; }
 .map-country.is-hover { filter: brightness(0.92); }

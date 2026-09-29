@@ -12,9 +12,18 @@ const ALLOWED = new Set(SKILL_CATALOG.map((s) => s.id))
 export async function GET() {
   const sess = await sessionCap()
   if (!sess.userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+  let prompted = sess.specialties.length > 0
+  try {
+    const user = await currentUser()
+    const meta = (user?.publicMetadata || {}) as { specialties_prompted?: boolean }
+    prompted = Boolean(meta.specialties_prompted) || sess.specialties.length > 0
+  } catch {
+    /* claims-only */
+  }
   return NextResponse.json({
     email: sess.email,
     specialties: sess.specialties,
+    specialties_prompted: prompted,
     free_mode: sess.freeMode,
     entitlement: sess.entitlement,
   })
@@ -32,7 +41,7 @@ export async function PUT(req: Request) {
 
   const client = await clerkClient()
   await client.users.updateUserMetadata(a.userId, {
-    publicMetadata: { specialties },
+    publicMetadata: { specialties, specialties_prompted: true },
   })
 
   await bqQuery(

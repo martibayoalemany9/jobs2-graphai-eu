@@ -7,9 +7,10 @@ export function TimeSeries({ series, kpi }: { series: SeriesPoint[]; kpi: KpiPoi
   const w = 640
   const h = 180
   const pad = 28
-  const max = Math.max(1, ...series.map((s) => s.n_total))
-  const pts = series.map((s, i) => {
-    const x = pad + (i / Math.max(1, series.length - 1)) * (w - pad * 2)
+  const rows = series.length === 1 ? [series[0], series[0]] : series
+  const max = Math.max(1, ...rows.map((s) => s.n_total))
+  const pts = rows.map((s, i) => {
+    const x = pad + (i / Math.max(1, rows.length - 1)) * (w - pad * 2)
     const y = h - pad - (s.n_total / max) * (h - pad * 2)
     return `${x},${y}`
   })
@@ -22,12 +23,16 @@ export function TimeSeries({ series, kpi }: { series: SeriesPoint[]; kpi: KpiPoi
       const y = h - pad - (k.unemployment_rate / kpiMax) * (h - pad * 2)
       return `${x},${y}`
     })
+  const latest = series[series.length - 1]
   return (
     <section className="rounded-xl border border-border bg-surface p-4">
       <h2 className="text-lg font-extrabold tracking-tight">Jobs over time</h2>
-      <p className="text-sm text-muted">Solid line is job count. Dashed overlay is unemployment (Eurostat / World Bank).</p>
+      <p className="text-sm text-muted">
+        Solid line is job count
+        {latest ? ` · ${latest.n_total.toLocaleString()} current` : ""}. Dashed overlay is unemployment (Eurostat / World Bank).
+      </p>
       <svg viewBox={`0 0 ${w} ${h}`} className="mt-3 w-full" role="img" aria-label="Job count time series" data-testid="time-series">
-        <polyline fill="none" stroke="#1b8f4a" strokeWidth="2.4" points={pts.join(" ")} />
+        {pts.length ? <polyline fill="none" stroke="#1b8f4a" strokeWidth="2.4" points={pts.join(" ")} /> : null}
         {kpiPts.length > 1 && (
           <polyline fill="none" stroke="#7a5c20" strokeWidth="1.6" strokeDasharray="5 4" points={kpiPts.join(" ")} />
         )}

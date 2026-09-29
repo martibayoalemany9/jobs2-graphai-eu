@@ -35,7 +35,7 @@ export function SpecialtyCertsPanel({
   onCommitK: (k: number) => void
   emptyCopy?: string | null
 }) {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   const curve = points.length ? points : [{ k, n }]
   return (
     <section className="rounded-xl border border-border bg-surface p-4" data-testid="specialty-certs">

@@ -1,8 +1,8 @@
 import { isOperatorEmail } from "./operators"
 
-export const CAP_ANON = 1_000
+export const CAP_ANON = 50
 export const CAP_FREE = 10_000
-export const CAP_POST_TRIAL = 1_000
+export const CAP_POST_TRIAL = 50
 export const SUB_PRICE_CENTS = 500
 export const TRIAL_DAYS = 7
 

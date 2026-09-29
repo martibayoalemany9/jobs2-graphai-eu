@@ -35,15 +35,35 @@ export async function GET(req: Request, ctx: { params: Promise<{ iso2: string }>
        LIMIT 24`,
       { cc: iso2 },
     )
+    let mapped = series.map((r) => ({
+      d: typeof r.d === "string" ? r.d : r.d?.value,
+      n_available: num(r.n_available),
+      n_unavailable: num(r.n_unavailable),
+      n_total: num(r.n_total),
+    }))
+    if (!mapped.length) {
+      const snap = await bqQuery<{ n_total: unknown; n_available: unknown; n_unavailable: unknown }>(
+        `SELECT COUNT(*) AS n_total,
+                COUNTIF(availability = 'available') AS n_available,
+                COUNTIF(availability = 'probably_unavailable') AS n_unavailable
+         FROM ${table("job_offers_country")} WHERE country_iso2 = @cc`,
+        { cc: iso2 },
+      )
+      const n = num(snap[0]?.n_total)
+      const today = new Date().toISOString().slice(0, 10)
+      mapped = [
+        {
+          d: today,
+          n_available: num(snap[0]?.n_available),
+          n_unavailable: num(snap[0]?.n_unavailable),
+          n_total: n,
+        },
+      ]
+    }
     return NextResponse.json({
       iso2,
       from,
-      series: series.map((r) => ({
-        d: typeof r.d === "string" ? r.d : r.d?.value,
-        n_available: num(r.n_available),
-        n_unavailable: num(r.n_unavailable),
-        n_total: num(r.n_total),
-      })),
+      series: mapped,
       kpi: kpi.map((k) => ({
         year_month: typeof k.year_month === "string" ? k.year_month : k.year_month?.value,
         unemployment_rate: Number(k.unemployment_rate),

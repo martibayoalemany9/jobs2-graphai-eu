@@ -62,14 +62,16 @@ export async function sessionCap(): Promise<SessionCap> {
   let isOperatorRow = isOperatorEmail(email)
   let entitlementStatus: string | null = isOperatorRow ? "operator" : "trial"
   let trialStartedAt: Date | null = null
+  let profileSpecs: string[] = []
   try {
     const rows = await bqQuery<{
       free_mode: boolean
       is_operator: boolean
       trial_started_at: { value: string } | string | null
       status: string | null
+      specialties: string[] | string | null
     }>(
-      `SELECT p.free_mode, p.is_operator, p.trial_started_at, e.status
+      `SELECT p.free_mode, p.is_operator, p.trial_started_at, e.status, p.specialties
        FROM ${table("profiles")} p
        LEFT JOIN ${table("entitlements")} e
          ON e.clerk_user_id = p.clerk_user_id
@@ -83,6 +85,7 @@ export async function sessionCap(): Promise<SessionCap> {
       freeMode = Boolean(row.free_mode)
       isOperatorRow = Boolean(row.is_operator) || isOperatorRow
       entitlementStatus = row.status || entitlementStatus
+      profileSpecs = parseSpecialties(row.specialties)
       const ts = typeof row.trial_started_at === "string" ? row.trial_started_at : row.trial_started_at?.value
       if (ts) trialStartedAt = new Date(ts)
     } else {
@@ -127,7 +130,7 @@ export async function sessionCap(): Promise<SessionCap> {
   return {
     email,
     userId,
-    specialties: claimSpecs,
+    specialties: claimSpecs.length ? claimSpecs : profileSpecs,
     freeMode,
     entitlement: toEntitlement(c, false, freeMode),
     cap: c.cap,

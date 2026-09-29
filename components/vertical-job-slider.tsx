@@ -12,35 +12,40 @@ export function CertJobBars({
   onSelect: (k: number) => void
 }) {
   const rows = points.length ? points : [{ k: 0, n: 0 }]
-  const max = Math.max(1, ...rows.map((p) => p.n))
+  const active = rows.find((p) => p.k === k) || rows[rows.length - 1]
+  const max = Math.max(1, ...rows.map((p) => p.n), active?.n || 0)
+  const width = Math.max(2, ((active?.n || 0) / max) * 100)
   return (
-    <div className="space-y-2" data-testid="cert-slider">
-      <p className="text-sm text-muted">Jobs matching the first k selected certifications</p>
+    <div className="space-y-3" data-testid="cert-slider">
+      <p className="text-sm text-muted">Jobs matching the selected certifications</p>
+      <div className="grid grid-cols-[1fr_5rem] items-center gap-2" data-testid="cert-job-bar">
+        <div className="h-5 overflow-hidden rounded-full bg-pill">
+          <div className="h-full rounded-full bg-studio" style={{ width: `${width}%` }} />
+        </div>
+        <span className="text-right font-bold tabular-nums" data-testid="job-count-label">
+          {(active?.n || 0).toLocaleString()}
+        </span>
+      </div>
       <div className="space-y-1.5" data-testid="cert-bars">
         {rows.map((p) => {
-          const active = p.k === k
-          const width = Math.max(2, (p.n / max) * 100)
+          const isActive = p.k === k
+          const w = Math.max(2, (p.n / max) * 100)
           return (
             <button
               key={p.k}
               type="button"
               onClick={() => onSelect(p.k)}
               className={`grid w-full grid-cols-[4.5rem_1fr_4.5rem] items-center gap-2 rounded-md px-1 py-0.5 text-left text-sm ${
-                active ? "bg-mint" : "hover:bg-pill"
+                isActive ? "bg-mint" : "hover:bg-pill"
               }`}
-              data-testid={active ? "cert-bar-active" : undefined}
-              aria-pressed={active}
+              data-testid={isActive ? "cert-bar-active" : undefined}
+              aria-pressed={isActive}
             >
               <span className="font-semibold tabular-nums">k={p.k}</span>
-              <span className="block h-4 overflow-hidden rounded-sm bg-pill">
-                <span
-                  className="block h-full rounded-sm bg-studio"
-                  style={{ width: `${width}%` }}
-                />
+              <span className="block h-3 overflow-hidden rounded-sm bg-pill">
+                <span className="block h-full rounded-sm bg-studio" style={{ width: `${w}%` }} />
               </span>
-              <span className="text-right font-bold tabular-nums" data-testid={active ? "job-count-label" : undefined}>
-                {p.n.toLocaleString()}
-              </span>
+              <span className="text-right tabular-nums">{p.n.toLocaleString()}</span>
             </button>
           )
         })}

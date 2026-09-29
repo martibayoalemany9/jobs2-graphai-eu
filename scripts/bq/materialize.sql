@@ -123,7 +123,7 @@ needles AS (
 ranked AS (
   SELECT
     m.* EXCEPT(description),
-    COALESCE(n.specialties, []) AS specialties,
+    COALESCE(n.specialties, ['weitere']) AS specialties,
     ROW_NUMBER() OVER (PARTITION BY m.country_iso2 ORDER BY FARM_FINGERPRINT(m.url_norm)) AS public_rank
   FROM mapped m
   LEFT JOIN needles n USING (job_key)

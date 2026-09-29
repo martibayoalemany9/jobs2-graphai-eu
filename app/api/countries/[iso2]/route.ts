@@ -27,7 +27,26 @@ export async function GET(_req: Request, ctx: { params: Promise<{ iso2: string }
       { cc: iso2 },
     )
     const t = totals[0]
-    const nTotal = num(t?.n_total)
+    let nTotal = num(t?.n_total)
+    if (!nTotal) {
+      const fallback = await bqQuery<{ n_total: unknown; n_available: unknown; n_unavailable: unknown }>(
+        `SELECT COUNT(*) AS n_total,
+                COUNTIF(availability = 'available') AS n_available,
+                COUNTIF(availability = 'probably_unavailable') AS n_unavailable
+         FROM ${table("job_offers_country")} WHERE country_iso2 = @cc`,
+        { cc: iso2 },
+      )
+      nTotal = num(fallback[0]?.n_total)
+      return NextResponse.json({
+        iso2,
+        n_total: nTotal,
+        n_visible: sess.cap == null ? nTotal : Math.min(nTotal, sess.cap),
+        n_available: num(fallback[0]?.n_available),
+        n_unavailable: num(fallback[0]?.n_unavailable),
+        kinds: kinds.map((k) => ({ specialty: k.specialty, n: num(k.n_total) })),
+        entitlement: sess.entitlement,
+      })
+    }
     return NextResponse.json({
       iso2,
       n_total: nTotal,
