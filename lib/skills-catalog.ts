@@ -12,7 +12,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "produktion",
     kind: "hard",
-    label: "Produktion",
+    label: "Produktion und Fertigung",
     names: [
       "produktionsmitarbeiter",
       "produktionshelfer",
@@ -27,13 +27,6 @@ export const SKILL_CATALOG: SkillCluster[] = [
       "production worker",
       "production operator",
       "metallhelfer",
-    ],
-  },
-  {
-    id: "fertigung",
-    kind: "hard",
-    label: "Fertigung",
-    names: [
       "fertigung",
       "fertigungs",
       "fertigungstechnik",
@@ -66,12 +59,20 @@ export const SKILL_CATALOG: SkillCluster[] = [
       "werkzeugmacher",
       "verfahrenstechnik",
       "werkvoorbereider",
+      "elektroniker",
+      "elektriker",
+      "elektrofachkraft",
+      "elektroinstallateur",
+      "elektromonteur",
+      "monteur",
+      "metallbauer",
+      "servicetechniker",
     ],
   },
   {
     id: "ingenieurwesen",
     kind: "hard",
-    label: "Ingenieurwesen",
+    label: "Ingenieurwesen und Forschung",
     names: [
       "ingenieur",
       "engineer",
@@ -82,13 +83,6 @@ export const SKILL_CATALOG: SkillCluster[] = [
       "maschinenbau",
       "bauingenieur",
       "verfahrenstechniker",
-    ],
-  },
-  {
-    id: "forschung",
-    kind: "hard",
-    label: "Forschung",
-    names: [
       "forschung",
       "forscher",
       "scientist",
@@ -243,7 +237,7 @@ export const SKILL_CATALOG: SkillCluster[] = [
   {
     id: "vertrieb",
     kind: "soft",
-    label: "Vertrieb",
+    label: "Vertrieb, Marketing und Produktmanagement",
     names: [
       "verkäufer",
       "verkaeufer",
@@ -272,26 +266,12 @@ export const SKILL_CATALOG: SkillCluster[] = [
       "verräumer",
       "prodavač",
       "prodavac",
-    ],
-  },
-  {
-    id: "marketing",
-    kind: "soft",
-    label: "Marketing",
-    names: [
       "marketing",
       "merchandis",
       "warenpräsentation",
       "warenpraesentation",
       "brand manager",
       "kampagnen",
-    ],
-  },
-  {
-    id: "produkt",
-    kind: "soft",
-    label: "Produktmanagement",
-    names: [
       "product manager",
       "produktmanager",
       "produktmanagement",
@@ -638,14 +618,6 @@ export const SKILL_CATALOG: SkillCluster[] = [
       "schreiner",
       "carpenter",
       "fliesenleger",
-      "elektroniker",
-      "elektriker",
-      "elektrofachkraft",
-      "elektroinstallateur",
-      "elektromonteur",
-      "monteur",
-      "metallbauer",
-      "servicetechniker",
     ],
   },
   {
@@ -748,9 +720,16 @@ export function clusterById(id: string | null | undefined): SkillCluster | undef
   return SKILL_CATALOG.find((s) => s.id === id)
 }
 
+const LABEL_ALIASES: Record<string, string> = {
+  uncategorized: "Weitere",
+  fertigung: "Produktion und Fertigung",
+  forschung: "Ingenieurwesen und Forschung",
+  marketing: "Vertrieb, Marketing und Produktmanagement",
+  produkt: "Vertrieb, Marketing und Produktmanagement",
+}
+
 export function specialtyLabel(id: string): string {
-  if (id === "uncategorized") return "Weitere"
-  return clusterById(id)?.label || id
+  return LABEL_ALIASES[id] || clusterById(id)?.label || id
 }
 
 export function specialtyNeedles(): { id: string; needle: string }[] {

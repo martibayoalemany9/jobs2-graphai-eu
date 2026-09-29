@@ -50,8 +50,8 @@ function Bar({
   const w = Math.max(2, Math.round((n / max) * 100))
   return (
     <div className="flex items-center gap-3 text-sm">
-      <span className="w-36 shrink-0 font-semibold leading-snug">{label}</span>
-      <div className="h-2.5 w-28 shrink-0 overflow-hidden rounded-full bg-pill">
+      <span className="w-52 shrink-0 font-semibold leading-snug">{label}</span>
+      <div className="h-2.5 w-24 shrink-0 overflow-hidden rounded-full bg-pill">
         <div
           className={`h-2.5 rounded-full ${muted ? "bg-muted" : "bg-primary"}`}
           style={{ width: `${Math.min(100, w)}%` }}

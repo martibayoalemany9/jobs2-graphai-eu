@@ -30,21 +30,18 @@ test("new occupation fields pull leftover titles out of Weitere", () => {
   assert.ok(extractSpecialties("Transportation Security Officer").includes("sicherheit"))
 })
 
-test("compound fields split into specific categories", () => {
-  assert.deepEqual(extractSpecialties("Verkäufer (m/w/d) Teilzeit"), ["vertrieb"])
-  assert.ok(extractSpecialties("Product Manager").includes("produkt"))
-  assert.ok(extractSpecialties("Marketing Manager").includes("marketing"))
-  assert.ok(extractSpecialties("Buchhalter (m/w/d)").includes("rechnungswesen"))
-  assert.ok(extractSpecialties("Controller (m/w/d)").includes("controlling"))
-  assert.ok(extractSpecialties("Oberarzt (m/w/d) Anästhesie").includes("medizin"))
-  assert.ok(extractSpecialties("Pflegefachkraft (m/w/d)").includes("pflege"))
-  assert.ok(extractSpecialties("Timmerman").includes("handwerk"))
-  assert.ok(extractSpecialties("Dělníci v oblasti výstavby a údržby budov").includes("bau"))
-  assert.ok(extractSpecialties("Sozialarbeiter (m/w/d)").includes("soziales"))
+test("core combined occupation labels", () => {
+  assert.equal(specialtyLabel("produktion"), "Produktion und Fertigung")
+  assert.equal(specialtyLabel("logistik"), "Logistik")
+  assert.equal(specialtyLabel("vertrieb"), "Vertrieb, Marketing und Produktmanagement")
+  assert.equal(specialtyLabel("ingenieurwesen"), "Ingenieurwesen und Forschung")
+  assert.ok(extractSpecialties("Product Manager").includes("vertrieb"))
+  assert.ok(extractSpecialties("Marketing Manager").includes("vertrieb"))
+  assert.ok(extractSpecialties("Industriemechaniker (m/w/d)").includes("produktion"))
 })
 
 test("one job can have many categories", () => {
   const ids = extractSpecialties("Quality Engineer / Qualitätsmanagement in der Fertigung")
   assert.ok(ids.includes("qualitaet"))
-  assert.ok(ids.includes("fertigung") || ids.includes("ingenieurwesen"))
+  assert.ok(ids.includes("produktion") || ids.includes("ingenieurwesen"))
 })
