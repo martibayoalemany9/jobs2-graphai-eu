@@ -17,13 +17,34 @@ test("software engineer is IT and engineering", () => {
 
 test("unmatched titles land in Weitere, never uncategorized", () => {
   assert.deepEqual(extractSpecialties("Aushilfe (m/w/d)"), ["weitere"])
-  assert.deepEqual(extractSpecialties("Reinigungskraft (m/w/d)"), ["weitere"])
   assert.equal(extractSpecialties("completely unknown role xyz").includes("uncategorized"), false)
   assert.equal(specialtyLabel("uncategorized"), "Weitere")
+})
+
+test("new occupation fields pull leftover titles out of Weitere", () => {
+  assert.ok(extractSpecialties("Reinigungskraft (m/w/d)").includes("reinigung"))
+  assert.ok(extractSpecialties("Pflegefachkraft (m/w/d)").includes("pflege"))
+  assert.ok(extractSpecialties("Erzieher (m/w/d)").includes("erziehung"))
+  assert.ok(extractSpecialties("Kuchař/ka").includes("gastronomie"))
+  assert.ok(extractSpecialties("Dělníci v oblasti výstavby a údržby budov").includes("bau"))
+  assert.ok(extractSpecialties("Transportation Security Officer").includes("sicherheit"))
+})
+
+test("compound fields split into specific categories", () => {
+  assert.deepEqual(extractSpecialties("Verkäufer (m/w/d) Teilzeit"), ["vertrieb"])
+  assert.ok(extractSpecialties("Product Manager").includes("produkt"))
+  assert.ok(extractSpecialties("Marketing Manager").includes("marketing"))
+  assert.ok(extractSpecialties("Buchhalter (m/w/d)").includes("rechnungswesen"))
+  assert.ok(extractSpecialties("Controller (m/w/d)").includes("controlling"))
+  assert.ok(extractSpecialties("Oberarzt (m/w/d) Anästhesie").includes("medizin"))
+  assert.ok(extractSpecialties("Pflegefachkraft (m/w/d)").includes("pflege"))
+  assert.ok(extractSpecialties("Timmerman").includes("handwerk"))
+  assert.ok(extractSpecialties("Dělníci v oblasti výstavby a údržby budov").includes("bau"))
+  assert.ok(extractSpecialties("Sozialarbeiter (m/w/d)").includes("soziales"))
 })
 
 test("one job can have many categories", () => {
   const ids = extractSpecialties("Quality Engineer / Qualitätsmanagement in der Fertigung")
   assert.ok(ids.includes("qualitaet"))
-  assert.ok(ids.includes("produktion") || ids.includes("ingenieurwesen"))
+  assert.ok(ids.includes("fertigung") || ids.includes("ingenieurwesen"))
 })

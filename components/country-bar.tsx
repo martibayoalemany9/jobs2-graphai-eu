@@ -15,7 +15,7 @@ export function CountryBar({
   kinds: Kind[]
 }) {
   const rows = kinds.filter((k) => k.specialty !== "*")
-  const named = rows.filter((k) => k.specialty !== "uncategorized" && k.specialty !== "weitere").slice(0, 16)
+  const named = rows.filter((k) => k.specialty !== "uncategorized" && k.specialty !== "weitere").slice(0, 24)
   const other = rows.find((k) => k.specialty === "weitere" || k.specialty === "uncategorized")
   const max = Math.max(1, ...named.map((k) => k.n))
   return (
@@ -49,15 +49,15 @@ function Bar({
 }) {
   const w = Math.max(2, Math.round((n / max) * 100))
   return (
-    <div className="grid grid-cols-[9rem_1fr_4.5rem] items-center gap-2 text-sm">
-      <span className="truncate font-semibold">{label}</span>
-      <div className="h-3 rounded-full bg-pill">
+    <div className="flex items-center gap-3 text-sm">
+      <span className="w-36 shrink-0 font-semibold leading-snug">{label}</span>
+      <div className="h-2.5 w-28 shrink-0 overflow-hidden rounded-full bg-pill">
         <div
-          className={`h-3 rounded-full ${muted ? "bg-muted" : "bg-primary"}`}
+          className={`h-2.5 rounded-full ${muted ? "bg-muted" : "bg-primary"}`}
           style={{ width: `${Math.min(100, w)}%` }}
         />
       </div>
-      <span className="text-right tabular-nums text-muted">{n.toLocaleString()}</span>
+      <span className="w-14 shrink-0 text-right tabular-nums text-muted">{n.toLocaleString()}</span>
     </div>
   )
 }
