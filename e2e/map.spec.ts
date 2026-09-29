@@ -4,12 +4,27 @@ test("country select and bar", async ({ page }) => {
   await page.goto("/?view=map")
   await expect(page.getByTestId("country-select")).toBeVisible()
   await expect(page.getByTestId("country-map")).toBeVisible()
+  await expect(page.getByTestId("map-progress")).toHaveCount(0, { timeout: 30_000 })
+  await expect(page.locator(".leaflet-container")).toBeVisible({ timeout: 30_000 })
   await expect(page.getByTestId("map-stats")).toBeVisible()
   await expect(page.getByTestId("metric-this-month")).toBeVisible()
   await expect(page.getByTestId("country-bar")).toBeVisible()
   await expect(page.getByTestId("country-bar")).not.toContainText("All jobs")
   await expect(page.getByTestId("time-series")).toBeVisible()
   await expect(page.getByTestId("kpi-legend")).toBeVisible()
+})
+
+test("map shows a progress bar while the choropleth loads", async ({ page }) => {
+  await page.route("**/geo/countries.geojson", async (route) => {
+    await new Promise((r) => setTimeout(r, 1200))
+    await route.continue()
+  })
+  await page.goto("/?view=map")
+  const progress = page.getByTestId("map-progress")
+  await expect(progress).toBeVisible()
+  await expect(progress).toContainText("%")
+  await expect(progress).toHaveCount(0, { timeout: 30_000 })
+  await expect(page.locator(".leaflet-container")).toBeVisible()
 })
 
 test("occupation labels switch EN DE NL FR", async ({ page }) => {

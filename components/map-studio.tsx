@@ -4,10 +4,15 @@ import dynamic from "next/dynamic"
 import { useMemo, useState } from "react"
 import { countryLabel } from "@/lib/country"
 import { MAP_METRICS, type CountryStats, type MapMetric } from "./leaflet-map"
+import { MapProgress } from "./map-progress"
 
 const LeafletMap = dynamic(() => import("./leaflet-map").then((m) => m.LeafletMap), {
   ssr: false,
-  loading: () => <div className="flex h-[420px] items-center justify-center text-sm text-muted">Loading world map…</div>,
+  loading: () => (
+    <div className="relative h-[420px] w-full">
+      <MapProgress value={12} label="Loading world map" />
+    </div>
+  ),
 })
 
 function metricValue(c: CountryStats | undefined, metric: MapMetric): number {
