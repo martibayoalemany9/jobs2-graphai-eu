@@ -48,7 +48,10 @@ export async function GET(req: Request) {
            HAVING COUNT(DISTINCT c.cert_id) = ARRAY_LENGTH(@certs)
          )`
 
-  const capSql = masterCapSql(cap)
+  const capSql =
+    cap == null
+      ? ""
+      : `AND (${masterCapSql(cap).replace(/^AND\s+/i, "")} OR EXISTS (SELECT 1 FROM ${table("job_offer_comms")} c WHERE c.job_key = j.job_key AND c.applied IS TRUE AND NULLIF(TRIM(c.reply_product), "") IS NOT NULL))`
   const cursorSql = cursor ? "AND j.job_key > @cursor" : ""
   const countrySql = scope.all ? "TRUE" : "j.country_iso2 = @cc"
 

@@ -20,6 +20,10 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
   try {
     const link = await lookupBoardLink(jobKey)
     const masterId = link?.master_job_key || jobKey
+    const capOrComms =
+      cap == null
+        ? ""
+        : `AND (${capSql.replace(/^AND\s+/i, "")} OR EXISTS (SELECT 1 FROM ${table("job_offer_comms")} c WHERE c.job_key = j.job_key AND c.applied IS TRUE AND NULLIF(TRIM(c.reply_product), "") IS NOT NULL))`
     const jobs = await bqQuery<{
       job_key: string
       url: string
@@ -41,7 +45,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
        FROM ${table("job_offers_country")} j
        ${masterBoardsJoin()}
        ${jobTranslationJoin()}
-       WHERE j.job_key = @id ${capSql}
+       WHERE j.job_key = @id ${capOrComms}
        LIMIT 1`,
       cap == null ? { id: masterId, locale } : { id: masterId, cap, locale },
     )
