@@ -3,6 +3,7 @@ import { bqQuery, num, table } from "@/lib/bq"
 import { catalogLocaleFromRequest, jobTranslationJoin, TRANSLATED_EXCERPT_SQL, TRANSLATED_TITLE_SQL } from "@/lib/job-i18n"
 import { sessionCap } from "@/lib/session-entitlement"
 import { formatLocationLine, isRemoteFlag, resolveJobLocation } from "@/lib/location"
+import { loadSkillsByJobKeys } from "@/lib/job-skills"
 
 export const dynamic = "force-dynamic"
 
@@ -30,17 +31,9 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
       description_len: unknown
       specialties: string[]
       public_rank: unknown
-      skills: { skill_id: string; skill_label: string }[]
     }>(
       `SELECT j.job_key, j.url, ${TRANSLATED_TITLE_SQL}, j.company, j.country_iso2, j.job_location, j.headquarters_location, j.is_remote,
-              j.appeared_at, j.availability, ${TRANSLATED_EXCERPT_SQL}, j.description_len, j.specialties, j.public_rank,
-              ARRAY(
-                SELECT AS STRUCT s.skill_id, s.skill_label
-                FROM ${table("job_offer_skills")} s
-                WHERE s.job_key = j.job_key
-                ORDER BY s.skill_id
-                LIMIT 16
-              ) AS skills
+              j.appeared_at, j.availability, ${TRANSLATED_EXCERPT_SQL}, j.description_len, j.specialties, j.public_rank
        FROM ${table("job_offers_country")} j
        ${jobTranslationJoin()}
        WHERE j.job_key = @id ${capSql}
@@ -60,11 +53,14 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
       if (d[0]?.description) description = d[0].description
     }
 
-    const certs = await bqQuery<Record<string, string>>(
-      `SELECT certification_name, provider, certification_url, match_kind, cert_id
-       FROM ${table("job_offer_certs")} WHERE job_key = @id LIMIT 24`,
-      { id: jobKey },
-    )
+    const [certs, skillsByJob] = await Promise.all([
+      bqQuery<Record<string, string>>(
+        `SELECT certification_name, provider, certification_url, match_kind, cert_id
+         FROM ${table("job_offer_certs")} WHERE job_key = @id LIMIT 24`,
+        { id: jobKey },
+      ),
+      loadSkillsByJobKeys([job.job_key], 16),
+    ])
     const conferences = await bqQuery<Record<string, unknown>>(
       `SELECT conference_name, organizer, conference_url, location, start_date, end_date, relation
        FROM ${table("job_offer_conferences")} WHERE job_key = @id LIMIT 12`,
@@ -113,7 +109,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
         display_location: formatLocationLine({ ...loc, remote: isRemoteFlag(job.is_remote, job.title) }),
         used_headquarters: loc.usedHeadquarters,
         headquarters_location: loc.headquarters,
-        skills: job.skills || [],
+        skills: skillsByJob.get(job.job_key) || [],
       },
       certs,
       conferences,

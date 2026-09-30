@@ -5,6 +5,7 @@ import { parseCountryScope } from "@/lib/country"
 import { catalogLocaleFromRequest, jobTranslationJoin, TRANSLATED_EXCERPT_SQL, TRANSLATED_TITLE_SQL } from "@/lib/job-i18n"
 import { sessionCap } from "@/lib/session-entitlement"
 import { formatLocationLine, isRemoteFlag, resolveJobLocation } from "@/lib/location"
+import { loadSkillsByJobKeys } from "@/lib/job-skills"
 
 export const dynamic = "force-dynamic"
 
@@ -69,17 +70,9 @@ export async function GET(req: Request) {
       availability: string
       description_excerpt: string
       specialties: string[]
-      skills: { skill_id: string; skill_label: string }[]
     }>(
       `SELECT j.job_key, ${TRANSLATED_TITLE_SQL}, j.company, j.country_iso2, j.job_location, j.headquarters_location, j.is_remote,
-              j.public_rank, j.availability, ${TRANSLATED_EXCERPT_SQL}, j.specialties,
-              ARRAY(
-                SELECT AS STRUCT s.skill_id, s.skill_label
-                FROM ${table("job_offer_skills")} s
-                WHERE s.job_key = j.job_key
-                ORDER BY s.skill_id
-                LIMIT 12
-              ) AS skills
+              j.public_rank, j.availability, ${TRANSLATED_EXCERPT_SQL}, j.specialties
        FROM ${table("job_offers_country")} j
        ${jobTranslationJoin()}
        WHERE ${countrySql}
@@ -92,6 +85,7 @@ export async function GET(req: Request) {
        LIMIT @limit`,
       params,
     )
+    const skillsByJob = await loadSkillsByJobKeys(rows.map((r) => r.job_key), 12)
     return NextResponse.json({
       jobs: rows.map((r) => {
         const loc = resolveJobLocation({
@@ -109,6 +103,7 @@ export async function GET(req: Request) {
           headquarters_location: loc.headquarters,
           display_location: formatLocationLine({ ...loc, remote: isRemoteFlag(r.is_remote, r.title) }),
           used_headquarters: loc.usedHeadquarters,
+          skills: skillsByJob.get(r.job_key) || [],
         }
       }),
       entitlement: { ...sess.entitlement, truncated: cap != null },
