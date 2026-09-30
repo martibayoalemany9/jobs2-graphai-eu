@@ -18,6 +18,7 @@ import { SKILL_CATALOG } from "@/lib/skills-catalog"
 import type { Entitlement } from "@/lib/entitlement"
 import { AvailabilityFilter } from "./availability-filter"
 import { JobReport } from "./job-report"
+import { StudioFooter } from "./studio-footer"
 import { useAvailabilityLabel, useCatalogLocale, useCountryLabel, useSpecialtyLabel, useUiCopy } from "./catalog-locale"
 
 type Job = {
@@ -454,13 +455,7 @@ export function StudioApp() {
           </section>
         )}
       </main>
-      <footer className="mt-auto border-t border-border px-4 py-4 text-sm text-muted md:px-10">
-        <a href="https://graphai.eu/imprint" className="hover:underline">Imprint</a>
-        {" · "}
-        <a href="https://graphai.eu" className="hover:underline">Privacy</a>
-        {" · "}
-        Graphai OÜ
-      </footer>
+      <StudioFooter />
     </div>
   )
 }
