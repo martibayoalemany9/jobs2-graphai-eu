@@ -8,6 +8,17 @@ export type SeriesPoint = { d: string; n_total: number; n_available: number; n_u
 export type KpiPoint = { year_month: string; unemployment_rate: number; source: string }
 export type SpikeOverlay = Pick<SpikePick, "specialty" | "series" | "latestDelta" | "score" | "reason">
 
+const JOBS_COLOR = "#1b8f4a"
+const SPIKE_COLOR = "#d97706"
+const KPI_COLOR = "#7a5c20"
+
+function closedArea(linePts: string[], baselineY: number): string {
+  if (linePts.length < 2) return ""
+  const x0 = linePts[0].split(",")[0]
+  const x1 = linePts[linePts.length - 1].split(",")[0]
+  return `${linePts.join(" ")} ${x1},${baselineY} ${x0},${baselineY}`
+}
+
 export function TimeSeries({
   series,
   kpi,
@@ -60,6 +71,10 @@ export function TimeSeries({
   const latestN = latest ? seriesCount(latest, availability) : 0
   const jobsLegend = availability === "all" ? "Jobs found" : availOf(availability)
   const spikeLabel = spike ? labelOf(spike.specialty) : ""
+  const baselineY = h - pad
+  const jobsArea = closedArea(pts, baselineY)
+  const spikeArea = closedArea(spikePts, baselineY)
+  const kpiArea = closedArea(kpiPts, baselineY)
   return (
     <section className="rounded-xl border border-border bg-surface p-4">
       <h2 className="text-lg font-extrabold tracking-tight">Jobs over time</h2>
@@ -69,13 +84,22 @@ export function TimeSeries({
         {spike ? ` Orange line is ${spikeLabel} after a large day-to-day change.` : ""}
       </p>
       <svg viewBox={`0 0 ${w} ${h}`} className="mt-3 w-full" role="img" aria-label="Job count time series" data-testid="time-series">
-        {pts.length ? <polyline fill="none" stroke="#1b8f4a" strokeWidth="2.4" points={pts.join(" ")} /> : null}
-        {spikePts.length > 1 ? (
-          <polyline fill="none" stroke="#d97706" strokeWidth="2" points={spikePts.join(" ")} data-testid="series-spike-line" />
+        {kpiArea ? (
+          <polygon fill={KPI_COLOR} fillOpacity="0.18" stroke="none" points={kpiArea} data-testid="series-kpi-fill" />
         ) : null}
-        {kpiPts.length > 1 && (
-          <polyline fill="none" stroke="#7a5c20" strokeWidth="1.6" strokeDasharray="5 4" points={kpiPts.join(" ")} />
-        )}
+        {jobsArea ? (
+          <polygon fill={JOBS_COLOR} fillOpacity="0.28" stroke="none" points={jobsArea} data-testid="series-jobs-fill" />
+        ) : null}
+        {spikeArea ? (
+          <polygon fill={SPIKE_COLOR} fillOpacity="0.24" stroke="none" points={spikeArea} data-testid="series-spike-fill" />
+        ) : null}
+        {pts.length ? <polyline fill="none" stroke={JOBS_COLOR} strokeWidth="2.4" points={pts.join(" ")} /> : null}
+        {spikePts.length > 1 ? (
+          <polyline fill="none" stroke={SPIKE_COLOR} strokeWidth="2" points={spikePts.join(" ")} data-testid="series-spike-line" />
+        ) : null}
+        {kpiPts.length > 1 ? (
+          <polyline fill="none" stroke={KPI_COLOR} strokeWidth="1.6" strokeDasharray="5 4" points={kpiPts.join(" ")} />
+        ) : null}
       </svg>
       <div className="mt-2 flex flex-wrap gap-4 text-xs font-semibold text-muted" data-testid="kpi-legend">
         <span data-testid="series-jobs-legend">{jobsLegend}</span>

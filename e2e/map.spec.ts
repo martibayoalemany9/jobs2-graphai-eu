@@ -12,11 +12,13 @@ test("country select and bar", async ({ page }) => {
   await expect(page.getByTestId("country-bar")).not.toContainText("All jobs")
   await expect(page.getByTestId("time-series")).toBeVisible()
   await expect(page.getByTestId("kpi-legend")).toBeVisible()
+  await expect(page.getByTestId("series-jobs-fill")).toBeVisible()
   const spike = page.getByTestId("series-spike-legend")
   const n = await spike.count()
   expect(n === 0 || n === 1).toBeTruthy()
   if (n === 1) {
     await expect(page.getByTestId("series-spike-line")).toBeVisible()
+    await expect(page.getByTestId("series-spike-fill")).toBeVisible()
   }
 })
 

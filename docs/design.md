@@ -405,7 +405,7 @@ WHERE j.country_iso2 = @cc
 - Choropleth color: **log buckets** (`--map-1`…`--map-6`), not a linear map of `min(n,1000)`. Signed-in Map may label exact `n_total`; anonymous Map may still send `n_total` on `/api/countries` for the bar/select.
 - Kinds of jobs = `specialties` distribution (`country_specialty_counts`).
 - Availability filter: `available` / `probably_unavailable` / `all`. **Default `all` until that country has ≥1 probe row; then default `available`.** Unavailable jobs remain listed when filter is `all` or `probably_unavailable`.
-- Time-series: `job_count_daily` line + dashed KPI overlay. When one occupation’s day-to-day change is an outlier (share-lift or several times its own median daily delta, skipping Other/general), overlay that specialty as a second independently scaled solid line.
+- Time-series: `job_count_daily` line + dashed KPI overlay. Each curve fills the area down to the baseline with that curve’s stroke color (jobs green, spike orange, unemployment brown). When one occupation’s day-to-day change is an outlier (share-lift or several times its own median daily delta, skipping Other/general), overlay that specialty as a second independently scaled solid line.
 
 Profile specialties: after onboarding, List/Jobs default to combobox ∩ `publicMetadata.specialties`. User can widen to all clusters.
 
