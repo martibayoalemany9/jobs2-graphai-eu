@@ -46,6 +46,17 @@ const BOARDS: (JobBoardMeta & { label: ReturnType<typeof L> })[] = [
   { id: "planned", letters: "PL", bg: "#3d6b61", fg: FG, label: L("Planned jobs", "Geplante Jobs", "Geplande vacatures", "Offres planifiées", "Plánované nabídky", "予定求人", "Planeeritud tööd", "Плановые вакансии") },
   { id: "musikforschung", letters: "MF", bg: "#6b2d5b", fg: FG, label: L("Musikforschung", "Musikforschung", "Musikforschung", "Musikforschung", "Musikforschung", "Musikforschung", "Musikforschung", "Musikforschung") },
   { id: "wissenschaftsstellen", letters: "WS", bg: "#084539", fg: FG, label: L("Wissenschaftsstellen", "Wissenschaftsstellen", "Wissenschaftsstellen", "Wissenschaftsstellen", "Wissenschaftsstellen", "Wissenschaftsstellen", "Wissenschaftsstellen", "Wissenschaftsstellen") },
+  { id: "epo", letters: "EP", bg: "#003399", fg: FG, label: L("European Patent Office", "Europäisches Patentamt", "Europees Octrooibureau", "Office européen des brevets", "Evropský patentový úřad", "欧州特許庁", "Euroopa Patendiamet", "Европейское патентное ведомство", "यूरोपीय पेटेंट कार्यालय") },
+  { id: "dpma", letters: "DP", bg: "#1a1a1a", fg: FG, label: L("DPMA", "DPMA", "DPMA", "DPMA", "DPMA", "DPMA", "DPMA", "DPMA", "डीपीएमए") },
+  { id: "euipo", letters: "EO", bg: "#164194", fg: FG, label: L("EUIPO", "EUIPO", "EUIPO", "EUIPO", "EUIPO", "EUIPO", "EUIPO", "EUIPO", "EUIPO") },
+  { id: "wipo", letters: "WO", bg: "#3366cc", fg: FG, label: L("WIPO", "WIPO", "WIPO", "OMPI", "WIPO", "WIPO", "WIPO", "ВОИС", "वाइपो") },
+  { id: "ukipo", letters: "IO", bg: "#1d70b8", fg: FG, label: L("UK IPO", "UK IPO", "UK IPO", "UK IPO", "UK IPO", "UK IPO", "UK IPO", "UK IPO", "यूके आईपीओ") },
+  { id: "worknet", letters: "WN", bg: "#003478", fg: FG, label: L("Worknet", "Worknet", "Worknet", "Worknet", "Worknet", "ワークネット", "Worknet", "Worknet", "वर्कनेट") },
+  { id: "philjobnet", letters: "PJ", bg: "#0038a8", fg: FG, label: L("PhilJobNet", "PhilJobNet", "PhilJobNet", "PhilJobNet", "PhilJobNet", "PhilJobNet", "PhilJobNet", "PhilJobNet", "फिलजॉबनेट") },
+  { id: "portalempleo", letters: "PE", bg: "#74acdf", fg: FG, label: L("Portal Empleo", "Portal Empleo", "Portal Empleo", "Portal Empleo", "Portal Empleo", "Portal Empleo", "Portal Empleo", "Portal Empleo", "पोर्टल एम्प्लियो") },
+  { id: "hawaii", letters: "HA", bg: "#00247d", fg: FG, label: L("Hawaii jobs", "Hawaii", "Hawaï", "Hawaï", "Havaj", "ハワイ", "Hawaii", "Гавайи", "हवाई") },
+  { id: "mol_oman", letters: "OM", bg: "#c8102e", fg: FG, label: L("Ministry of Labour Oman", "Arbeitsministerium Oman", "Ministerie van Arbeid Oman", "Ministère du travail Oman", "Ministerstvo práce Omán", "オマーン労働省", "Omaani tööministeerium", "Министерство труда Омана", "ओमान श्रम मंत्रालय") },
+  { id: "zeit", letters: "ZE", bg: "#222222", fg: FG, label: L("ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs") },
   { id: "monster", letters: "MO", bg: "#6e46ae", fg: FG, label: L("Monster", "Monster", "Monster", "Monster", "Monster", "Monster", "Monster", "Monster") },
   { id: "other", letters: "JB", bg: "#3d6b61", fg: FG, label: L("Job board", "Jobbörse", "Vacaturesite", "Job board", "Job portál", "求人サイト", "Tööportaal", "Доска вакансий") },
 ]
@@ -113,6 +124,22 @@ export function resolveBoardId(source: string, url: string): string {
   if (/devitjobs/.test(s)) return "devitjobs"
   if (/musikforschung/.test(s)) return "musikforschung"
   if (/wissenschaftsstellen/.test(s)) return "wissenschaftsstellen"
+  if (/^epo/.test(s) || /jobs\.epo\.org/.test(u)) return "epo"
+  if (/^dpma/.test(s) || /dpma\.de/.test(u)) return "dpma"
+  if (/^euipo/.test(s) || /euipo\.europa\.eu/.test(u)) return "euipo"
+  if (/^wipo/.test(s) || /wipo\.int|wipo\.taleo/.test(u)) return "wipo"
+  if (/^ukipo/.test(s) || /ipo\.gov\.uk/.test(u)) return "ukipo"
+  if (/worknet|work\.go\.kr|work24\.go\.kr/.test(s + u)) return "worknet"
+  if (/philjobnet/.test(s + u)) return "philjobnet"
+  if (/portalempleo|portalempleo\.gob\.ar/.test(s + u)) return "portalempleo"
+  if (
+    /^hawaii/.test(s) ||
+    /governmentjobs\.com\/careers\/(hawaii|honolulu|mauicounty|hawaiicounty|kauai|hawaiiedu|hhsc)/.test(u) ||
+    /schooljobs\.com\/careers\/hawaii/.test(u)
+  )
+    return "hawaii"
+  if (/mol_oman/.test(s) || /mol\.gov\.om|taj\.mol\.gov\.om|tawteen\.om/.test(u)) return "mol_oman"
+  if (/zeit_jobs/.test(s) || /jobs\.zeit\.de/.test(u)) return "zeit"
   if (/google/.test(s)) return "google"
   const slug = s.replace(/\.(csv|jsonl|json)$/, "").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "")
   return slug || "other"

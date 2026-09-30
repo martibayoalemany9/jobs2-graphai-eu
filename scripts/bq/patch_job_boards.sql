@@ -56,6 +56,28 @@ WITH base AS (
       WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"devitjobs") THEN "devitjobs"
       WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"musikforschung") THEN "musikforschung"
       WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"wissenschaftsstellen") THEN "wissenschaftsstellen"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"^epo")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"jobs\.epo\.org") THEN "epo"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"^dpma")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"dpma\.de") THEN "dpma"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"^euipo")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"euipo\.europa\.eu") THEN "euipo"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"^wipo")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"wipo\.int|wipo\.taleo") THEN "wipo"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"^ukipo")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"ipo\.gov\.uk") THEN "ukipo"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"worknet")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"work\.go\.kr|work24\.go\.kr") THEN "worknet"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"philjobnet")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"philjobnet\.gov\.ph") THEN "philjobnet"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"portalempleo")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"portalempleo\.gob\.ar") THEN "portalempleo"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"^hawaii")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"governmentjobs\.com/careers/(hawaii|honolulu|mauicounty|hawaiicounty|kauai|hawaiiedu|hhsc)|schooljobs\.com/careers/hawaii") THEN "hawaii"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"mol_oman")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"mol\.gov\.om|taj\.mol\.gov\.om|tawteen\.om") THEN "mol_oman"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"zeit_jobs")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"jobs\.zeit\.de") THEN "zeit"
       WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"google") THEN "google"
       ELSE COALESCE(
         NULLIF(
