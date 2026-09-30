@@ -6,6 +6,7 @@ import { catalogLocaleFromRequest, jobTranslationJoin, TRANSLATED_EXCERPT_SQL, T
 import { sessionCap } from "@/lib/session-entitlement"
 import { formatLocationLine, isRemoteFlag, resolveJobLocation } from "@/lib/location"
 import { loadSkillsByJobKeys } from "@/lib/job-skills"
+import { loadBoardsByMasterKeys, masterBoardsJoin, masterCapSql } from "@/lib/load-job-boards"
 
 export const dynamic = "force-dynamic"
 
@@ -46,7 +47,7 @@ export async function GET(req: Request) {
            HAVING COUNT(DISTINCT c.cert_id) = ARRAY_LENGTH(@certs)
          )`
 
-  const capSql = cap == null ? "" : "AND j.public_rank <= @cap"
+  const capSql = masterCapSql(cap)
   const cursorSql = cursor ? "AND j.job_key > @cursor" : ""
   const countrySql = scope.all ? "TRUE" : "j.country_iso2 = @cc"
 
@@ -74,6 +75,7 @@ export async function GET(req: Request) {
       `SELECT j.job_key, ${TRANSLATED_TITLE_SQL}, j.company, j.country_iso2, j.job_location, j.headquarters_location, j.is_remote,
               j.public_rank, j.availability, ${TRANSLATED_EXCERPT_SQL}, j.specialties
        FROM ${table("job_offers_country")} j
+       ${masterBoardsJoin()}
        ${jobTranslationJoin()}
        WHERE ${countrySql}
          ${capSql}
@@ -85,7 +87,11 @@ export async function GET(req: Request) {
        LIMIT @limit`,
       params,
     )
-    const skillsByJob = await loadSkillsByJobKeys(rows.map((r) => r.job_key), 12)
+    const keys = rows.map((r) => r.job_key)
+    const [skillsByJob, boardsByJob] = await Promise.all([
+      loadSkillsByJobKeys(keys, 12),
+      loadBoardsByMasterKeys(keys),
+    ])
     return NextResponse.json({
       jobs: rows.map((r) => {
         const loc = resolveJobLocation({
@@ -104,6 +110,7 @@ export async function GET(req: Request) {
           display_location: formatLocationLine({ ...loc, remote: isRemoteFlag(r.is_remote, r.title) }),
           used_headquarters: loc.usedHeadquarters,
           skills: skillsByJob.get(r.job_key) || [],
+          boards: boardsByJob.get(r.job_key) || [],
         }
       }),
       entitlement: { ...sess.entitlement, truncated: cap != null },

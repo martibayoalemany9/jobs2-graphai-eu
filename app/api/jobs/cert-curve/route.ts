@@ -3,6 +3,7 @@ import { bqQuery, num, table } from "@/lib/bq"
 import { parseCountryScope } from "@/lib/country"
 import { availabilitySql, parseAvailability } from "@/lib/availability"
 import { sessionCap } from "@/lib/session-entitlement"
+import { masterBoardsJoin, masterCapSql } from "@/lib/load-job-boards"
 
 export const dynamic = "force-dynamic"
 
@@ -24,7 +25,7 @@ export async function GET(req: Request) {
     specialties.length === 0
       ? ""
       : "AND EXISTS (SELECT 1 FROM UNNEST(j.specialties) s WHERE s IN UNNEST(@sp))"
-  const capSql = cap == null ? "" : "AND j.public_rank <= @cap"
+  const capSql = masterCapSql(cap)
   const availSql = availabilitySql("j", parseAvailability(url.searchParams.get("availability")))
   const countrySql = scope.all ? "TRUE" : "j.country_iso2 = @cc"
   const certCountrySql = scope.all ? "TRUE" : "c.country_iso2 = @cc AND j.country_iso2 = @cc"
@@ -38,6 +39,7 @@ export async function GET(req: Request) {
     const points: { k: number; cert_id: string | null; n: number }[] = []
     const base = await bqQuery<{ n: unknown }>(
       `SELECT COUNT(*) AS n FROM ${table("job_offers_country")} j
+       ${masterBoardsJoin()}
        WHERE ${countrySql} ${capSql} ${availSql} ${specSql}`,
       baseParams,
     )
@@ -49,6 +51,7 @@ export async function GET(req: Request) {
            SELECT c.job_key
            FROM ${table("job_offer_certs")} c
            JOIN ${table("job_offers_country")} j ON j.job_key = c.job_key
+           ${masterBoardsJoin()}
            WHERE ${certCountrySql}
              ${capSql}
              ${availSql}

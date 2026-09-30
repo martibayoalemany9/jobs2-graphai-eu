@@ -39,5 +39,7 @@ describe("catalog locales", () => {
     assert.equal(uiCopy("ru", "tab_jobs"), "Вакансии")
     assert.equal(uiCopy("cs", "report_title"), "Požádat o smazání nebo opravu")
     assert.equal(mapMetricCopy("jobs", "ja"), "求人数")
+    assert.equal(uiCopy("en", "board_diff_title"), "Compare listings")
+    assert.equal(uiCopy("de", "board_master"), "Master")
   })
 })

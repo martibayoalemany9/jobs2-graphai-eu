@@ -53,9 +53,10 @@ export async function GET(_req: Request, ctx: { params: Promise<{ iso2: string }
       if (!nTotal) {
         const fallback = await bqQuery<{ n_total: unknown; n_available: unknown; n_unavailable: unknown }>(
           `SELECT COUNT(*) AS n_total,
-                  COUNTIF(availability = 'available') AS n_available,
-                  COUNTIF(availability = 'probably_unavailable') AS n_unavailable
-           FROM ${table("job_offers_country")}`,
+                  COUNTIF(j.availability = 'available') AS n_available,
+                  COUNTIF(j.availability = 'probably_unavailable') AS n_unavailable
+           FROM ${table("job_offers_country")} j
+           JOIN ${table("job_offer_boards")} b ON b.job_key = j.job_key AND b.is_master`,
         )
         nTotal = num(fallback[0]?.n_total)
         nAvailable = num(fallback[0]?.n_available)
@@ -100,9 +101,11 @@ export async function GET(_req: Request, ctx: { params: Promise<{ iso2: string }
     if (!nTotal) {
       const fallback = await bqQuery<{ n_total: unknown; n_available: unknown; n_unavailable: unknown }>(
         `SELECT COUNT(*) AS n_total,
-                COUNTIF(availability = 'available') AS n_available,
-                COUNTIF(availability = 'probably_unavailable') AS n_unavailable
-         FROM ${table("job_offers_country")} WHERE country_iso2 = @cc`,
+                COUNTIF(j.availability = 'available') AS n_available,
+                COUNTIF(j.availability = 'probably_unavailable') AS n_unavailable
+         FROM ${table("job_offers_country")} j
+         JOIN ${table("job_offer_boards")} b ON b.job_key = j.job_key AND b.is_master
+         WHERE j.country_iso2 = @cc`,
         { cc: iso2 },
       )
       nTotal = num(fallback[0]?.n_total)

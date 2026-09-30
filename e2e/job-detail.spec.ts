@@ -25,3 +25,16 @@ test("skill tags open a certifications modal", async ({ page }) => {
   await page.getByTestId("skill-certs-close").click()
   await expect(page.getByTestId("skill-certs-modal")).toHaveCount(0)
 })
+
+test("job board icons open a listing compare modal", async ({ page }) => {
+  await page.goto("/?view=jobs")
+  await expect(page.getByTestId("job-list")).toBeVisible({ timeout: 20_000 })
+  const icon = page.getByTestId("job-board-icon").first()
+  await expect(icon).toBeVisible({ timeout: 20_000 })
+  await icon.click()
+  await expect(page.getByTestId("board-diff-modal")).toBeVisible()
+  await expect(page.getByTestId("board-diff-text")).toBeVisible({ timeout: 20_000 })
+  await expect(page).toHaveURL(/view=jobs/)
+  await page.getByTestId("board-diff-close").click()
+  await expect(page.getByTestId("board-diff-modal")).toHaveCount(0)
+})

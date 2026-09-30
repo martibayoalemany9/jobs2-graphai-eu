@@ -44,17 +44,18 @@ export async function GET() {
     if (!rows.length) {
       rows = await bqQuery<Row>(
         `SELECT
-           country_iso2,
+           j.country_iso2,
            COUNT(*) AS n_total,
-           COUNTIF(availability = 'available') AS n_available,
-           COUNTIF(availability = 'probably_unavailable') AS n_unavailable,
+           COUNTIF(j.availability = 'available') AS n_available,
+           COUNTIF(j.availability = 'probably_unavailable') AS n_unavailable,
            0 AS probed,
-           COUNT(DISTINCT company) AS n_companies,
-           COUNTIF(appeared_at_ts >= TIMESTAMP(DATE_TRUNC(CURRENT_DATE(), MONTH))) AS n_this_month,
+           COUNT(DISTINCT j.company) AS n_companies,
+           COUNTIF(j.appeared_at_ts >= TIMESTAMP(DATE_TRUNC(CURRENT_DATE(), MONTH))) AS n_this_month,
            0 AS n_remote,
            0 AS n_senior
-         FROM ${table("job_offers_country")}
-         GROUP BY country_iso2
+         FROM ${table("job_offers_country")} j
+         JOIN ${table("job_offer_boards")} b ON b.job_key = j.job_key AND b.is_master
+         GROUP BY j.country_iso2
          ORDER BY n_total DESC`,
       )
     }

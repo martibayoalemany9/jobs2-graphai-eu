@@ -41,6 +41,21 @@ CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_off
 CLUSTER BY country_iso2, public_rank
 OPTIONS (description = "jobs2 serving table; never SELECT apply_jobs.job_offers from the web app");
 
+CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_offer_boards` (
+  job_key STRING NOT NULL,
+  group_id STRING NOT NULL,
+  master_job_key STRING NOT NULL,
+  is_master BOOL NOT NULL,
+  member_rank INT64,
+  master_rank INT64,
+  board_id STRING,
+  source STRING,
+  url STRING,
+  country_iso2 STRING
+)
+CLUSTER BY country_iso2, master_job_key
+OPTIONS (description = "Origin job-board per serving offer; is_master rows are unique listings for stats");
+
 CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.skill_needles` (
   id STRING NOT NULL,
   label STRING,

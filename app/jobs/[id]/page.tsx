@@ -5,6 +5,8 @@ import { useParams } from "next/navigation"
 import Link from "next/link"
 import { JobReport } from "@/components/job-report"
 import { JobSkillTags } from "@/components/job-skill-tags"
+import { JobBoardIcons } from "@/components/job-board-icons"
+import type { JobBoardMember } from "@/lib/job-boards"
 import { useCatalogLocale, useUiCopy } from "@/components/catalog-locale"
 import { StudioHeader } from "@/components/studio-header"
 
@@ -24,6 +26,10 @@ type Detail = {
     full_description: boolean
     availability: string
     skills?: { skill_id: string; skill_label?: string }[]
+    job_key?: string
+    boards?: JobBoardMember[]
+    selected_board?: string | null
+    selected_is_master?: boolean
   }
   certs?: { cert_id?: string; certification_name: string; provider: string; certification_url: string }[]
   conferences?: { conference_name: string; conference_url: string; location: string }[]
@@ -59,6 +65,11 @@ export default function JobDetailPage() {
         ) : (
           <>
             <h1 className="mt-4 text-2xl font-extrabold tracking-tight">{job.title}</h1>
+            <JobBoardIcons
+              jobKey={job.job_key || String(id)}
+              boards={job.boards || []}
+              initialBoard={!job.selected_is_master ? job.selected_board : null}
+            />
             <p className="mt-1 text-muted">
               <span data-testid="job-location">
                 {job.company} · {job.country_iso2} · {job.display_location || job.job_location}

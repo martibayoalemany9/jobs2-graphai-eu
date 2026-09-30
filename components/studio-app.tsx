@@ -19,6 +19,8 @@ import type { Entitlement } from "@/lib/entitlement"
 import { AvailabilityFilter } from "./availability-filter"
 import { JobReport } from "./job-report"
 import { JobSkillTags, type JobSkill } from "./job-skill-tags"
+import { JobBoardIcons } from "./job-board-icons"
+import type { JobBoardMember } from "@/lib/job-boards"
 import { StudioFooter } from "./studio-footer"
 import { useAvailabilityLabel, useCatalogLocale, useCountryLabel, useSpecialtyLabel, useUiCopy } from "./catalog-locale"
 
@@ -33,6 +35,7 @@ type Job = {
   used_headquarters?: boolean
   availability: string
   skills?: JobSkill[]
+  boards?: JobBoardMember[]
 }
 
 function useQueryView() {
@@ -390,9 +393,12 @@ export function StudioApp() {
             <ul className="divide-y divide-border rounded-xl border border-border bg-surface" data-testid="job-list">
               {jobs.map((j) => (
                 <li key={j.job_key} className="p-4">
-                  <Link href={`/jobs/${j.job_key}`} className="font-bold hover:underline">
-                    {j.title}
-                  </Link>
+                  <div className="flex flex-wrap items-start gap-2">
+                    <Link href={`/jobs/${j.job_key}`} className="font-bold hover:underline">
+                      {j.title}
+                    </Link>
+                    <JobBoardIcons jobKey={j.job_key} boards={j.boards || []} />
+                  </div>
                   <div className="text-sm text-muted" data-testid="job-location-line">
                     {j.company}
                     {iso2 === ALL_COUNTRIES && j.country_iso2 && isIso2(j.country_iso2)
