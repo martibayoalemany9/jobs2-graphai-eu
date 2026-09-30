@@ -19,6 +19,8 @@ SELECT * FROM UNNEST([
   ('au','AU','identity'), ('in','IN','identity'), ('cn','CN','identity'),
   ('kr','KR','identity'), ('br','BR','identity'), ('mx','MX','identity'),
   ('ae','AE','identity'), ('il','IL','identity'), ('za','ZA','identity'),
+  ('ph','PH','identity'), ('ar','AR','identity'), ('hi','HI','identity'),
+  ('om','OM','identity'),
   ('uk','GB','name'), ('great britain','GB','name'), ('united kingdom','GB','name'),
   ('england','GB','name'), ('el','GR','name'), ('greece','GR','name'),
   ('germany','DE','name'), ('deutschland','DE','name'),
@@ -32,5 +34,11 @@ SELECT * FROM UNNEST([
   ('denmark','DK','name'), ('finland','FI','name'), ('norway','NO','name'),
   ('estonia','EE','name'), ('portugal','PT','name'), ('singapore','SG','name'),
   ('canada','CA','name'), ('australia','AU','name'), ('india','IN','name'),
-  ('japan','JP','name'), ('brazil','BR','name'), ('mexico','MX','name')
+  ('japan','JP','name'), ('brazil','BR','name'), ('mexico','MX','name'),
+  ('philippines','PH','name'), ('the philippines','PH','name'), ('argentina','AR','name'),
+  ('hawaii','HI','name'), ('honolulu','HI','name'), ('oahu','HI','name'),
+  ('maui','HI','name'), ('hilo','HI','name'), ('kauai','HI','name'),
+  ('oman','OM','name'), ('sultanate of oman','OM','name'),
+  ('muscat','OM','name'), ('salalah','OM','name'), ('sohar','OM','name'),
+  ('duqm','OM','name'), ('nizwa','OM','name')
 ]);

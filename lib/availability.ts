@@ -13,6 +13,7 @@ export const AVAILABILITY_LABEL: Record<Availability, LocaleLabels> = {
     "応募受付中",
     "Avatud kandideerimiseks",
     "Открыто для откликов",
+    "आवेदन के लिए खुला",
   ),
   probably_unavailable: L(
     "Closed to applications",
@@ -23,6 +24,7 @@ export const AVAILABILITY_LABEL: Record<Availability, LocaleLabels> = {
     "応募終了",
     "Suletud kandideerimiseks",
     "Закрыто для откликов",
+    "आवेदन बंद",
   ),
 }
 

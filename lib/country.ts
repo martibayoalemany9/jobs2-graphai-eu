@@ -6,6 +6,7 @@ export const ISO2 = [
   "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
   "GB", "US", "SG", "JP", "CH", "NO", "IS", "UA", "TR", "CA", "AU", "IN", "CN",
   "KR", "BR", "MX", "AE", "IL", "ZA", "FI", "EE", "LT", "LV",
+  "PH", "AR", "HI", "OM",
 ] as const
 
 export const TLD_COUNTRY: Record<string, string> = {
@@ -15,6 +16,7 @@ export const TLD_COUNTRY: Record<string, string> = {
   lu: "LU", mt: "MT", cy: "CY", hr: "HR", si: "SI", uk: "GB", us: "US", jp: "JP",
   sg: "SG", au: "AU", ca: "CA", in: "IN", br: "BR", mx: "MX", kr: "KR", cn: "CN",
   tr: "TR", ua: "UA", il: "IL", za: "ZA", ae: "AE",
+  ph: "PH", ar: "AR", om: "OM",
 }
 
 export const COUNTRY_LABEL: Record<string, string> = {
@@ -26,7 +28,8 @@ export const COUNTRY_LABEL: Record<string, string> = {
   LU: "Luxembourg", MT: "Malta", CY: "Cyprus", HR: "Croatia", SI: "Slovenia",
   JP: "Japan", SG: "Singapore", CA: "Canada", AU: "Australia", IN: "India",
   CN: "China", KR: "South Korea", BR: "Brazil", MX: "Mexico", AE: "UAE", IL: "Israel",
-  ZA: "South Africa", TR: "Turkey", UA: "Ukraine", IS: "Iceland", ZZ: "Unknown",
+  ZA: "South Africa", TR: "Turkey", UA: "Ukraine", IS: "Iceland",
+  PH: "Philippines", AR: "Argentina", HI: "Hawaii", OM: "Oman", ZZ: "Unknown",
 }
 
 /** Explicit name → iso2. Identity ISO2 rows are seeded in SQL, not here. */
@@ -50,6 +53,25 @@ export const COUNTRY_NAME_MAP: Record<string, string> = {
   china: "CN",
   "korea, republic of": "KR",
   "south korea": "KR",
+  korea: "KR",
+  philippines: "PH",
+  "the philippines": "PH",
+  pilipinas: "PH",
+  argentina: "AR",
+  hawaii: "HI",
+  honolulu: "HI",
+  oahu: "HI",
+  maui: "HI",
+  hilo: "HI",
+  kauai: "HI",
+  "pearl harbor": "HI",
+  oman: "OM",
+  "sultanate of oman": "OM",
+  muscat: "OM",
+  salalah: "OM",
+  sohar: "OM",
+  duqm: "OM",
+  nizwa: "OM",
 }
 
 /** Sentinel for worldwide employment (bars, series, listings). */
@@ -64,6 +86,19 @@ export const ALL_COUNTRIES_LABEL = L(
   "すべての国",
   "Kõik riigid",
   "Все страны",
+  "सभी देश",
+)
+
+const HAWAII_LABEL = L(
+  "Hawaii",
+  "Hawaii",
+  "Hawaï",
+  "Hawaï",
+  "Havaj",
+  "ハワイ",
+  "Hawaii",
+  "Гавайи",
+  "हवाई",
 )
 
 export function countryLabel(iso2: string, locale: string | CatalogLocale = "en"): string {
@@ -72,9 +107,12 @@ export function countryLabel(iso2: string, locale: string | CatalogLocale = "en"
   if (cc === ALL_COUNTRIES) {
     return ALL_COUNTRIES_LABEL[loc] || ALL_COUNTRIES_LABEL.en
   }
+  if (cc === "HI") {
+    return HAWAII_LABEL[loc] || HAWAII_LABEL.en
+  }
   try {
     const name = new Intl.DisplayNames([loc], { type: "region" }).of(cc)
-    if (name) return name
+    if (name && name.toUpperCase() !== cc) return name
   } catch {
     /* fall through */
   }

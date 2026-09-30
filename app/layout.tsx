@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Noto_Sans, Noto_Sans_JP, Plus_Jakarta_Sans } from "next/font/google"
+import { Noto_Sans, Noto_Sans_Devanagari, Noto_Sans_JP, Plus_Jakarta_Sans } from "next/font/google"
 import { headers } from "next/headers"
 import { ClerkProvider } from "@clerk/nextjs"
 import { clerkProviderPropsForHost } from "@/lib/clerk-runtime"
@@ -26,6 +26,12 @@ const notoJp = Noto_Sans_JP({
   display: "swap",
 })
 
+const notoHi = Noto_Sans_Devanagari({
+  weight: ["400", "700"],
+  variable: "--font-hi",
+  display: "swap",
+})
+
 export const metadata: Metadata = {
   title: "Graphai Jobs",
   description: "Jobs studio with country job counts, specialties, and certifications.",
@@ -49,7 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const proto = h.get("x-forwarded-proto") || "https"
   const clerk = clerkProviderPropsForHost(host, proto)
   return (
-    <html lang="en" className={`${jakarta.variable} ${noto.variable} ${notoJp.variable}`}>
+    <html lang="en" className={`${jakarta.variable} ${noto.variable} ${notoJp.variable} ${notoHi.variable}`}>
       <body className="min-h-svh flex flex-col bg-bg text-foreground antialiased">
         <ClerkProvider dynamic {...clerk}>
           <CatalogLocaleProvider>{children}</CatalogLocaleProvider>

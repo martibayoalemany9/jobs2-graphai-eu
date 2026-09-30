@@ -70,6 +70,9 @@ export const CITIES = [
   "Cambridge", "Oxford", "Newcastle",
   "New York", "San Francisco", "Cupertino", "Seattle", "Austin", "Boston", "Chicago",
   "Los Angeles", "Washington", "Atlanta", "Denver", "Dallas",
+  "Honolulu", "Hilo", "Kahului", "Lihue", "Kailua", "Kaneohe", "Kapolei", "Pearl Harbor",
+  "Waikiki", "Maui", "Kauai", "Oahu",
+  "Muscat", "Salalah", "Sohar", "Duqm", "Nizwa", "Seeb", "Sur", "Ibri",
   "Singapore", "Dublin", "Stockholm", "Copenhagen", "Oslo", "Helsinki", "Warsaw", "Krakow",
   "Madrid", "Barcelona", "Milan", "Rome", "Lisbon", "Luxembourg", "Walldorf", "Montabaur",
 ]

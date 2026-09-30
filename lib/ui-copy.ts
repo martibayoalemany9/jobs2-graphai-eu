@@ -1,10 +1,10 @@
 import { L, localePick, type CatalogLocale, type LocaleLabels } from "./locales"
 
 const UI = {
-  tab_map: L("Map", "Karte", "Kaart", "Carte", "Mapa", "地図", "Kaart", "Карта"),
-  tab_list: L("List", "Liste", "Lijst", "Liste", "Seznam", "リスト", "Nimekiri", "Список"),
-  tab_jobs: L("Jobs", "Jobs", "Vacatures", "Offres", "Nabídky", "求人", "Tööpakkumised", "Вакансии"),
-  tab_settings: L("Settings", "Einstellungen", "Instellingen", "Paramètres", "Nastavení", "設定", "Seaded", "Настройки"),
+  tab_map: L("Map", "Karte", "Kaart", "Carte", "Mapa", "地図", "Kaart", "Карта", "मानचित्र"),
+  tab_list: L("List", "Liste", "Lijst", "Liste", "Seznam", "リスト", "Nimekiri", "Список", "सूची"),
+  tab_jobs: L("Jobs", "Jobs", "Vacatures", "Offres", "Nabídky", "求人", "Tööpakkumised", "Вакансии", "नौकरियाँ"),
+  tab_settings: L("Settings", "Einstellungen", "Instellingen", "Paramètres", "Nastavení", "設定", "Seaded", "Настройки", "सेटिंग्स"),
   jobs_over_time: L(
     "Jobs over time",
     "Jobs im Zeitverlauf",
@@ -15,9 +15,9 @@ const UI = {
     "Tööpakkumised ajas",
     "Вакансии во времени",
   ),
-  jobs_found: L("Jobs found", "Gefundene Jobs", "Gevonden vacatures", "Offres trouvées", "Nalezené nabídky", "求人数", "Leitud tööpakkumised", "Найденные вакансии"),
-  companies: L("Companies", "Unternehmen", "Bedrijven", "Entreprises", "Společnosti", "企業", "Ettevõtted", "Компании"),
-  this_month: L("This month", "Dieser Monat", "Deze maand", "Ce mois-ci", "Tento měsíc", "今月", "See kuu", "Этот месяц"),
+  jobs_found: L("Jobs found", "Gefundene Jobs", "Gevonden vacatures", "Offres trouvées", "Nalezené nabídky", "求人数", "Leitud tööpakkumised", "Найденные вакансии", "मिले पद"),
+  companies: L("Companies", "Unternehmen", "Bedrijven", "Entreprises", "Společnosti", "企業", "Ettevõtted", "Компании", "कंपनियाँ"),
+  this_month: L("This month", "Dieser Monat", "Deze maand", "Ce mois-ci", "Tento měsíc", "今月", "See kuu", "Этот месяц", "इस महीने"),
   remote_share: L("Remote share", "Remote-Anteil", "Remote-aandeel", "Part à distance", "Podíl remote", "リモート比率", "Kaugtöö osakaal", "Доля удалёнки"),
   senior_share: L("Senior share", "Senior-Anteil", "Senior-aandeel", "Part senior", "Podíl senior", "シニア比率", "Vanemrollide osakaal", "Доля senior"),
   countries: L("Countries", "Länder", "Landen", "Pays", "Země", "国", "Riigid", "Страны"),
@@ -62,7 +62,7 @@ const UI = {
   report_sent: L("Request sent to hello@graphai.eu.", "Anfrage an hello@graphai.eu gesendet.", "Verzoek verzonden naar hello@graphai.eu.", "Demande envoyée à hello@graphai.eu.", "Požadavek odeslán na hello@graphai.eu.", "hello@graphai.eu に送信しました。", "Taotlus saadetud aadressile hello@graphai.eu.", "Запрос отправлен на hello@graphai.eu."),
   no_listings: L("No listings in this cap.", "Keine Angebote in diesem Kontingent.", "Geen vacatures in dit quotum.", "Aucune offre dans ce quota.", "Žádné nabídky v tomto limitu.", "この上限内に求人はありません。", "Selles limiidis pole pakkumisi.", "Нет вакансий в этом лимите."),
   settings: L("Settings", "Einstellungen", "Instellingen", "Paramètres", "Nastavení", "設定", "Seaded", "Настройки"),
-  specialties: L("Specialties", "Fachrichtungen", "Specialisaties", "Spécialités", "Obory", "専門分野", "Erialad", "Специализации"),
+  specialties: L("Specialties", "Fachrichtungen", "Specialisaties", "Spécialités", "Obory", "専門分野", "Erialad", "Специализации", "विशेषताएँ"),
   occupation_counts: L(
     "Counts by occupation. Bar length is log-scaled so smaller fields stay visible.",
     "Anzahlen nach Berufsfeld. Balkenlänge ist logarithmisch, damit kleine Felder sichtbar bleiben.",

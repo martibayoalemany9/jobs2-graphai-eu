@@ -16,11 +16,23 @@ test("software engineer is software, IT and engineering", () => {
   assert.ok(ids.includes("ingenieurwesen"))
 })
 
+test("telecom functions map into Information Technology, Telecommunications", () => {
+  assert.ok(extractSpecialties("Telecommunications Engineer").includes("it"))
+  assert.ok(extractSpecialties("Nachrichtentechniker (m/w/d)").includes("it"))
+  assert.ok(extractSpecialties("Network Engineer Muscat").includes("it"))
+  assert.ok(extractSpecialties("RF Engineer 5G").includes("it"))
+  assert.ok(extractSpecialties("NOC Engineer VSAT").includes("it"))
+  assert.equal(specialtyLabel("it"), "Information Technology, Telecommunications")
+  assert.equal(specialtyLabel("it", "de"), "Informationstechnik, Telekommunikation")
+})
+
 test("unmatched titles land in general labor, never uncategorized", () => {
   assert.deepEqual(extractSpecialties("Aushilfe (m/w/d)"), ["general"])
   assert.equal(extractSpecialties("completely unknown role xyz").includes("uncategorized"), false)
   assert.equal(specialtyLabel("uncategorized"), "Other")
   assert.equal(specialtyLabel("uncategorized", "de"), "Weitere")
+  assert.equal(extractSpecialties("Lagerhelfer (m/w/d)").includes("general"), false)
+  assert.ok(extractSpecialties("Lagerhelfer (m/w/d)").includes("lager"))
 })
 
 test("new occupation fields pull leftover titles out of Weitere", () => {
@@ -30,6 +42,18 @@ test("new occupation fields pull leftover titles out of Weitere", () => {
   assert.ok(extractSpecialties("Kuchař/ka").includes("gastronomie"))
   assert.ok(extractSpecialties("Dělníci v oblasti výstavby a údržby budov").includes("bau"))
   assert.ok(extractSpecialties("Transportation Security Officer").includes("sicherheit"))
+  assert.ok(extractSpecialties("Museumskurator (m/w/d)").includes("kunst"))
+  assert.ok(extractSpecialties("Schauspielerin Musicaldarstellerin").includes("theater"))
+  assert.ok(extractSpecialties("Konferenzdolmetscher (m/w/d)").includes("dolmetschen"))
+  assert.ok(extractSpecialties("Policy Officer Public Affairs").includes("politik"))
+  assert.ok(extractSpecialties("Patent Examiner EPO").includes("patent"))
+  assert.ok(extractSpecialties("Patent Officer USPTO").includes("patent"))
+  assert.ok(extractSpecialties("Patent researcher prior art search").includes("patent"))
+  assert.ok(extractSpecialties("Patentanwalt (m/w/d) Elektrotechnik").includes("patent"))
+  assert.ok(extractSpecialties("Patentingenieur / Technischer Experte").includes("patent"))
+  assert.ok(extractSpecialties("Europees Octrooigemachtigde").includes("patent"))
+  assert.ok(extractSpecialties("Conseil en brevets").includes("patent"))
+  assert.ok(extractSpecialties("Business Analyst").includes("analyse"))
 })
 
 test("occupation labels default to English and switch locale", () => {
@@ -51,6 +75,11 @@ test("occupation labels default to English and switch locale", () => {
   assert.equal(specialtyLabel("fertigung", "ja"), "製造")
   assert.equal(specialtyLabel("fertigung", "et"), "Tootmine")
   assert.equal(specialtyLabel("software", "ru"), "Программная инженерия")
+  assert.equal(specialtyLabel("kunst", "hi"), "कला")
+  assert.equal(specialtyLabel("theater", "en"), "Theater")
+  assert.equal(specialtyLabel("dolmetschen", "en"), "Interpreting")
+  assert.equal(specialtyLabel("politik", "en"), "Politics")
+  assert.equal(specialtyLabel("patent", "en"), "Patents")
   assert.equal(specialtyLabel("weitere", "en"), "Other")
   assert.equal(specialtyLabel("weitere", "de"), "Weitere")
   assert.equal(specialtyLabel("weitere", "nl"), "Overig")

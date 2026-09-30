@@ -1,4 +1,4 @@
-export const CATALOG_LOCALES = ["en", "de", "nl", "fr", "cs", "ja", "et", "ru"] as const
+export const CATALOG_LOCALES = ["en", "de", "nl", "fr", "cs", "ja", "et", "ru", "hi"] as const
 export type CatalogLocale = (typeof CATALOG_LOCALES)[number]
 export const DEFAULT_CATALOG_LOCALE: CatalogLocale = "en"
 export const CATALOG_LOCALE_STORAGE_KEY = "jobs2.catalog-locale"
@@ -12,6 +12,7 @@ export const CATALOG_LOCALE_BUTTONS: { id: CatalogLocale; label: string }[] = [
   { id: "ja", label: "JA" },
   { id: "et", label: "ET" },
   { id: "ru", label: "RU" },
+  { id: "hi", label: "HI" },
 ]
 
 const LOCALE_SET = new Set<string>(CATALOG_LOCALES)
@@ -25,6 +26,7 @@ export function parseCatalogLocale(raw: string | null | undefined): CatalogLocal
   if (v === "cz") return "cs"
   if (v === "jp") return "ja"
   if (v === "ee") return "et"
+  if (v === "in" || v === "hindi" || v === "hi-in") return "hi"
   if (isCatalogLocale(v)) return v
   const prefix = v.split("-")[0]
   if (isCatalogLocale(prefix)) return prefix
@@ -46,6 +48,7 @@ export function L(
   ja: string,
   et: string,
   ru: string,
+  hi?: string,
 ): LocaleLabels {
-  return { en, de, nl, fr, cs, ja, et, ru }
+  return { en, de, nl, fr, cs, ja, et, ru, hi: hi || en }
 }

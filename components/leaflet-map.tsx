@@ -53,7 +53,7 @@ function isoOf(props: Record<string, unknown>): string {
 }
 
 async function readGeojson(res: Response, onRatio: (ratio: number) => void): Promise<unknown> {
-  const total = Number(res.headers.get("content-length")) || 838726
+  const total = Number(res.headers.get("content-length")) || 904744
   if (!res.body) return res.json()
   const reader = res.body.getReader()
   const chunks: Uint8Array[] = []
