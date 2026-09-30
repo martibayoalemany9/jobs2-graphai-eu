@@ -19,7 +19,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
         env:
-          PLAYWRIGHT_BASE_URL: https://jobs2-graphai-eu.vercel.app
+          PLAYWRIGHT_BASE_URL: https://jobs2.graphai.eu
       - name: Open issue on failure
         if: failure()
         env:

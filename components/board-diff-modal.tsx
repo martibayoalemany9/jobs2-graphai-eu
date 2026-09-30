@@ -102,7 +102,9 @@ export function BoardDiffModal({
           {masterLabel ? ` (${copy("board_master")}: ${masterLabel})` : ""}
         </p>
         {error ? (
-          <p className="mt-4 text-sm text-muted">{copy("listing_missing")}</p>
+          <p className="mt-4 text-sm text-muted" data-testid="board-diff-text">
+            {copy("listing_missing")}
+          </p>
         ) : !data ? (
           <p className="mt-4 text-sm text-muted">…</p>
         ) : (

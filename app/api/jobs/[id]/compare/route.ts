@@ -62,12 +62,19 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
 
     const masterBoard = boards.find((b) => b.is_master) || boards[0]
     if (cap != null) {
-      const ranks = await bqQuery<{ master_rank: unknown }>(
-        `SELECT master_rank FROM ${table("job_offer_boards")} WHERE job_key = @id AND is_master LIMIT 1`,
+      const comms = await bqQuery<{ has_reply: unknown }>(
+        `SELECT 1 as has_reply FROM ${table("job_offer_comms")} WHERE job_key = @id AND applied IS TRUE AND NULLIF(TRIM(reply_product), "") IS NOT NULL LIMIT 1`,
         { id: masterId },
       )
-      const rank = num(ranks[0]?.master_rank)
-      if (!rank || rank > cap) return NextResponse.json({ error: "not found" }, { status: 404 })
+      const hasReply = Boolean(comms[0]?.has_reply)
+      if (!hasReply) {
+        const ranks = await bqQuery<{ master_rank: unknown }>(
+          `SELECT master_rank FROM ${table("job_offer_boards")} WHERE job_key = @id AND is_master LIMIT 1`,
+          { id: masterId },
+        )
+        const rank = num(ranks[0]?.master_rank)
+        if (!rank || rank > cap) return NextResponse.json({ error: "not found" }, { status: 404 })
+      }
     }
 
     let selected: JobBoardMember = masterBoard

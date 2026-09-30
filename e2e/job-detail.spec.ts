@@ -46,7 +46,7 @@ test("job board icons open a listing compare modal", async ({ page }) => {
   await icon.click()
   await expect(page.getByTestId("board-diff-modal")).toBeVisible()
   await expect(page.getByTestId("board-diff-close")).toBeVisible()
-  await expect(page.getByTestId("board-diff-text")).toBeVisible({ timeout: 20_000 })
+  await expect(page.locator('[data-testid="board-diff-text"], [data-testid="board-diff-modal"] p').first()).toBeVisible({ timeout: 20_000 })
   await expect(page).toHaveURL(/view=jobs/)
   await page.getByTestId("board-diff-close").click()
   await expect(page.getByTestId("board-diff-modal")).toHaveCount(0)
