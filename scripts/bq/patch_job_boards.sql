@@ -76,6 +76,8 @@ WITH base AS (
         OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"governmentjobs\.com/careers/(hawaii|honolulu|mauicounty|hawaiicounty|kauai|hawaiiedu|hhsc)|schooljobs\.com/careers/hawaii") THEN "hawaii"
       WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"mol_oman")
         OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"mol\.gov\.om|taj\.mol\.gov\.om|tawteen\.om") THEN "mol_oman"
+      WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"jobs2_screenshot")
+        OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"jobs2\.graphai\.eu/capture/") THEN "jobs2_screenshot"
       WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"zeit_jobs")
         OR REGEXP_CONTAINS(LOWER(IFNULL(url, "")), r"jobs\.zeit\.de") THEN "zeit"
       WHEN REGEXP_CONTAINS(LOWER(IFNULL(source, "")), r"google") THEN "google"

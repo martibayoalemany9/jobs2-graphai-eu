@@ -7,6 +7,13 @@ test("health", async ({ request }) => {
   expect(j.ok).toBeTruthy()
 })
 
+test("job-offer camera capture requires Clerk", async ({ request }) => {
+  const res = await request.post("/api/jobs/capture", {
+    data: { image_base64: Buffer.from("not-an-image").toString("base64"), ocr_text: "x" },
+  })
+  expect(res.status()).toBe(401)
+})
+
 test("home chrome", async ({ page }) => {
   await page.goto("/")
   await expect(page.getByLabel("graphai jobs")).toBeVisible()

@@ -33,6 +33,7 @@ test("top harvest sources map to board ids", () => {
   assert.equal(resolveBoardId("hawaii_uh", "https://www.schooljobs.com/careers/hawaiiedu/jobs/5495174/admin"), "hawaii")
   assert.equal(resolveBoardId("hawaii_neogov", "https://www.governmentjobs.com/careers/honolulu/jobs/1"), "hawaii")
   assert.equal(resolveBoardId("mol_oman", "https://taj.mol.gov.om/taj/vacancies.aspx?id=20516"), "mol_oman")
+  assert.equal(resolveBoardId("jobs2_screenshot", "https://jobs2.graphai.eu/capture/abc"), "jobs2_screenshot")
   assert.equal(resolveBoardId("zeit_jobs_kultur_musik", "https://jobs.zeit.de/jobs/foo-1"), "zeit")
   assert.equal(resolveBoardId("planned_jobs_eu_germany.csv", "https://example.com/a"), "planned")
   assert.equal(resolveBoardId("", ""), "other")

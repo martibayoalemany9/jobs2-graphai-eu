@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test lib/job-key.test.ts lib/operators.test.ts lib/entitlement.test.ts lib/revolut.test.ts lib/clerk-runtime.test.ts lib/skills-catalog.test.ts lib/skill-tags.test.ts lib/stripe.test.ts lib/bar-scale.test.ts lib/location.test.ts lib/country.test.ts lib/availability.test.ts lib/spike-series.test.ts lib/locales.test.ts lib/job-boards.test.ts lib/text-diff.test.ts",
+    "test": "tsx --test lib/job-key.test.ts lib/operators.test.ts lib/entitlement.test.ts lib/revolut.test.ts lib/clerk-runtime.test.ts lib/skills-catalog.test.ts lib/skill-tags.test.ts lib/stripe.test.ts lib/bar-scale.test.ts lib/location.test.ts lib/country.test.ts lib/availability.test.ts lib/spike-series.test.ts lib/locales.test.ts lib/job-boards.test.ts lib/text-diff.test.ts lib/capture-offer.test.ts",
     "bq:gen-skill-tags": "tsx scripts/bq/gen_skill_tags.ts",
     "bq:patch-skills": "bq query --project_id=poetic-sentinel-402405 --location=EU --use_legacy_sql=false --nouse_legacy_sql < scripts/bq/patch_skills.sql",
     "test:e2e": "playwright test",

@@ -11,6 +11,7 @@ TABLES=(
   job_availability_status kpi_country_monthly specialty_needles
   job_title_translations job_offer_translations
   skill_needles job_offer_skills
+  job_offer_screenshots
 )
 for t in "${TABLES[@]}"; do
   echo "copy $t"

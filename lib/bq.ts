@@ -36,14 +36,15 @@ export function getBigQuery(): BigQuery {
 export async function bqQuery<T extends Record<string, unknown>>(
   sql: string,
   params?: Record<string, unknown>,
+  types?: Record<string, string>,
 ): Promise<T[]> {
   const bq = getBigQuery()
   const [rows] = await bq.query({
     query: sql,
     location: "EU",
     params: params || {},
-    types: undefined,
-    useQueryCache: true,
+    types: types as Record<string, string> | undefined,
+    useQueryCache: !types,
     maximumBytesBilled: process.env.BQ_MAX_BYTES || "2000000000",
   })
   return rows as T[]

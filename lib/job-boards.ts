@@ -56,6 +56,7 @@ const BOARDS: (JobBoardMeta & { label: ReturnType<typeof L> })[] = [
   { id: "portalempleo", letters: "PE", bg: "#74acdf", fg: FG, label: L("Portal Empleo", "Portal Empleo", "Portal Empleo", "Portal Empleo", "Portal Empleo", "Portal Empleo", "Portal Empleo", "Portal Empleo", "पोर्टल एम्प्लियो") },
   { id: "hawaii", letters: "HA", bg: "#00247d", fg: FG, label: L("Hawaii jobs", "Hawaii", "Hawaï", "Hawaï", "Havaj", "ハワイ", "Hawaii", "Гавайи", "हवाई") },
   { id: "mol_oman", letters: "OM", bg: "#c8102e", fg: FG, label: L("Ministry of Labour Oman", "Arbeitsministerium Oman", "Ministerie van Arbeid Oman", "Ministère du travail Oman", "Ministerstvo práce Omán", "オマーン労働省", "Omaani tööministeerium", "Министерство труда Омана", "ओमान श्रम मंत्रालय") },
+  { id: "jobs2_screenshot", letters: "SC", bg: "#084539", fg: FG, label: L("Screenshot capture", "Screenshot", "Schermafbeelding", "Capture d'écran", "Snímek", "スクリーンショット", "Kuvatõmmis", "Снимок экрана", "स्क्रीनशॉट") },
   { id: "zeit", letters: "ZE", bg: "#222222", fg: FG, label: L("ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs", "ZEIT Jobs") },
   { id: "monster", letters: "MO", bg: "#6e46ae", fg: FG, label: L("Monster", "Monster", "Monster", "Monster", "Monster", "Monster", "Monster", "Monster") },
   { id: "other", letters: "JB", bg: "#3d6b61", fg: FG, label: L("Job board", "Jobbörse", "Vacaturesite", "Job board", "Job portál", "求人サイト", "Tööportaal", "Доска вакансий") },
@@ -139,6 +140,7 @@ export function resolveBoardId(source: string, url: string): string {
   )
     return "hawaii"
   if (/mol_oman/.test(s) || /mol\.gov\.om|taj\.mol\.gov\.om|tawteen\.om/.test(u)) return "mol_oman"
+  if (/jobs2_screenshot/.test(s) || /jobs2\.graphai\.eu\/capture\//.test(u)) return "jobs2_screenshot"
   if (/zeit_jobs/.test(s) || /jobs\.zeit\.de/.test(u)) return "zeit"
   if (/google/.test(s)) return "google"
   const slug = s.replace(/\.(csv|jsonl|json)$/, "").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "")
