@@ -1,0 +1,140 @@
+import { L, localePick, type CatalogLocale, type LocaleLabels } from "./locales"
+
+const UI = {
+  tab_map: L("Map", "Karte", "Kaart", "Carte", "Mapa", "地図", "Kaart", "Карта"),
+  tab_list: L("List", "Liste", "Lijst", "Liste", "Seznam", "リスト", "Nimekiri", "Список"),
+  tab_jobs: L("Jobs", "Jobs", "Vacatures", "Offres", "Nabídky", "求人", "Tööpakkumised", "Вакансии"),
+  tab_settings: L("Settings", "Einstellungen", "Instellingen", "Paramètres", "Nastavení", "設定", "Seaded", "Настройки"),
+  jobs_over_time: L(
+    "Jobs over time",
+    "Jobs im Zeitverlauf",
+    "Vacatures in de tijd",
+    "Offres dans le temps",
+    "Nabídky v čase",
+    "求人の推移",
+    "Tööpakkumised ajas",
+    "Вакансии во времени",
+  ),
+  jobs_found: L("Jobs found", "Gefundene Jobs", "Gevonden vacatures", "Offres trouvées", "Nalezené nabídky", "求人数", "Leitud tööpakkumised", "Найденные вакансии"),
+  companies: L("Companies", "Unternehmen", "Bedrijven", "Entreprises", "Společnosti", "企業", "Ettevõtted", "Компании"),
+  this_month: L("This month", "Dieser Monat", "Deze maand", "Ce mois-ci", "Tento měsíc", "今月", "See kuu", "Этот месяц"),
+  remote_share: L("Remote share", "Remote-Anteil", "Remote-aandeel", "Part à distance", "Podíl remote", "リモート比率", "Kaugtöö osakaal", "Доля удалёнки"),
+  senior_share: L("Senior share", "Senior-Anteil", "Senior-aandeel", "Part senior", "Podíl senior", "シニア比率", "Vanemrollide osakaal", "Доля senior"),
+  countries: L("Countries", "Länder", "Landen", "Pays", "Země", "国", "Riigid", "Страны"),
+  listed_roles: L("Listed roles", "Gelistete Rollen", "Getoonde rollen", "Rôles listés", "Zobrazené role", "掲載ロール", "Kuvatud rollid", "Показанные роли"),
+  open_listing: L(
+    "Open employer listing",
+    "Zur Arbeitgeberanzeige",
+    "Open werkgeversadvertentie",
+    "Ouvrir l’annonce employeur",
+    "Otevřít inzerát zaměstnavatele",
+    "採用ページを開く",
+    "Ava tööandja kuulutus",
+    "Открыть вакансию работодателя",
+  ),
+  back_jobs: L("← Jobs", "← Jobs", "← Vacatures", "← Offres", "← Nabídky", "← 求人", "← Tööpakkumised", "← Вакансии"),
+  report_title: L(
+    "Request deletion or correction",
+    "Löschung oder Korrektur anfragen",
+    "Verwijdering of correctie aanvragen",
+    "Demander une suppression ou une correction",
+    "Požádat o smazání nebo opravu",
+    "削除または訂正を依頼",
+    "Taotle kustutamist või parandust",
+    "Запросить удаление или исправление",
+  ),
+  report_blurb: L(
+    "Graphai will be notified at hello@graphai.eu.",
+    "Graphai wird unter hello@graphai.eu benachrichtigt.",
+    "Graphai wordt bericht op hello@graphai.eu.",
+    "Graphai sera prévenu à hello@graphai.eu.",
+    "Graphai bude informován na hello@graphai.eu.",
+    "hello@graphai.eu に通知します。",
+    "Graphai saab teate aadressil hello@graphai.eu.",
+    "Graphai получит письмо на hello@graphai.eu.",
+  ),
+  report_deletion: L("Deletion", "Löschung", "Verwijdering", "Suppression", "Smazání", "削除", "Kustutamine", "Удаление"),
+  report_correction: L("Correction", "Korrektur", "Correctie", "Correction", "Oprava", "訂正", "Parandus", "Исправление"),
+  report_message: L("Details", "Angaben", "Toelichting", "Précisions", "Podrobnosti", "詳細", "Üksikasjad", "Подробности"),
+  report_contact: L("Your email (optional)", "Ihre E-Mail (optional)", "Uw e-mail (optioneel)", "Votre e-mail (facultatif)", "Váš e-mail (volitelně)", "メール（任意）", "Teie e-post (valikuline)", "Ваш email (необязательно)"),
+  report_send: L("Email hello@graphai.eu", "E-Mail an hello@graphai.eu", "E-mail naar hello@graphai.eu", "Envoyer à hello@graphai.eu", "E-mail na hello@graphai.eu", "hello@graphai.eu に送る", "Saada hello@graphai.eu", "Написать hello@graphai.eu"),
+  report_compact: L("Correction or deletion", "Korrektur oder Löschung", "Correctie of verwijdering", "Correction ou suppression", "Oprava nebo smazání", "訂正・削除", "Parandus või kustutamine", "Исправление или удаление"),
+  report_sent: L("Request sent to hello@graphai.eu.", "Anfrage an hello@graphai.eu gesendet.", "Verzoek verzonden naar hello@graphai.eu.", "Demande envoyée à hello@graphai.eu.", "Požadavek odeslán na hello@graphai.eu.", "hello@graphai.eu に送信しました。", "Taotlus saadetud aadressile hello@graphai.eu.", "Запрос отправлен на hello@graphai.eu."),
+  no_listings: L("No listings in this cap.", "Keine Angebote in diesem Kontingent.", "Geen vacatures in dit quotum.", "Aucune offre dans ce quota.", "Žádné nabídky v tomto limitu.", "この上限内に求人はありません。", "Selles limiidis pole pakkumisi.", "Нет вакансий в этом лимите."),
+  settings: L("Settings", "Einstellungen", "Instellingen", "Paramètres", "Nastavení", "設定", "Seaded", "Настройки"),
+  specialties: L("Specialties", "Fachrichtungen", "Specialisaties", "Spécialités", "Obory", "専門分野", "Erialad", "Специализации"),
+  occupation_counts: L(
+    "Counts by occupation. Bar length is log-scaled so smaller fields stay visible.",
+    "Anzahlen nach Berufsfeld. Balkenlänge ist logarithmisch, damit kleine Felder sichtbar bleiben.",
+    "Aantallen per beroep. Balklengte is logaritmisch zodat kleine velden zichtbaar blijven.",
+    "Effectifs par métier. La barre est logarithmique pour garder les petits champs visibles.",
+    "Počty podle oboru. Délka pruhu je logaritmická, aby byla vidět i malá pole.",
+    "職種別の件数。小さい分野も見えるよう対数スケールです。",
+    "Arvud eluala järgi. Ribad on logaritmilised, et väikesed valdkonnad jääksid näha.",
+    "Числа по профессии. Длина полосы логарифмическая, чтобы малые поля оставались видны.",
+  ),
+  country: L("Country", "Land", "Land", "Pays", "Země", "国", "Riik", "Страна"),
+  jobs_col: L("Jobs", "Jobs", "Vacatures", "Offres", "Nabídky", "求人", "Tööpakkumised", "Вакансии"),
+  visible_col: L("Visible", "Sichtbar", "Zichtbaar", "Visibles", "Viditelné", "表示中", "Nähtavad", "Видимые"),
+  world_map: L("World map", "Weltkarte", "Wereldkaart", "Carte du monde", "Mapa světa", "世界地図", "Maailmakaart", "Карта мира"),
+  world_map_hint: L(
+    "Colour by metric, pan and zoom, then pick all countries or one country for its jobs.",
+    "Nach Kennzahl einfärben, schwenken und zoomen, dann alle Länder oder ein Land wählen.",
+    "Kleur op metriek, pan en zoom, kies alle landen of één land.",
+    "Colorer selon la métrique, déplacer, zoomer, puis choisir tous les pays ou un pays.",
+    "Obarvěte podle metriky, posouvejte a přibližujte, pak vyberte všechny země nebo jednu.",
+    "指標で色分けし、パンとズームしてから全世界または1か国を選びます。",
+    "Värvi mõõdiku järgi, nihuta ja suumi, siis vali kõik riigid või üks riik.",
+    "Раскрасьте по метрике, двигайте и масштабируйте, затем выберите все страны или одну.",
+  ),
+  save_profile: L("Save profile", "Profil speichern", "Profiel opslaan", "Enregistrer le profil", "Uložit profil", "プロフィールを保存", "Salvesta profiil", "Сохранить профиль"),
+  free_mode_label: L(
+    "Free mode (10,000 listings during trial or while subscribed)",
+    "Free-Modus (10.000 Angebote während der Testphase oder mit Abo)",
+    "Free-modus (10.000 vacatures tijdens trial of met abonnement)",
+    "Mode gratuit (10 000 offres pendant l’essai ou l’abonnement)",
+    "Režim zdarma (10 000 nabídek během zkušební doby nebo předplatného)",
+    "フリーモード（試用中または購読中は1万件）",
+    "Tasuta režiim (10 000 kuulutust proovi- või tellimusajal)",
+    "Свободный режим (10 000 вакансий на пробном периоде или подписке)",
+  ),
+  excerpt_only: L(
+    "Excerpt only. Subscribe for the full description.",
+    "Nur Auszug. Abo für die vollständige Beschreibung.",
+    "Alleen fragment. Abonneer voor de volledige tekst.",
+    "Extrait seulement. Abonnez-vous pour la description complète.",
+    "Pouze úryvek. Předplaťte si plný popis.",
+    "抜粋のみ。全文は購読してください。",
+    "Ainult katkend. Täistekstiks tellige.",
+    "Только отрывок. Полное описание — по подписке.",
+  ),
+  listing_missing: L(
+    "This listing is outside your plan cap or was not found.",
+    "Dieses Angebot liegt außerhalb Ihres Kontingents oder wurde nicht gefunden.",
+    "Deze vacature valt buiten uw quotum of is niet gevonden.",
+    "Cette offre dépasse votre quota ou est introuvable.",
+    "Tato nabídka je mimo váš limit nebo nebyla nalezena.",
+    "この求人はプラン上限外か、見つかりません。",
+    "See kuulutus on limiidist väljas või puudub.",
+    "Вакансия вне лимита плана или не найдена.",
+  ),
+  no_data: L("No data", "Keine Daten", "Geen data", "Pas de données", "Žádná data", "データなし", "Andmed puuduvad", "Нет данных"),
+  low: L("low", "niedrig", "laag", "faible", "nízké", "低", "madal", "низкий"),
+  high: L("high", "hoch", "hoog", "élevé", "vysoké", "高", "kõrge", "высокий"),
+  unemployment: L("Unemployment", "Arbeitslosigkeit", "Werkloosheid", "Chômage", "Nezaměstnanost", "失業率", "Töötus", "Безработица"),
+} as const satisfies Record<string, LocaleLabels>
+
+export type UiKey = keyof typeof UI
+
+export function uiCopy(locale: CatalogLocale, key: UiKey): string {
+  return localePick(UI[key], locale)
+}
+
+export function mapMetricCopy(id: string, locale: CatalogLocale): string {
+  if (id === "jobs") return uiCopy(locale, "jobs_found")
+  if (id === "companies") return uiCopy(locale, "companies")
+  if (id === "newMonth") return uiCopy(locale, "this_month")
+  if (id === "remotePct") return uiCopy(locale, "remote_share")
+  if (id === "seniorPct") return uiCopy(locale, "senior_share")
+  return id
+}

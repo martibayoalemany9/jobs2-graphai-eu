@@ -2,7 +2,7 @@
 
 import { availabilityCount, type Availability } from "@/lib/availability"
 import { logBarWidth } from "@/lib/bar-scale"
-import { useAvailabilityLabel, useCountryLabel, useSpecialtyLabel } from "./catalog-locale"
+import { useAvailabilityLabel, useCountryLabel, useSpecialtyLabel, useUiCopy } from "./catalog-locale"
 
 export type Kind = { specialty: string; n: number; n_available?: number; n_unavailable?: number }
 
@@ -12,7 +12,7 @@ export function CountryBar({
   nAvailable = 0,
   nUnavailable = 0,
   kinds,
-  availability = "all",
+  availability = "available",
 }: {
   iso2: string
   nTotal: number
@@ -24,9 +24,9 @@ export function CountryBar({
   const labelOf = useSpecialtyLabel()
   const countryOf = useCountryLabel()
   const availOf = useAvailabilityLabel()
+  const copy = useUiCopy()
   const shown = availabilityCount(nTotal, nAvailable, nUnavailable, availability)
-  const suffix =
-    availability === "all" ? "jobs" : `${availOf(availability).toLowerCase()} jobs`
+  const suffix = availOf(availability).toLowerCase()
   const rows = kinds.filter((k) => k.specialty !== "*")
   const named = rows.filter((k) => k.specialty !== "uncategorized" && k.specialty !== "weitere")
   const other = rows.find((k) => k.specialty === "weitere" || k.specialty === "uncategorized")
@@ -38,9 +38,7 @@ export function CountryBar({
       <h2 className="text-lg font-extrabold tracking-tight" data-testid="country-bar-heading">
         {countryOf(iso2)} · {shown.toLocaleString()} {suffix}
       </h2>
-      <p className="mt-1 text-sm text-muted">
-        Counts by occupation. Bar length is log-scaled so smaller fields stay visible.
-      </p>
+      <p className="mt-1 text-sm text-muted">{copy("occupation_counts")}</p>
       <div className="mt-4 space-y-2" data-testid="country-bar">
         {named.map((k) => (
           <Bar key={k.specialty} specialty={k.specialty} label={labelOf(k.specialty)} n={countOf(k)} max={max} />

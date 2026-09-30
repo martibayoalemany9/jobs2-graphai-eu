@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server"
 import { bqQuery, num, table } from "@/lib/bq"
+import { catalogLocaleFromRequest, jobTranslationJoin, TRANSLATED_EXCERPT_SQL, TRANSLATED_TITLE_SQL } from "@/lib/job-i18n"
 import { sessionCap } from "@/lib/session-entitlement"
 import { formatLocationLine, isRemoteFlag, resolveJobLocation } from "@/lib/location"
 
 export const dynamic = "force-dynamic"
 
-export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
+export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params
   const jobKey = String(id || "")
   if (!jobKey || jobKey.length < 8) return NextResponse.json({ error: "not found" }, { status: 404 })
+  const locale = catalogLocaleFromRequest(req)
   const sess = await sessionCap()
   const cap = sess.cap
-  const capSql = cap == null ? "" : "AND public_rank <= @cap"
+  const capSql = cap == null ? "" : "AND j.public_rank <= @cap"
   try {
     const jobs = await bqQuery<{
       job_key: string
@@ -29,12 +31,13 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
       specialties: string[]
       public_rank: unknown
     }>(
-      `SELECT job_key, url, title, company, country_iso2, job_location, headquarters_location, is_remote,
-              appeared_at, availability, description_excerpt, description_len, specialties, public_rank
-       FROM ${table("job_offers_country")}
-       WHERE job_key = @id ${capSql}
+      `SELECT j.job_key, j.url, ${TRANSLATED_TITLE_SQL}, j.company, j.country_iso2, j.job_location, j.headquarters_location, j.is_remote,
+              j.appeared_at, j.availability, ${TRANSLATED_EXCERPT_SQL}, j.description_len, j.specialties, j.public_rank
+       FROM ${table("job_offers_country")} j
+       ${jobTranslationJoin()}
+       WHERE j.job_key = @id ${capSql}
        LIMIT 1`,
-      cap == null ? { id: jobKey } : { id: jobKey, cap },
+      cap == null ? { id: jobKey, locale } : { id: jobKey, cap, locale },
     )
     const job = jobs[0]
     if (!job) return NextResponse.json({ error: "not found" }, { status: 404 })

@@ -27,11 +27,15 @@ describe("country scope", () => {
     assert.equal(parseCountryScope("DEU"), null)
   })
 
-  it("labels ALL in EN DE NL FR", () => {
+  it("labels ALL in EN DE NL FR CS JA ET RU", () => {
     assert.equal(countryLabel("ALL"), "All countries")
     assert.equal(countryLabel("ALL", "de"), "Alle Länder")
     assert.equal(countryLabel("ALL", "nl"), "Alle landen")
     assert.equal(countryLabel("ALL", "fr"), "Tous les pays")
+    assert.equal(countryLabel("ALL", "cs"), "Všechny země")
+    assert.equal(countryLabel("ALL", "ja"), "すべての国")
+    assert.equal(countryLabel("ALL", "et"), "Kõik riigid")
+    assert.equal(countryLabel("ALL", "ru"), "Все страны")
     assert.equal(countryLabel("DE"), "Germany")
   })
 })

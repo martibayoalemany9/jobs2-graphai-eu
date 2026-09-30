@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { bqQuery, num, table } from "@/lib/bq"
 import { availabilitySql, parseAvailability } from "@/lib/availability"
 import { parseCountryScope } from "@/lib/country"
+import { catalogLocaleFromRequest, jobTranslationJoin, TRANSLATED_EXCERPT_SQL, TRANSLATED_TITLE_SQL } from "@/lib/job-i18n"
 import { sessionCap } from "@/lib/session-entitlement"
 import { formatLocationLine, isRemoteFlag, resolveJobLocation } from "@/lib/location"
 
@@ -20,6 +21,7 @@ export async function GET(req: Request) {
     .map((s) => s.trim())
     .filter(Boolean)
   const availability = parseAvailability(url.searchParams.get("availability"))
+  const locale = catalogLocaleFromRequest(url)
   const cursor = url.searchParams.get("cursor") || ""
   const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") || 20)))
   const sess = await sessionCap()
@@ -47,7 +49,7 @@ export async function GET(req: Request) {
   const cursorSql = cursor ? "AND j.job_key > @cursor" : ""
   const countrySql = scope.all ? "TRUE" : "j.country_iso2 = @cc"
 
-  const params: Record<string, unknown> = { limit }
+  const params: Record<string, unknown> = { limit, locale }
   if (!scope.all) params.cc = scope.iso2
   if (cap != null) params.cap = cap
   if (specialties.length) params.sp = specialties
@@ -68,9 +70,10 @@ export async function GET(req: Request) {
       description_excerpt: string
       specialties: string[]
     }>(
-      `SELECT j.job_key, j.title, j.company, j.country_iso2, j.job_location, j.headquarters_location, j.is_remote,
-              j.public_rank, j.availability, j.description_excerpt, j.specialties
+      `SELECT j.job_key, ${TRANSLATED_TITLE_SQL}, j.company, j.country_iso2, j.job_location, j.headquarters_location, j.is_remote,
+              j.public_rank, j.availability, ${TRANSLATED_EXCERPT_SQL}, j.specialties
        FROM ${table("job_offers_country")} j
+       ${jobTranslationJoin()}
        WHERE ${countrySql}
          ${capSql}
          ${availSql}

@@ -214,3 +214,44 @@ AS (LOWER(REGEXP_REPLACE(REGEXP_REPLACE(TRIM(IFNULL(u, "")), r"[?#].*$", ""), r"
 
 CREATE OR REPLACE FUNCTION `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_key`(u STRING)
 AS (TRANSLATE(TO_BASE64(SUBSTR(SHA256(u), 1, 18)), '+/', '-_'));
+
+CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_title_translations` (
+  source_title STRING NOT NULL,
+  locale STRING NOT NULL,
+  title STRING,
+  excerpt STRING,
+  method STRING,
+  translated_at TIMESTAMP
+)
+CLUSTER BY locale, source_title
+OPTIONS (description = "Unique source-title cache for catalog locales en/de/nl/fr/cs/ja/et/ru");
+
+CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_offer_translations` (
+  job_key STRING NOT NULL,
+  url STRING,
+  locale STRING NOT NULL,
+  title STRING,
+  excerpt STRING,
+  source_title STRING,
+  method STRING,
+  translated_at TIMESTAMP
+)
+CLUSTER BY locale, job_key
+OPTIONS (description = "Per-listing title/excerpt translations; web app LEFT JOINs on job_key+locale");
+
+CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_offer_correction_requests` (
+  requested_at TIMESTAMP,
+  job_key STRING,
+  job_url STRING,
+  title STRING,
+  company STRING,
+  kind STRING,
+  message STRING,
+  contact_email STRING,
+  locale STRING,
+  user_agent STRING,
+  notified BOOL
+)
+PARTITION BY DATE(requested_at)
+CLUSTER BY job_key
+OPTIONS (description = "Visitor deletion/correction requests; notify hello@graphai.eu");

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
+import { JobReport } from "@/components/job-report"
+import { useCatalogLocale, useUiCopy } from "@/components/catalog-locale"
 import { StudioHeader } from "@/components/studio-header"
 
 type Detail = {
@@ -29,27 +31,29 @@ type Detail = {
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const { locale } = useCatalogLocale()
+  const copy = useUiCopy()
   const [data, setData] = useState<Detail | null>(null)
   const [status, setStatus] = useState(200)
 
   useEffect(() => {
-    fetch(`/api/jobs/${id}`)
+    fetch(`/api/jobs/${id}?locale=${encodeURIComponent(locale)}`)
       .then(async (r) => {
         setStatus(r.status)
         return r.json()
       })
       .then(setData)
       .catch(() => setStatus(500))
-  }, [id])
+  }, [id, locale])
 
   const job = data?.job
   return (
     <div className="flex min-h-svh flex-col bg-bg">
       <StudioHeader />
       <main className="mx-auto w-full max-w-3xl px-4 py-8">
-        <Link href="/?view=jobs" className="text-sm font-semibold hover:underline">← Jobs</Link>
+        <Link href="/?view=jobs" className="text-sm font-semibold hover:underline">{copy("back_jobs")}</Link>
         {status === 404 || !job ? (
-          <p className="mt-6">This listing is outside your plan cap or was not found.</p>
+          <p className="mt-6">{copy("listing_missing")}</p>
         ) : (
           <>
             <h1 className="mt-4 text-2xl font-extrabold tracking-tight">{job.title}</h1>
@@ -67,13 +71,13 @@ export default function JobDetailPage() {
             </p>
             <p className="mt-1 text-sm text-muted">{job.availability} · {job.appeared_at}</p>
             <a className="mt-2 inline-block font-semibold text-studio hover:underline" href={job.url} rel="noopener noreferrer" target="_blank">
-              Open employer listing
+              {copy("open_listing")}
             </a>
             <article className="mt-6 whitespace-pre-wrap text-sm leading-6">
               {job.description || "No description excerpt on this listing. Open the employer listing for the full text."}
             </article>
             {!job.full_description ? (
-              <p className="mt-2 text-sm text-muted">Excerpt only. Subscribe for the full description.</p>
+              <p className="mt-2 text-sm text-muted">{copy("excerpt_only")}</p>
             ) : null}
             {(data?.certs || []).length > 0 ? (
               <>
@@ -151,6 +155,7 @@ export default function JobDetailPage() {
                 </ul>
               </section>
             ) : null}
+            <JobReport jobKey={String(id)} title={job.title} company={job.company} />
           </>
         )}
       </main>

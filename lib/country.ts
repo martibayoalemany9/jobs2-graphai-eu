@@ -1,3 +1,5 @@
+import { L, parseCatalogLocale, type CatalogLocale } from "./locales"
+
 /** ISO2 identity set (CENTROIDS from jobs-graphai-eu/lib/geo-markets.js) plus extras used on the map. */
 export const ISO2 = [
   "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU",
@@ -53,17 +55,28 @@ export const COUNTRY_NAME_MAP: Record<string, string> = {
 /** Sentinel for worldwide employment (bars, series, listings). */
 export const ALL_COUNTRIES = "ALL"
 
-export const ALL_COUNTRIES_LABEL: Record<"en" | "de" | "nl" | "fr", string> = {
-  en: "All countries",
-  de: "Alle Länder",
-  nl: "Alle landen",
-  fr: "Tous les pays",
-}
+export const ALL_COUNTRIES_LABEL = L(
+  "All countries",
+  "Alle Länder",
+  "Alle landen",
+  "Tous les pays",
+  "Všechny země",
+  "すべての国",
+  "Kõik riigid",
+  "Все страны",
+)
 
-export function countryLabel(iso2: string, locale = "en"): string {
+export function countryLabel(iso2: string, locale: string | CatalogLocale = "en"): string {
   const cc = String(iso2 || "").toUpperCase()
+  const loc = parseCatalogLocale(locale)
   if (cc === ALL_COUNTRIES) {
-    return ALL_COUNTRIES_LABEL[locale as keyof typeof ALL_COUNTRIES_LABEL] || ALL_COUNTRIES_LABEL.en
+    return ALL_COUNTRIES_LABEL[loc] || ALL_COUNTRIES_LABEL.en
+  }
+  try {
+    const name = new Intl.DisplayNames([loc], { type: "region" }).of(cc)
+    if (name) return name
+  } catch {
+    /* fall through */
   }
   return COUNTRY_LABEL[cc] || cc || "Unknown"
 }

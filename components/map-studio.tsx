@@ -7,7 +7,8 @@ import { ALL_COUNTRIES } from "@/lib/country"
 import { MAP_METRICS, metricValue, type CountryStats, type MapMetric } from "./leaflet-map"
 import { MapProgress } from "./map-progress"
 import { AvailabilityFilter } from "./availability-filter"
-import { useCountryLabel } from "./catalog-locale"
+import { useCatalogLocale, useCountryLabel, useUiCopy } from "./catalog-locale"
+import { mapMetricCopy } from "@/lib/ui-copy"
 
 const LeafletMap = dynamic(() => import("./leaflet-map").then((m) => m.LeafletMap), {
   ssr: false,
@@ -33,6 +34,8 @@ export function MapStudio({
 }) {
   const [metric, setMetric] = useState<MapMetric>("jobs")
   const countryOf = useCountryLabel()
+  const copy = useUiCopy()
+  const { locale } = useCatalogLocale()
   const stats = useMemo(() => Object.fromEntries(countries.map((c) => [c.iso2, c])), [countries])
   const totals = useMemo(() => {
     const nJobs = countries.reduce((s, c) => s + (c.n_total || 0), 0)
@@ -77,8 +80,8 @@ export function MapStudio({
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
       <section className="overflow-hidden rounded-xl border border-border bg-map-ocean">
         <div className="bg-surface px-4 py-3">
-          <h2 className="text-lg font-extrabold tracking-tight">World map</h2>
-          <p className="text-sm text-muted">Colour by metric, pan and zoom, then pick all countries or one country for its jobs.</p>
+          <h2 className="text-lg font-extrabold tracking-tight">{copy("world_map")}</h2>
+          <p className="text-sm text-muted">{copy("world_map_hint")}</p>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {MAP_METRICS.map((m) => (
               <button
@@ -91,7 +94,7 @@ export function MapStudio({
                 }`}
                 data-testid={m.id === "newMonth" ? "metric-this-month" : undefined}
               >
-                {m.label}
+                {mapMetricCopy(m.id, locale)}
               </button>
             ))}
           </div>
@@ -104,16 +107,16 @@ export function MapStudio({
           availability={availability}
         />
         <div className="bg-surface px-4 py-3 text-xs text-muted">
-          <span className="font-semibold text-foreground">{MAP_METRICS.find((m) => m.id === metric)?.label}</span>
+          <span className="font-semibold text-foreground">{mapMetricCopy(metric, locale)}</span>
           <ul className="mt-1 flex flex-wrap gap-3">
-            <li>No data</li>
-            <li className="flex items-center gap-1"><span className="inline-block size-3 rounded-sm" style={{ background: "var(--map-1)" }} /> low</li>
-            <li className="flex items-center gap-1"><span className="inline-block size-3 rounded-sm" style={{ background: "var(--map-6)" }} /> high</li>
+            <li>{copy("no_data")}</li>
+            <li className="flex items-center gap-1"><span className="inline-block size-3 rounded-sm" style={{ background: "var(--map-1)" }} /> {copy("low")}</li>
+            <li className="flex items-center gap-1"><span className="inline-block size-3 rounded-sm" style={{ background: "var(--map-6)" }} /> {copy("high")}</li>
           </ul>
         </div>
       </section>
       <aside className="rounded-xl border border-border bg-surface p-4" data-testid="map-stats">
-        <p className="text-sm font-bold">Country</p>
+        <p className="text-sm font-bold">{copy("country")}</p>
         <select
           className="mt-1 w-full rounded-md border border-border bg-pill px-2 py-2 text-sm"
           value={selected}
@@ -132,21 +135,21 @@ export function MapStudio({
         <AvailabilityFilter value={availability} onChange={onAvailability} layout="block" />
         <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
           <div>
-            <dt className="text-muted">Countries</dt>
+            <dt className="text-muted">{copy("countries")}</dt>
             <dd className="text-xl font-extrabold">{totals.nCountries}</dd>
           </div>
           <div>
-            <dt className="text-muted">Jobs found</dt>
+            <dt className="text-muted">{copy("jobs_found")}</dt>
             <dd className="text-xl font-extrabold" data-testid="map-jobs-found">
               {shownJobs.toLocaleString()}
             </dd>
           </div>
           <div>
-            <dt className="text-muted">Companies</dt>
+            <dt className="text-muted">{copy("companies")}</dt>
             <dd className="text-xl font-extrabold">{totals.nCos.toLocaleString()}</dd>
           </div>
           <div>
-            <dt className="text-muted">Listed roles</dt>
+            <dt className="text-muted">{copy("listed_roles")}</dt>
             <dd className="text-xl font-extrabold">{totals.listed.toLocaleString()}</dd>
           </div>
         </dl>
@@ -156,7 +159,7 @@ export function MapStudio({
               {countryOf(selected)}
             </p>
             <p className="mt-1 text-muted">
-              {MAP_METRICS.find((m) => m.id === metric)?.label}: {metricValue(current, metric, availability).toLocaleString()}
+              {mapMetricCopy(metric, locale)}: {metricValue(current, metric, availability).toLocaleString()}
               {unit ? ` ${unit}` : ""}
             </p>
           </div>

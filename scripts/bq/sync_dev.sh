@@ -9,6 +9,7 @@ TABLES=(
   job_offer_conferences job_offer_talks skill_certs_imported
   country_specialty_counts job_count_daily country_map_stats job_availability_checks
   job_availability_status kpi_country_monthly specialty_needles
+  job_title_translations job_offer_translations
 )
 for t in "${TABLES[@]}"; do
   echo "copy $t"

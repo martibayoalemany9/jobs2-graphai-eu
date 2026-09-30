@@ -2,7 +2,7 @@
 
 import { seriesCount, type Availability } from "@/lib/availability"
 import type { SpikePick } from "@/lib/spike-series"
-import { useAvailabilityLabel, useSpecialtyLabel } from "./catalog-locale"
+import { useAvailabilityLabel, useSpecialtyLabel, useUiCopy } from "./catalog-locale"
 
 export type SeriesPoint = { d: string; n_total: number; n_available: number; n_unavailable: number }
 export type KpiPoint = { year_month: string; unemployment_rate: number; source: string }
@@ -23,7 +23,7 @@ export function TimeSeries({
   series,
   kpi,
   spike = null,
-  availability = "all",
+  availability = "available",
 }: {
   series: SeriesPoint[]
   kpi: KpiPoint[]
@@ -32,6 +32,7 @@ export function TimeSeries({
 }) {
   const availOf = useAvailabilityLabel()
   const labelOf = useSpecialtyLabel()
+  const copy = useUiCopy()
   const w = 640
   const h = 180
   const pad = 28
@@ -69,7 +70,7 @@ export function TimeSeries({
       : []
   const latest = series[series.length - 1]
   const latestN = latest ? seriesCount(latest, availability) : 0
-  const jobsLegend = availability === "all" ? "Jobs found" : availOf(availability)
+  const jobsLegend = availOf(availability)
   const spikeLabel = spike ? labelOf(spike.specialty) : ""
   const baselineY = h - pad
   const jobsArea = closedArea(pts, baselineY)
@@ -77,9 +78,9 @@ export function TimeSeries({
   const kpiArea = closedArea(kpiPts, baselineY)
   return (
     <section className="rounded-xl border border-border bg-surface p-4">
-      <h2 className="text-lg font-extrabold tracking-tight">Jobs over time</h2>
+      <h2 className="text-lg font-extrabold tracking-tight">{copy("jobs_over_time")}</h2>
       <p className="text-sm text-muted">
-        Solid line is {availability === "all" ? "job count" : `${availOf(availability).toLowerCase()} job count`}
+        Solid line is {availOf(availability).toLowerCase()}
         {latest ? ` · ${latestN.toLocaleString()} current` : ""}. Dashed overlay is unemployment (Eurostat / World Bank).
         {spike ? ` Orange line is ${spikeLabel} after a large day-to-day change.` : ""}
       </p>
@@ -108,7 +109,7 @@ export function TimeSeries({
             {spikeLabel}
           </span>
         ) : null}
-        <span>Unemployment</span>
+        <span>{copy("unemployment")}</span>
       </div>
     </section>
   )

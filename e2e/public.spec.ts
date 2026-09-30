@@ -16,6 +16,10 @@ test("home chrome", async ({ page }) => {
   await expect(page.getByTestId("sign-in")).toBeVisible()
   await expect(page.getByTestId("subscribe")).toBeVisible()
   await expect(page.getByTestId("catalog-locale")).toBeVisible()
+  await expect(page.getByTestId("catalog-locale-ja")).toBeVisible()
+  await expect(page.getByTestId("catalog-locale-et")).toBeVisible()
+  await expect(page.getByTestId("catalog-locale-ru")).toBeVisible()
+  await expect(page.getByTestId("catalog-locale-cs")).toBeVisible()
 })
 
 test("sign-in page renders Clerk", async ({ page }) => {

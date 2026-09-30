@@ -17,7 +17,8 @@ import { ALL_COUNTRIES, isIso2 } from "@/lib/country"
 import { SKILL_CATALOG } from "@/lib/skills-catalog"
 import type { Entitlement } from "@/lib/entitlement"
 import { AvailabilityFilter } from "./availability-filter"
-import { useCountryLabel, useSpecialtyLabel } from "./catalog-locale"
+import { JobReport } from "./job-report"
+import { useAvailabilityLabel, useCatalogLocale, useCountryLabel, useSpecialtyLabel, useUiCopy } from "./catalog-locale"
 
 type Job = {
   job_key: string
@@ -62,7 +63,7 @@ export function StudioApp() {
   const [series, setSeries] = useState<SeriesPoint[]>([])
   const [spike, setSpike] = useState<SpikeOverlay | null>(null)
   const [kpi, setKpi] = useState<KpiPoint[]>([])
-  const [availability, setAvailability] = useState<Availability>("all")
+  const [availability, setAvailability] = useState<Availability>("available")
   const [cluster, setCluster] = useState("")
   const [certs, setCerts] = useState<Cert[]>([])
   const [selected, setSelected] = useState<string[]>([])
@@ -78,6 +79,9 @@ export function StudioApp() {
   const [msg, setMsg] = useState("")
   const labelOf = useSpecialtyLabel()
   const countryOf = useCountryLabel()
+  const availOf = useAvailabilityLabel()
+  const copy = useUiCopy()
+  const { locale } = useCatalogLocale()
 
   const persistCountry = useCallback((next: string) => {
     setIso2(next)
@@ -89,7 +93,7 @@ export function StudioApp() {
   const persistAvailability = useCallback((next: Availability) => {
     setAvailability(next)
     const u = new URL(window.location.href)
-    if (next === "all") u.searchParams.delete("availability")
+    if (next === "available") u.searchParams.delete("availability")
     else u.searchParams.set("availability", next)
     window.history.replaceState(null, "", u.toString())
   }, [])
@@ -199,7 +203,7 @@ export function StudioApp() {
     const u = new URLSearchParams({ country: iso2 })
     if (sp) u.set("specialties", sp)
     if (certsQ) u.set("certs", certsQ)
-    if (availability !== "all") u.set("availability", availability)
+    if (availability !== "available") u.set("availability", availability)
     fetch(`/api/jobs/cert-curve?${u}`)
       .then((r) => r.json())
       .then((d) => {
@@ -211,14 +215,14 @@ export function StudioApp() {
         setEnt(d.entitlement)
       })
       .catch(() => {})
-    const ju = new URLSearchParams({ country: iso2, availability, limit: "20" })
+    const ju = new URLSearchParams({ country: iso2, availability, limit: "20", locale })
     if (sp) ju.set("specialties", sp)
     if (certsQ) ju.set("certs", certsQ)
     fetch(`/api/jobs?${ju}`)
       .then((r) => r.json())
       .then((d) => setJobs(d.jobs || []))
       .catch(() => setJobs([]))
-  }, [iso2, cluster, selected, k, availability])
+  }, [iso2, cluster, selected, k, availability, locale])
 
   useEffect(() => {
     if (!scopeReady) return
@@ -285,16 +289,16 @@ export function StudioApp() {
         )}
         {view === "list" && (
           <section className="rounded-xl border border-border bg-surface p-4">
-            <h2 className="text-lg font-extrabold">Countries</h2>
+            <h2 className="text-lg font-extrabold">{copy("countries")}</h2>
             <div className="mt-3">
               <AvailabilityFilter value={availability} onChange={persistAvailability} />
             </div>
             <table className="mt-3 w-full text-sm" data-testid="country-table">
               <thead>
                 <tr className="text-left text-muted">
-                  <th className="py-1">Country</th>
-                  <th>Jobs</th>
-                  <th>Visible</th>
+                  <th className="py-1">{copy("country")}</th>
+                  <th>{copy("jobs_col")}</th>
+                  <th>{copy("visible_col")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -351,7 +355,7 @@ export function StudioApp() {
           <>
             <div className="flex flex-wrap items-center gap-3">
               <label className="text-sm font-bold">
-                Country
+                {copy("country")}
                 <select
                   className="ml-2 rounded-md border border-border bg-surface px-2 py-1"
                   value={iso2}
@@ -399,17 +403,20 @@ export function StudioApp() {
                     !(j.display_location || "").includes("HQ ") ? (
                       <span data-testid="job-hq"> · HQ {j.headquarters_location}</span>
                     ) : null}{" "}
-                    · {j.availability === "probably_unavailable" ? "not available" : j.availability}
+                    · {j.availability === "probably_unavailable" ? availOf("probably_unavailable") : availOf("available")}
+                  </div>
+                  <div className="mt-1">
+                    <JobReport jobKey={j.job_key} title={j.title} company={j.company} compact />
                   </div>
                 </li>
               ))}
-              {jobs.length === 0 && <li className="p-4 text-sm text-muted">No listings in this cap.</li>}
+              {jobs.length === 0 && <li className="p-4 text-sm text-muted">{copy("no_listings")}</li>}
             </ul>
           </>
         )}
         {view === "settings" && (
           <section className="rounded-xl border border-border bg-surface p-4">
-            <h2 className="text-lg font-extrabold">Settings</h2>
+            <h2 className="text-lg font-extrabold">{copy("settings")}</h2>
             <p className="mt-2 text-sm text-muted" data-testid="entitlement">
               Plan: {ent?.tier || "anonymous"} · cap {ent?.cap_per_country ?? "unlimited"} listings
               {ent?.trial_ends_at ? ` · 7-day trial ends ${ent.trial_ends_at.slice(0, 10)}` : ""}
@@ -419,7 +426,7 @@ export function StudioApp() {
             </p>
             <form className="mt-4 space-y-3" onSubmit={saveProfile}>
               <fieldset>
-                <legend className="text-sm font-bold">Specialties</legend>
+                <legend className="text-sm font-bold">{copy("specialties")}</legend>
                 <div className="mt-2 grid gap-1 sm:grid-cols-2">
                   {SKILL_CATALOG.map((s) => (
                     <label key={s.id} className="flex items-center gap-2 text-sm">
@@ -437,10 +444,10 @@ export function StudioApp() {
               </fieldset>
               <label className="flex items-center gap-2 text-sm font-semibold">
                 <input type="checkbox" checked={freeMode} onChange={(e) => setFreeMode(e.target.checked)} data-testid="free-mode" />
-                Free mode (10,000 listings during trial or while subscribed)
+                {copy("free_mode_label")}
               </label>
               <button type="submit" className="rounded-md bg-primary px-3 py-2 text-sm font-bold text-primary-foreground">
-                Save profile
+                {copy("save_profile")}
               </button>
             </form>
             {msg ? <p className="mt-2 text-sm">{msg}</p> : null}

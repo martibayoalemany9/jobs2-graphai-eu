@@ -1,4 +1,5 @@
 import { foldText } from "./fold"
+import { DEFAULT_CATALOG_LOCALE, L, type CatalogLocale, type LocaleLabels } from "./locales"
 
 export type SkillKind = "hard" | "soft"
 
@@ -1138,67 +1139,64 @@ export function clusterById(id: string | null | undefined): SkillCluster | undef
   return SKILL_CATALOG.find((s) => s.id === id)
 }
 
-export const CATALOG_LOCALES = ["en", "de", "nl", "fr"] as const
-export type CatalogLocale = (typeof CATALOG_LOCALES)[number]
-export const DEFAULT_CATALOG_LOCALE: CatalogLocale = "en"
-export const CATALOG_LOCALE_STORAGE_KEY = "jobs2.catalog-locale"
-
-export function isCatalogLocale(value: string | null | undefined): value is CatalogLocale {
-  return value === "en" || value === "de" || value === "nl" || value === "fr"
-}
-
-type LocaleLabels = Record<CatalogLocale, string>
+export {
+  CATALOG_LOCALES,
+  DEFAULT_CATALOG_LOCALE,
+  CATALOG_LOCALE_STORAGE_KEY,
+  isCatalogLocale,
+  type CatalogLocale,
+} from "./locales"
 
 const SPECIALTY_LABELS: Record<string, LocaleLabels> = {
-  produktion: { en: "Production", de: "Produktion", nl: "Productie", fr: "Production" },
-  fertigung: { en: "Manufacturing", de: "Fertigung", nl: "Fabricage", fr: "Fabrication" },
-  instandhaltung: { en: "Maintenance", de: "Instandhaltung", nl: "Onderhoud", fr: "Maintenance" },
-  ingenieurwesen: { en: "Engineering", de: "Ingenieurwesen", nl: "Techniek", fr: "Ingénierie" },
-  forschung: { en: "Research", de: "Forschung", nl: "Onderzoek", fr: "Recherche" },
-  personal: { en: "Human resources", de: "Personal", nl: "Personeel", fr: "Ressources humaines" },
-  it: { en: "IT", de: "IT", nl: "IT", fr: "IT" },
-  software: { en: "Software engineering", de: "Softwareentwicklung", nl: "Software engineering", fr: "Ingénierie logicielle" },
-  hardware: { en: "Hardware engineering", de: "Hardwareentwicklung", nl: "Hardware engineering", fr: "Ingénierie matérielle" },
-  ai: { en: "Artificial intelligence", de: "Künstliche Intelligenz", nl: "Kunstmatige intelligentie", fr: "Intelligence artificielle" },
-  logistik: { en: "Logistics", de: "Logistik", nl: "Logistiek", fr: "Logistique" },
-  lager: { en: "Warehouse", de: "Lager", nl: "Magazijn", fr: "Entrepôt" },
-  transport: { en: "Transport", de: "Transport", nl: "Transport", fr: "Transport" },
-  qualitaet: { en: "Quality", de: "Qualität", nl: "Kwaliteit", fr: "Qualité" },
-  vertrieb: { en: "Sales", de: "Vertrieb", nl: "Verkoop", fr: "Ventes" },
-  einzelhandel: { en: "Retail", de: "Einzelhandel", nl: "Detailhandel", fr: "Commerce de détail" },
-  marketing: { en: "Marketing", de: "Marketing", nl: "Marketing", fr: "Marketing" },
-  produkt: { en: "Product management", de: "Produktmanagement", nl: "Productmanagement", fr: "Gestion de produit" },
-  projekt: { en: "Project management", de: "Projektmanagement", nl: "Projectmanagement", fr: "Gestion de projet" },
-  finanzen: { en: "Finance", de: "Finanzen", nl: "Financiën", fr: "Finance" },
-  rechnungswesen: { en: "Accounting", de: "Rechnungswesen", nl: "Boekhouding", fr: "Comptabilité" },
-  controlling: { en: "Controlling", de: "Controlling", nl: "Controlling", fr: "Contrôle de gestion" },
-  verwaltung: { en: "Administration", de: "Verwaltung", nl: "Administratie", fr: "Administration" },
-  kundenservice: { en: "Customer service", de: "Kundenservice", nl: "Klantenservice", fr: "Service client" },
-  recht: { en: "Legal", de: "Recht", nl: "Juridisch", fr: "Droit" },
-  compliance: { en: "Compliance", de: "Compliance", nl: "Compliance", fr: "Conformité" },
-  audit: { en: "Audit", de: "Audit", nl: "Audit", fr: "Audit" },
-  management: { en: "Management", de: "Management", nl: "Management", fr: "Management" },
-  data: { en: "Data analytics", de: "Data Analytics", nl: "Data-analyse", fr: "Analyse de données" },
-  bi: { en: "Business intelligence", de: "Business Intelligence", nl: "Business intelligence", fr: "Business intelligence" },
-  design: { en: "Design", de: "Design", nl: "Design", fr: "Design" },
-  kommunikation: { en: "Communications", de: "Kommunikation", nl: "Communicatie", fr: "Communication" },
-  pr: { en: "PR", de: "PR", nl: "PR", fr: "RP" },
-  immobilien: { en: "Real estate", de: "Immobilien", nl: "Vastgoed", fr: "Immobilier" },
-  pflege: { en: "Nursing", de: "Pflege", nl: "Verpleging", fr: "Soins infirmiers" },
-  medizin: { en: "Medicine", de: "Medizin", nl: "Geneeskunde", fr: "Médecine" },
-  gastronomie: { en: "Food service", de: "Gastronomie", nl: "Horeca", fr: "Restauration" },
-  hotel: { en: "Hotels", de: "Hotellerie", nl: "Hotellerie", fr: "Hôtellerie" },
-  bau: { en: "Construction", de: "Bau", nl: "Bouw", fr: "BTP" },
-  handwerk: { en: "Skilled trades", de: "Handwerk", nl: "Ambacht", fr: "Artisanat" },
-  reinigung: { en: "Cleaning", de: "Reinigung", nl: "Schoonmaak", fr: "Nettoyage" },
-  erziehung: { en: "Education", de: "Erziehung", nl: "Onderwijs", fr: "Éducation" },
-  soziales: { en: "Social work", de: "Soziales", nl: "Sociaal werk", fr: "Travail social" },
-  sicherheit: { en: "Security", de: "Sicherheit", nl: "Beveiliging", fr: "Sécurité" },
-  beauty: { en: "Beauty", de: "Beauty", nl: "Schoonheid", fr: "Beauté" },
-  garten: { en: "Landscaping", de: "Gartenbau", nl: "Hovenier", fr: "Paysagisme" },
-  general: { en: "General labor", de: "Aushilfe", nl: "Algemeen werk", fr: "Travail général" },
-  weitere: { en: "Other", de: "Weitere", nl: "Overig", fr: "Autre" },
-  uncategorized: { en: "Other", de: "Weitere", nl: "Overig", fr: "Autre" },
+  produktion: L("Production", "Produktion", "Productie", "Production", "Výroba", "生産", "Tootmine", "Производство"),
+  fertigung: L("Manufacturing", "Fertigung", "Fabricage", "Fabrication", "Výroba", "製造", "Tootmine", "Обрабатывающая промышленность"),
+  instandhaltung: L("Maintenance", "Instandhaltung", "Onderhoud", "Maintenance", "Údržba", "保全", "Hooldus", "Обслуживание"),
+  ingenieurwesen: L("Engineering", "Ingenieurwesen", "Techniek", "Ingénierie", "Inženýrství", "エンジニアリング", "Inseneritöö", "Инженерия"),
+  forschung: L("Research", "Forschung", "Onderzoek", "Recherche", "Výzkum", "研究", "Teadus", "Исследования"),
+  personal: L("Human resources", "Personal", "Personeel", "Ressources humaines", "Lidské zdroje", "人事", "Personal", "Кадры"),
+  it: L("IT", "IT", "IT", "IT", "IT", "IT", "IT", "ИТ"),
+  software: L("Software engineering", "Softwareentwicklung", "Software engineering", "Ingénierie logicielle", "Softwarové inženýrství", "ソフトウェアエンジニアリング", "Tarkvaratehnika", "Программная инженерия"),
+  hardware: L("Hardware engineering", "Hardwareentwicklung", "Hardware engineering", "Ingénierie matérielle", "Hardwarové inženýrství", "ハードウェアエンジニアリング", "Riistvaratehnika", "Аппаратная инженерия"),
+  ai: L("Artificial intelligence", "Künstliche Intelligenz", "Kunstmatige intelligentie", "Intelligence artificielle", "Umělá inteligence", "人工知能", "Tehisintellekt", "Искусственный интеллект"),
+  logistik: L("Logistics", "Logistik", "Logistiek", "Logistique", "Logistika", "物流", "Logistika", "Логистика"),
+  lager: L("Warehouse", "Lager", "Magazijn", "Entrepôt", "Sklad", "倉庫", "Ladu", "Склад"),
+  transport: L("Transport", "Transport", "Transport", "Transport", "Doprava", "輸送", "Transport", "Транспорт"),
+  qualitaet: L("Quality", "Qualität", "Kwaliteit", "Qualité", "Kvalita", "品質", "Kvaliteet", "Качество"),
+  vertrieb: L("Sales", "Vertrieb", "Verkoop", "Ventes", "Prodej", "営業", "Müük", "Продажи"),
+  einzelhandel: L("Retail", "Einzelhandel", "Detailhandel", "Commerce de détail", "Maloobchod", "小売", "Jaekaubandus", "Розничная торговля"),
+  marketing: L("Marketing", "Marketing", "Marketing", "Marketing", "Marketing", "マーケティング", "Turundus", "Маркетинг"),
+  produkt: L("Product management", "Produktmanagement", "Productmanagement", "Gestion de produit", "Produktový management", "プロダクトマネジメント", "Tootejuhtimine", "Продуктовый менеджмент"),
+  projekt: L("Project management", "Projektmanagement", "Projectmanagement", "Gestion de projet", "Projektové řízení", "プロジェクトマネジメント", "Projektijuhtimine", "Управление проектами"),
+  finanzen: L("Finance", "Finanzen", "Financiën", "Finance", "Finance", "財務", "Rahandus", "Финансы"),
+  rechnungswesen: L("Accounting", "Rechnungswesen", "Boekhouding", "Comptabilité", "Účetnictví", "会計", "Raamatupidamine", "Бухгалтерия"),
+  controlling: L("Controlling", "Controlling", "Controlling", "Contrôle de gestion", "Controlling", "管理会計", "Kontrolling", "Контроллинг"),
+  verwaltung: L("Administration", "Verwaltung", "Administratie", "Administration", "Administrativa", "総務", "Administreerimine", "Администрация"),
+  kundenservice: L("Customer service", "Kundenservice", "Klantenservice", "Service client", "Zákaznický servis", "カスタマーサービス", "Klienditeenindus", "Клиентский сервис"),
+  recht: L("Legal", "Recht", "Juridisch", "Droit", "Právo", "法務", "Õigus", "Юриспруденция"),
+  compliance: L("Compliance", "Compliance", "Compliance", "Conformité", "Compliance", "コンプライアンス", "Vastavus", "Комплаенс"),
+  audit: L("Audit", "Audit", "Audit", "Audit", "Audit", "監査", "Audit", "Аудит"),
+  management: L("Management", "Management", "Management", "Management", "Management", "マネジメント", "Juhtimine", "Менеджмент"),
+  data: L("Data analytics", "Data Analytics", "Data-analyse", "Analyse de données", "Datová analytika", "データ分析", "Andmeanalüüs", "Аналитика данных"),
+  bi: L("Business intelligence", "Business Intelligence", "Business intelligence", "Business intelligence", "Business intelligence", "ビジネスインテリジェンス", "Ärianalüütika", "Бизнес-аналитика"),
+  design: L("Design", "Design", "Design", "Design", "Design", "デザイン", "Disain", "Дизайн"),
+  kommunikation: L("Communications", "Kommunikation", "Communicatie", "Communication", "Komunikace", "コミュニケーション", "Kommunikatsioon", "Коммуникации"),
+  pr: L("PR", "PR", "PR", "RP", "PR", "広報", "PR", "PR"),
+  immobilien: L("Real estate", "Immobilien", "Vastgoed", "Immobilier", "Nemovitosti", "不動産", "Kinnisvara", "Недвижимость"),
+  pflege: L("Nursing", "Pflege", "Verpleging", "Soins infirmiers", "Ošetřovatelství", "看護", "Õendus", "Сестринское дело"),
+  medizin: L("Medicine", "Medizin", "Geneeskunde", "Médecine", "Medicína", "医療", "Meditsiin", "Медицина"),
+  gastronomie: L("Food service", "Gastronomie", "Horeca", "Restauration", "Gastronomie", "飲食", "Toitlustus", "Общепит"),
+  hotel: L("Hotels", "Hotellerie", "Hotellerie", "Hôtellerie", "Hotelnictví", "ホテル", "Hotellid", "Гостиницы"),
+  bau: L("Construction", "Bau", "Bouw", "BTP", "Stavebnictví", "建設", "Ehitus", "Строительство"),
+  handwerk: L("Skilled trades", "Handwerk", "Ambacht", "Artisanat", "Řemesla", "技能職", "Käsitöö", "Ремесла"),
+  reinigung: L("Cleaning", "Reinigung", "Schoonmaak", "Nettoyage", "Úklid", "清掃", "Koristus", "Уборка"),
+  erziehung: L("Education", "Erziehung", "Onderwijs", "Éducation", "Vzdělávání", "教育", "Haridus", "Образование"),
+  soziales: L("Social work", "Soziales", "Sociaal werk", "Travail social", "Sociální práce", "ソーシャルワーク", "Sotsiaaltöö", "Социальная работа"),
+  sicherheit: L("Security", "Sicherheit", "Beveiliging", "Sécurité", "Bezpečnost", "セキュリティ", "Turvalisus", "Безопасность"),
+  beauty: L("Beauty", "Beauty", "Schoonheid", "Beauté", "Krása", "美容", "Ilu", "Красота"),
+  garten: L("Landscaping", "Gartenbau", "Hovenier", "Paysagisme", "Zahradnictví", "造園", "Maastikukujundus", "Озеленение"),
+  general: L("General labor", "Aushilfe", "Algemeen werk", "Travail général", "Pomocné práce", "一般作業", "Üldtöö", "Подсобные работы"),
+  weitere: L("Other", "Weitere", "Overig", "Autre", "Ostatní", "その他", "Muu", "Прочее"),
+  uncategorized: L("Other", "Weitere", "Overig", "Autre", "Ostatní", "その他", "Muu", "Прочее"),
 }
 
 export function specialtyLabel(id: string, locale: CatalogLocale = DEFAULT_CATALOG_LOCALE): string {

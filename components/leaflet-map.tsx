@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css"
 import { availabilityCount, type Availability } from "@/lib/availability"
 import { countryLabel } from "@/lib/country"
 import { MapProgress } from "./map-progress"
+import { useCatalogLocale } from "./catalog-locale"
 
 export type MapMetric = "jobs" | "companies" | "newMonth" | "remotePct" | "seniorPct"
 
@@ -23,7 +24,7 @@ export type CountryStats = {
 export function metricValue(
   c: CountryStats | undefined,
   metric: MapMetric,
-  availability: Availability = "all",
+  availability: Availability = "available",
 ): number {
   if (!c) return 0
   if (metric === "jobs") return availabilityCount(c.n_total, c.n_available, c.n_unavailable, availability)
@@ -79,7 +80,7 @@ export function LeafletMap({
   metric,
   selected,
   onSelect,
-  availability = "all",
+  availability = "available",
 }: {
   stats: Record<string, CountryStats>
   metric: MapMetric
@@ -87,6 +88,7 @@ export function LeafletMap({
   onSelect: (iso2: string) => void
   availability?: Availability
 }) {
+  const { locale } = useCatalogLocale()
   const el = useRef<HTMLDivElement>(null)
   const mapRef = useRef<import("leaflet").Map | null>(null)
   const layerRef = useRef<import("leaflet").GeoJSON | null>(null)
@@ -95,6 +97,7 @@ export function LeafletMap({
   const selectedRef = useRef(selected)
   const onSelectRef = useRef(onSelect)
   const availabilityRef = useRef(availability)
+  const localeRef = useRef(locale)
   const max = useMemo(
     () => Math.max(1, ...Object.values(stats).map((s) => metricValue(s, metric, availability))),
     [stats, metric, availability],
@@ -105,6 +108,7 @@ export function LeafletMap({
   selectedRef.current = selected
   onSelectRef.current = onSelect
   availabilityRef.current = availability
+  localeRef.current = locale
   maxRef.current = max
 
   const [progress, setProgress] = useState(8)
@@ -135,7 +139,7 @@ export function LeafletMap({
       const n = metricValue(statsRef.current[iso], metricRef.current, availabilityRef.current)
       const path = lyr as import("leaflet").Path
       if (path.getTooltip()) {
-        path.setTooltipContent(`${countryLabel(iso)} · ${n.toLocaleString()}${unit}`)
+        path.setTooltipContent(`${countryLabel(iso, localeRef.current)} · ${n.toLocaleString()}${unit}`)
       }
     })
   }
@@ -167,7 +171,7 @@ export function LeafletMap({
             if (!iso) return
             const n = metricValue(statsRef.current[iso], metricRef.current, availabilityRef.current)
             const unit = metricRef.current.endsWith("Pct") ? "%" : ""
-            lyr.bindTooltip(`${countryLabel(iso)} · ${n.toLocaleString()}${unit}`, { sticky: true, className: "job-tip" })
+            lyr.bindTooltip(`${countryLabel(iso, localeRef.current)} · ${n.toLocaleString()}${unit}`, { sticky: true, className: "job-tip" })
             lyr.on("click", () => onSelectRef.current(iso))
           },
         })
@@ -194,7 +198,7 @@ export function LeafletMap({
 
   useEffect(() => {
     paintLayer()
-  }, [stats, metric, selected, max, availability])
+  }, [stats, metric, selected, max, availability, locale])
 
   return (
     <div className="relative h-[420px] w-full" data-testid="country-map" aria-busy={!ready}>

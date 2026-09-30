@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Plus_Jakarta_Sans } from "next/font/google"
+import { Noto_Sans, Noto_Sans_JP, Plus_Jakarta_Sans } from "next/font/google"
 import { headers } from "next/headers"
 import { ClerkProvider } from "@clerk/nextjs"
 import { clerkProviderPropsForHost } from "@/lib/clerk-runtime"
@@ -7,9 +7,22 @@ import { CatalogLocaleProvider } from "@/components/catalog-locale"
 import "./globals.css"
 
 const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-sans",
+  variable: "--font-jakarta",
+  display: "swap",
+})
+
+const noto = Noto_Sans({
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-noto",
+  display: "swap",
+})
+
+const notoJp = Noto_Sans_JP({
+  weight: ["400", "700"],
+  variable: "--font-jp",
   display: "swap",
 })
 
@@ -36,7 +49,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const proto = h.get("x-forwarded-proto") || "https"
   const clerk = clerkProviderPropsForHost(host, proto)
   return (
-    <html lang="en" className={jakarta.variable}>
+    <html lang="en" className={`${jakarta.variable} ${noto.variable} ${notoJp.variable}`}>
       <body className="min-h-svh flex flex-col bg-bg text-foreground antialiased">
         <ClerkProvider dynamic {...clerk}>
           <CatalogLocaleProvider>{children}</CatalogLocaleProvider>

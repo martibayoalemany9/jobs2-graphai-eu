@@ -4,19 +4,14 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { availabilityLabel, type Availability } from "@/lib/availability"
 import { countryLabel } from "@/lib/country"
 import {
+  CATALOG_LOCALE_BUTTONS,
   CATALOG_LOCALE_STORAGE_KEY,
   DEFAULT_CATALOG_LOCALE,
   isCatalogLocale,
-  specialtyLabel,
   type CatalogLocale,
-} from "@/lib/skills-catalog"
-
-const LOCALE_BUTTONS: { id: CatalogLocale; label: string }[] = [
-  { id: "en", label: "EN" },
-  { id: "de", label: "DE" },
-  { id: "nl", label: "NL" },
-  { id: "fr", label: "FR" },
-]
+} from "@/lib/locales"
+import { specialtyLabel } from "@/lib/skills-catalog"
+import { uiCopy, type UiKey } from "@/lib/ui-copy"
 
 type CatalogLocaleState = {
   locale: CatalogLocale
@@ -35,6 +30,10 @@ export function CatalogLocaleProvider({ children }: { children: React.ReactNode 
     const saved = window.localStorage.getItem(CATALOG_LOCALE_STORAGE_KEY)
     if (isCatalogLocale(saved)) setLocaleState(saved)
   }, [])
+
+  useEffect(() => {
+    document.documentElement.lang = locale
+  }, [locale])
 
   const setLocale = useCallback((next: CatalogLocale) => {
     setLocaleState(next)
@@ -64,16 +63,21 @@ export function useAvailabilityLabel() {
   return useCallback((id: Availability) => availabilityLabel(id, locale), [locale])
 }
 
+export function useUiCopy() {
+  const { locale } = useCatalogLocale()
+  return useCallback((key: UiKey) => uiCopy(locale, key), [locale])
+}
+
 export function CatalogLocaleSwitch() {
   const { locale, setLocale } = useCatalogLocale()
   return (
     <div
       role="group"
-      aria-label="Occupation category language"
+      aria-label="Catalog language"
       data-testid="catalog-locale"
-      className="inline-flex shrink-0 overflow-hidden rounded-md border border-border text-xs font-bold"
+      className="inline-flex max-w-full shrink-0 flex-wrap overflow-hidden rounded-md border border-border text-xs font-bold"
     >
-      {LOCALE_BUTTONS.map((opt) => {
+      {CATALOG_LOCALE_BUTTONS.map((opt) => {
         const on = locale === opt.id
         return (
           <button
@@ -81,7 +85,7 @@ export function CatalogLocaleSwitch() {
             type="button"
             aria-pressed={on}
             data-testid={`catalog-locale-${opt.id}`}
-            className={`px-2 py-1.5 ${on ? "bg-primary text-primary-foreground" : "bg-surface hover:bg-mint"}`}
+            className={`px-1.5 py-1.5 sm:px-2 ${on ? "bg-primary text-primary-foreground" : "bg-surface hover:bg-mint"}`}
             onClick={() => setLocale(opt.id)}
           >
             {opt.label}
