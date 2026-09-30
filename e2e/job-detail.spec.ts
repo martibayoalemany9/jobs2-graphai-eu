@@ -33,6 +33,7 @@ test("job board icons open a listing compare modal", async ({ page }) => {
   await expect(icon).toBeVisible({ timeout: 20_000 })
   await icon.click()
   await expect(page.getByTestId("board-diff-modal")).toBeVisible()
+  await expect(page.getByTestId("board-diff-close")).toBeVisible()
   await expect(page.getByTestId("board-diff-text")).toBeVisible({ timeout: 20_000 })
   await expect(page).toHaveURL(/view=jobs/)
   await page.getByTestId("board-diff-close").click()

@@ -112,7 +112,15 @@ export function BoardDiffModal({
               {data.selected?.title ? ` · ${data.selected.title}` : ""}
             </p>
             {identical ? <p className="mt-2 text-sm text-muted">{copy("board_identical")}</p> : null}
-            <div className="mt-3">{ops.length ? <DiffText ops={ops} /> : null}</div>
+            <div className="mt-3">
+              {data.selected?.text ? (
+                <DiffText ops={ops} />
+              ) : (
+                <p className="text-sm text-muted" data-testid="board-diff-text">
+                  {copy("excerpt_only")}
+                </p>
+              )}
+            </div>
             {data.selected?.url ? (
               <a
                 className="mt-4 inline-block text-sm font-semibold text-studio hover:underline"
