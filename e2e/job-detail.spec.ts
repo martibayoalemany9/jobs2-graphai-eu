@@ -26,6 +26,18 @@ test("skill tags open a certifications modal", async ({ page }) => {
   await expect(page.getByTestId("skill-certs-modal")).toHaveCount(0)
 })
 
+test("employer reply icon opens product modal when present", async ({ page }) => {
+  await page.goto("/?view=jobs")
+  await expect(page.getByTestId("job-list")).toBeVisible({ timeout: 20_000 })
+  const icon = page.getByTestId("employer-reply-icon").first()
+  const n = await icon.count()
+  if (n === 0) return
+  await icon.click()
+  await expect(page.getByTestId("employer-reply-modal")).toBeVisible()
+  await page.getByTestId("employer-reply-close").click()
+  await expect(page.getByTestId("employer-reply-modal")).toHaveCount(0)
+})
+
 test("job board icons open a listing compare modal", async ({ page }) => {
   await page.goto("/?view=jobs")
   await expect(page.getByTestId("job-list")).toBeVisible({ timeout: 20_000 })

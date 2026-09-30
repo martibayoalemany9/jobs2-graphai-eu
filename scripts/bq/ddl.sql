@@ -138,6 +138,16 @@ CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_off
 )
 CLUSTER BY job_key;
 
+CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_offer_comms` (
+  job_key STRING NOT NULL,
+  applied BOOL NOT NULL,
+  reply_product STRING,
+  info_note STRING,
+  updated_at TIMESTAMP NOT NULL
+)
+CLUSTER BY job_key
+OPTIONS (description = "Applied-offer employer reply metadata for jobs2; product name only, never email bodies");
+
 CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.skill_certs_imported` (
   skill_id STRING,
   skill_name STRING,

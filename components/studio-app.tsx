@@ -20,7 +20,9 @@ import { AvailabilityFilter } from "./availability-filter"
 import { JobReport } from "./job-report"
 import { JobSkillTags, type JobSkill } from "./job-skill-tags"
 import { JobBoardIcons } from "./job-board-icons"
+import { EmployerReplyIcon } from "./employer-reply-icon"
 import type { JobBoardMember } from "@/lib/job-boards"
+import type { JobComm } from "@/lib/job-comms"
 import { StudioFooter } from "./studio-footer"
 import { useAvailabilityLabel, useCatalogLocale, useCountryLabel, useSpecialtyLabel, useUiCopy } from "./catalog-locale"
 
@@ -36,6 +38,7 @@ type Job = {
   availability: string
   skills?: JobSkill[]
   boards?: JobBoardMember[]
+  comm?: JobComm | null
 }
 
 function useQueryView() {
@@ -398,6 +401,7 @@ export function StudioApp() {
                       {j.title}
                     </Link>
                     <JobBoardIcons jobKey={j.job_key} boards={j.boards || []} />
+                    <EmployerReplyIcon company={j.company} comm={j.comm} />
                   </div>
                   <div className="text-sm text-muted" data-testid="job-location-line">
                     {j.company}

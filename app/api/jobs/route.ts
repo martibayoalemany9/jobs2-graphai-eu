@@ -7,6 +7,7 @@ import { sessionCap } from "@/lib/session-entitlement"
 import { formatLocationLine, isRemoteFlag, resolveJobLocation } from "@/lib/location"
 import { loadSkillsByJobKeys } from "@/lib/job-skills"
 import { loadBoardsByMasterKeys, masterBoardsJoin, masterCapSql } from "@/lib/load-job-boards"
+import { loadCommsByJobKeys } from "@/lib/job-comms"
 
 export const dynamic = "force-dynamic"
 
@@ -88,9 +89,10 @@ export async function GET(req: Request) {
       params,
     )
     const keys = rows.map((r) => r.job_key)
-    const [skillsByJob, boardsByJob] = await Promise.all([
+    const [skillsByJob, boardsByJob, commsByJob] = await Promise.all([
       loadSkillsByJobKeys(keys, 12),
       loadBoardsByMasterKeys(keys),
+      loadCommsByJobKeys(keys),
     ])
     return NextResponse.json({
       jobs: rows.map((r) => {
@@ -111,6 +113,7 @@ export async function GET(req: Request) {
           used_headquarters: loc.usedHeadquarters,
           skills: skillsByJob.get(r.job_key) || [],
           boards: boardsByJob.get(r.job_key) || [],
+          comm: commsByJob.get(r.job_key) || null,
         }
       }),
       entitlement: { ...sess.entitlement, truncated: cap != null },

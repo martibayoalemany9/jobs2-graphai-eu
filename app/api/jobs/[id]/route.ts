@@ -5,6 +5,7 @@ import { sessionCap } from "@/lib/session-entitlement"
 import { formatLocationLine, isRemoteFlag, resolveJobLocation } from "@/lib/location"
 import { loadSkillsByJobKeys } from "@/lib/job-skills"
 import { loadBoardsByMasterKeys, lookupBoardLink, masterBoardsJoin, masterCapSql } from "@/lib/load-job-boards"
+import { loadCommsByJobKeys } from "@/lib/job-comms"
 
 export const dynamic = "force-dynamic"
 
@@ -57,7 +58,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
       if (d[0]?.description) description = d[0].description
     }
 
-    const [certs, skillsByJob, boardsByJob] = await Promise.all([
+    const [certs, skillsByJob, boardsByJob, commsByJob] = await Promise.all([
       bqQuery<Record<string, string>>(
         `SELECT certification_name, provider, certification_url, match_kind, cert_id
          FROM ${table("job_offer_certs")} WHERE job_key = @id LIMIT 24`,
@@ -65,6 +66,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
       ),
       loadSkillsByJobKeys([job.job_key], 16),
       loadBoardsByMasterKeys([job.job_key]),
+      loadCommsByJobKeys([job.job_key]),
     ])
     const boards = boardsByJob.get(job.job_key) || []
     const selectedBoard = link?.board_id || boards.find((b) => b.is_master)?.board_id || null
@@ -121,6 +123,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
         boards,
         selected_board: selectedBoard,
         selected_is_master: selectedIsMaster,
+        comm: commsByJob.get(job.job_key) || null,
       },
       certs,
       conferences,
