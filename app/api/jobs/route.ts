@@ -69,9 +69,17 @@ export async function GET(req: Request) {
       availability: string
       description_excerpt: string
       specialties: string[]
+      skills: { skill_id: string; skill_label: string }[]
     }>(
       `SELECT j.job_key, ${TRANSLATED_TITLE_SQL}, j.company, j.country_iso2, j.job_location, j.headquarters_location, j.is_remote,
-              j.public_rank, j.availability, ${TRANSLATED_EXCERPT_SQL}, j.specialties
+              j.public_rank, j.availability, ${TRANSLATED_EXCERPT_SQL}, j.specialties,
+              ARRAY(
+                SELECT AS STRUCT s.skill_id, s.skill_label
+                FROM ${table("job_offer_skills")} s
+                WHERE s.job_key = j.job_key
+                ORDER BY s.skill_id
+                LIMIT 12
+              ) AS skills
        FROM ${table("job_offers_country")} j
        ${jobTranslationJoin()}
        WHERE ${countrySql}

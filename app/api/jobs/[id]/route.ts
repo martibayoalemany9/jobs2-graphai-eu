@@ -30,9 +30,17 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
       description_len: unknown
       specialties: string[]
       public_rank: unknown
+      skills: { skill_id: string; skill_label: string }[]
     }>(
       `SELECT j.job_key, j.url, ${TRANSLATED_TITLE_SQL}, j.company, j.country_iso2, j.job_location, j.headquarters_location, j.is_remote,
-              j.appeared_at, j.availability, ${TRANSLATED_EXCERPT_SQL}, j.description_len, j.specialties, j.public_rank
+              j.appeared_at, j.availability, ${TRANSLATED_EXCERPT_SQL}, j.description_len, j.specialties, j.public_rank,
+              ARRAY(
+                SELECT AS STRUCT s.skill_id, s.skill_label
+                FROM ${table("job_offer_skills")} s
+                WHERE s.job_key = j.job_key
+                ORDER BY s.skill_id
+                LIMIT 16
+              ) AS skills
        FROM ${table("job_offers_country")} j
        ${jobTranslationJoin()}
        WHERE j.job_key = @id ${capSql}
@@ -105,6 +113,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
         display_location: formatLocationLine({ ...loc, remote: isRemoteFlag(job.is_remote, job.title) }),
         used_headquarters: loc.usedHeadquarters,
         headquarters_location: loc.headquarters,
+        skills: job.skills || [],
       },
       certs,
       conferences,

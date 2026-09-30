@@ -18,6 +18,7 @@ import { SKILL_CATALOG } from "@/lib/skills-catalog"
 import type { Entitlement } from "@/lib/entitlement"
 import { AvailabilityFilter } from "./availability-filter"
 import { JobReport } from "./job-report"
+import { JobSkillTags, type JobSkill } from "./job-skill-tags"
 import { StudioFooter } from "./studio-footer"
 import { useAvailabilityLabel, useCatalogLocale, useCountryLabel, useSpecialtyLabel, useUiCopy } from "./catalog-locale"
 
@@ -31,6 +32,7 @@ type Job = {
   display_location?: string
   used_headquarters?: boolean
   availability: string
+  skills?: JobSkill[]
 }
 
 function useQueryView() {
@@ -406,6 +408,7 @@ export function StudioApp() {
                     ) : null}{" "}
                     · {j.availability === "probably_unavailable" ? availOf("probably_unavailable") : availOf("available")}
                   </div>
+                  <JobSkillTags skills={j.skills || []} />
                   <div className="mt-1">
                     <JobReport jobKey={j.job_key} title={j.title} company={j.company} compact />
                   </div>

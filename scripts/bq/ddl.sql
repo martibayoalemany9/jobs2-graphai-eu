@@ -41,6 +41,24 @@ CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_off
 CLUSTER BY country_iso2, public_rank
 OPTIONS (description = "jobs2 serving table; never SELECT apply_jobs.job_offers from the web app");
 
+CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.skill_needles` (
+  id STRING NOT NULL,
+  label STRING,
+  needle STRING NOT NULL,
+  boundary BOOL,
+  rx STRING
+)
+CLUSTER BY id;
+
+CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_offer_skills` (
+  job_key STRING NOT NULL,
+  skill_id STRING NOT NULL,
+  skill_label STRING,
+  evidence STRING,
+  source STRING
+)
+CLUSTER BY job_key, skill_id;
+
 CREATE TABLE IF NOT EXISTS `poetic-sentinel-402405.apply_jobs_jobs2_prod.job_offer_certs` (
   job_url STRING NOT NULL,
   job_key STRING NOT NULL,

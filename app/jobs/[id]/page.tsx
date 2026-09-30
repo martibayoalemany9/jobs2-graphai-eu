@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { JobReport } from "@/components/job-report"
+import { JobSkillTags } from "@/components/job-skill-tags"
 import { useCatalogLocale, useUiCopy } from "@/components/catalog-locale"
 import { StudioHeader } from "@/components/studio-header"
 
@@ -22,8 +23,9 @@ type Detail = {
     description: string
     full_description: boolean
     availability: string
+    skills?: { skill_id: string; skill_label?: string }[]
   }
-  certs?: { certification_name: string; provider: string; certification_url: string }[]
+  certs?: { cert_id?: string; certification_name: string; provider: string; certification_url: string }[]
   conferences?: { conference_name: string; conference_url: string; location: string }[]
   talks?: { talk_title: string; talk_url: string; conference_name: string }[]
   learn?: { name: string; uri: string; provider: string }[]
@@ -73,6 +75,7 @@ export default function JobDetailPage() {
             <a className="mt-2 inline-block font-semibold text-studio hover:underline" href={job.url} rel="noopener noreferrer" target="_blank">
               {copy("open_listing")}
             </a>
+            <JobSkillTags skills={job.skills || []} jobCerts={data?.certs || []} />
             <article className="mt-6 whitespace-pre-wrap text-sm leading-6">
               {job.description || "No description excerpt on this listing. Open the employer listing for the full text."}
             </article>
